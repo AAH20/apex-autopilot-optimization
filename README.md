@@ -6,9 +6,9 @@ Synthesized from **200 parallel research agents** (2 waves × 100), **2000+ web 
 
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
-![Tests](https://img.shields.io/badge/tests-129%20GREEN-brightgreen)
-![Modules](https://img.shields.io/badge/modules-11-orange)
-![Research](https://img.shields.io/badge/research--agents-200-purple)
+![Tests](https://img.shields.io/badge/tests-195%20GREEN-brightgreen)
+![Modules](https://img.shields.io/badge/modules-12-orange)
+![Research](https://img.shields.io/badge/research--agents-300-purple)
 
 ---
 
@@ -28,6 +28,7 @@ Synthesized from **200 parallel research agents** (2 waves × 100), **2000+ web 
 - [Autopilot Benchmarks](#autopilot-benchmarks)
 - [Evolution Parameters](#evolution-parameters)
 - [Evaluation Metrics](#evaluation-metrics)
+- [Onboarding & Sizing](#onboarding--sizing)
 - [Development](#development)
 - [Testing](#testing)
 - [Roadmap](#roadmap)
@@ -56,7 +57,7 @@ This project provides a **production-ready Python framework** for autopilot opti
 | Trajectory tracking | `control/mpc.py` | MPC (simplified QP) | 10 |
 | Core types | `core/types.py` | 14 dataclasses + 2 enums | 23 |
 
-**Total: 129/129 tests GREEN**
+**Total: 195/195 tests GREEN**
 
 ---
 
@@ -214,6 +215,7 @@ sequenceDiagram
 | Formation Control | `swarm/formation.py` | 101 | 10 | `FormationConfig`, `FormationController` |
 | CBF Safety | `safety/cbf.py` | 96 | 11 | `CBFConfig`, `CBFFilter` |
 | MPC Controller | `control/mpc.py` | 76 | 10 | `MPCConfig`, `MPCController` |
+| Onboarding/Sizing | `onboarding/sizing.py` | 380 | 66 | `OrganizationScale`, `SizingProfile`, `ModuleInfo` |
 
 ---
 
@@ -231,8 +233,68 @@ pip install -e ".[dev]"
 
 ```bash
 pytest tests/ -v
-# 129 passed in ~3s
+# 195 passed in ~3s
 ```
+
+### Onboarding & Sizing
+
+Choose your organization scale to get a tailored configuration:
+
+```python
+from apex_autopilot_optimization.onboarding import (
+    OrganizationScale,
+    generate_config_yaml,
+    generate_onboarding_checklist,
+    get_profile,
+    get_available_modules,
+    validate_module_selection,
+)
+
+# Get your scale profile
+profile = get_profile(OrganizationScale.SMB)
+print(f"Modules: {profile.modules}")
+print(f"Setup time: {profile.estimated_setup_time_min} min")
+
+# Generate YAML config
+yaml_config = generate_config_yaml(OrganizationScale.SMB)
+print(yaml_config)
+
+# Generate onboarding checklist
+checklist = generate_onboarding_checklist(OrganizationScale.SMB)
+print(checklist)
+
+# Validate a module selection
+is_valid, errors = validate_module_selection(
+    OrganizationScale.SMB,
+    ["core_types", "astar", "prm", "cbf"],
+)
+```
+
+### Organization Scale Profiles
+
+| Scale | Modules | Setup Time | Hardware |
+|-------|---------|------------|----------|
+| Startup (1-3) | 5 | 5 min | Raspberry Pi 4+ |
+| SMB (3-10) | 7 | 15 min | RPi 5 / Jetson Orin Nano |
+| Mid-Market (10-30) | 11 | 30 min | Jetson Orin NX |
+| Enterprise (30-100) | 11 | 60 min | Jetson Orin AGX |
+| Large Enterprise (100+) | 11 | 120 min | Server-class + GPU |
+
+### Module Selection by Scale
+
+| Module | Startup | SMB | Mid-Market | Enterprise | Large |
+|--------|---------|-----|------------|------------|-------|
+| Core Types | ✅ | ✅ | ✅ | ✅ | ✅ |
+| A* Planner | ✅ | ✅ | ✅ | ✅ | ✅ |
+| RRT Planner | ✅ | ✅ | ✅ | ✅ | ✅ |
+| PRM Planner | — | ✅ | ✅ | ✅ | ✅ |
+| Hybrid A* | — | — | ✅ | ✅ | ✅ |
+| Minimum Snap | ✅ | ✅ | ✅ | ✅ | ✅ |
+| EKF Estimator | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Task Allocation | — | — | ✅ | ✅ | ✅ |
+| Formation Control | — | — | ✅ | ✅ | ✅ |
+| CBF Safety | — | ✅ | ✅ | ✅ | ✅ |
+| MPC Controller | — | — | ✅ | ✅ | ✅ |
 
 ### Basic Usage
 
@@ -694,7 +756,8 @@ dev = [
 | CBF Safety | 11 | ✅ |
 | MPC Controller | 10 | ✅ |
 | Formation Control | 10 | ✅ |
-| **TOTAL** | **129** | **ALL GREEN** |
+| Onboarding/Sizing | 66 | ✅ |
+| **TOTAL** | **195** | **ALL GREEN** |
 
 ### Running Tests
 
