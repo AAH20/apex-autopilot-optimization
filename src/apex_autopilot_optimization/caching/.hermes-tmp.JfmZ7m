@@ -1,0 +1,93 @@
+"""Memoization decorator and hashable cache-key generation."""
+
+from __future__ import annotations
+
+import functools
+import inspect
+from collections.abc import Callable
+from typing import Any
+
+from apex_autopilot_optimization.caching.lru import LRUCache
+from apex_autopilot_optimization.caching.ttl import TTLCache
+
+__all__ = ["cache_key", "memoize"]
+
+# Sentinel distinguishing "not in cache" from a cached None.
+_NOT_FOUND = object()
+
+
+def _make_hashable(obj: Any) -> Any:
+    """Recursively convert lists/dicts to hashable tuples."""
+    if isinstance(obj, list):
+        return tuple(_make_hashable(item) for item in obj)
+    if isinstance(obj, dict):
+        return tuple(sorted((k, _make_hashable(v)) for k, v in obj.items()))
+    return obj
+
+
+def cache_key(*args: Any, **kwargs: Any) -> Any:
+    """Build a hashable key from positional and keyword arguments.
+
+    - No arguments returns the empty tuple.
+    - A single positional argument is converted directly (so a list becomes
+      a tuple rather than being wrapped in another tuple).
+    - Multiple arguments produce a tuple of the converted values; keyword
+      arguments are appended as a sorted tuple of items for determinism.
+    """
+    if not args and not kwargs:
+        return ()
+    if len(args) == 1 and not kwargs:
+        return _make_hashable(args[0])
+    kwargs_key = tuple(sorted(kwargs.items())) if kwargs else ()
+    if not args:
+        return kwargs_key
+    return tuple(_make_hashable(a) for a in args) + kwargs_key
+
+
+def memoize(
+    max_size: int = 128,
+    ttl_seconds: float | None = None,
+) -> Callable:
+    """Cache a function's results with an LRU or TTL backend.
+
+    Parameters
+    ----------
+    max_size:
+        Maximum number of cached results.  ``0`` disables caching.
+    ttl_seconds:
+        When given, entries expire after this many seconds (TTLCache);
+        otherwise entries live until evicted by capacity (LRUCache).
+
+    Notes
+    -----
+    The wrapped function's signature is inspected so that calls which differ
+    only in default-valued arguments share a single cache entry.  Results
+    that raise are never cached.
+    """
+
+    def decorator(func: Callable) -> Callable:
+        sig = inspect.signature(func)
+
+        if ttl_seconds is not None:
+            cache: LRUCache | TTLCache = TTLCache(max_size=max_size)
+        else:
+            cache = LRUCache(max_size=max_size)
+
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            bound = sig.bind(*args, **kwargs)
+            bound.apply_defaults()
+            key = cache_key(*bound.args, **bound.kwargs)
+            result = cache.get_or_default(key, _NOT_FOUND)
+            if result is not _NOT_FOUND:
+                return result
+            result = func(*args, **kwargs)
+            if ttl_seconds is not None:
+                cache.put(key, result, ttl_seconds=ttl_seconds)
+            else:
+                cache.put(key, result)
+            return result
+
+        return wrapper
+
+    return decorator
