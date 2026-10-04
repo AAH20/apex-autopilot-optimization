@@ -6,8 +6,8 @@ Synthesized from **200 parallel research agents** (2 waves × 100), **2000+ web 
 
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
-![Tests](https://img.shields.io/badge/tests-216%20GREEN-brightgreen)
-![Modules](https://img.shields.io/badge/modules-13-orange)
+![Tests](https://img.shields.io/badge/tests-264%20GREEN-brightgreen)
+![Modules](https://img.shields.io/badge/modules-16-orange)
 ![Research](https://img.shields.io/badge/research--agents-300-purple)
 
 ---
@@ -57,7 +57,7 @@ This project provides a **production-ready Python framework** for autopilot opti
 | Trajectory tracking | `control/mpc.py` | MPC (simplified QP) | 10 |
 | Core types | `core/types.py` | 14 dataclasses + 2 enums | 23 |
 
-**Total: 216/216 tests GREEN**
+**Total: 264/264 tests GREEN**
 
 ---
 
@@ -217,6 +217,9 @@ sequenceDiagram
 | MPC Controller | `control/mpc.py` | 76 | 10 | `MPCConfig`, `MPCController` |
 | Onboarding/Sizing | `onboarding/sizing.py` | 380 | 66 | `OrganizationScale`, `SizingProfile`, `ModuleInfo` |
 | Diagnostics | `diagnostics.py` | 310 | 21 | `run_diagnostics`, `format_report`, `DiagnosticReport` |
+| Quickstart | `quickstart.py` | 160 | 16 | `DemoScenario`, `QuickstartRunner`, `run_demo` |
+| Setup Wizard | `setup_wizard.py` | 180 | 14 | `SetupWizard`, `WizardStep`, `run_setup` |
+| Config Validator | `config_validator.py` | 280 | 18 | `ConfigValidator`, `validate_config`, `validate_module_config` |
 
 ---
 
@@ -234,7 +237,7 @@ pip install -e ".[dev]"
 
 ```bash
 pytest tests/ -v
-# 216 passed in ~3s
+# 264 passed in ~3s
 ```
 
 ### Onboarding & Sizing
@@ -285,6 +288,54 @@ print(format_report(report))
 # Check specific results
 print(f"Passed: {report.passed}/{report.total}")
 print(f"Healthy: {report.healthy}")
+```
+
+### Quickstart
+
+Run a guided demo for your organization scale:
+
+```python
+from apex_autopilot_optimization.quickstart import run_demo, list_scenarios
+
+# List available scenarios
+for scenario in list_scenarios():
+    print(f"{scenario.name}: {scenario.description}")
+
+# Run a demo
+result = run_demo("startup")
+print(f"Completed {result['steps_completed']} steps")
+print(f"Modules used: {result['modules_used']}")
+```
+
+### Setup Wizard
+
+Run the interactive setup wizard:
+
+```python
+from apex_autopilot_optimization.setup_wizard import run_setup
+
+# Run all setup steps
+result = run_setup()
+print(f"Status: {result['status']}")
+print(f"Completed: {result['completed']}/{result['total']}")
+```
+
+### Configuration Validator
+
+Validate your configuration before running:
+
+```python
+from apex_autopilot_optimization.config_validator import validate_config, validate_module_config
+
+# Validate global config
+issues = validate_config({"scale": "smb", "planner": "astar"})
+for issue in issues:
+    print(f"[{issue.severity.value}] {issue.field}: {issue.message}")
+
+# Validate module config
+issues = validate_module_config("astar", {"grid_size": 1.0, "heuristic_weight": 1.0})
+for issue in issues:
+    print(f"[{issue.severity.value}] {issue.field}: {issue.message}")
 ```
 
 ### Organization Scale Profiles
@@ -775,7 +826,10 @@ dev = [
 | Formation Control | 10 | ✅ |
 | Onboarding/Sizing | 66 | ✅ |
 | Diagnostics | 21 | ✅ |
-| **TOTAL** | **216** | **ALL GREEN** |
+| Quickstart | 16 | ✅ |
+| Setup Wizard | 14 | ✅ |
+| Config Validator | 18 | ✅ |
+| **TOTAL** | **264** | **ALL GREEN** |
 
 ### Running Tests
 
