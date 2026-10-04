@@ -8,8 +8,8 @@ observability gaps identified by 100 research agents across 2 waves.
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -29,7 +29,7 @@ class StructuredLogger:
         self.service_name = service_name
         self.log_level = log_level
 
-    def _log(self, level: str, message: str, **context: Any) -> Dict[str, Any]:
+    def _log(self, level: str, message: str, **context: Any) -> dict[str, Any]:
         """Create a structured log entry."""
         return {
             "timestamp": int(time.time()),
@@ -39,19 +39,19 @@ class StructuredLogger:
             "context": context,
         }
 
-    def info(self, message: str, **context: Any) -> Dict[str, Any]:
+    def info(self, message: str, **context: Any) -> dict[str, Any]:
         """Log an info message."""
         return self._log("INFO", message, **context)
 
-    def error(self, message: str, **context: Any) -> Dict[str, Any]:
+    def error(self, message: str, **context: Any) -> dict[str, Any]:
         """Log an error message."""
         return self._log("ERROR", message, **context)
 
-    def warning(self, message: str, **context: Any) -> Dict[str, Any]:
+    def warning(self, message: str, **context: Any) -> dict[str, Any]:
         """Log a warning message."""
         return self._log("WARNING", message, **context)
 
-    def debug(self, message: str, **context: Any) -> Dict[str, Any]:
+    def debug(self, message: str, **context: Any) -> dict[str, Any]:
         """Log a debug message."""
         return self._log("DEBUG", message, **context)
 
@@ -60,7 +60,7 @@ class MetricCollector:
     """Metrics collector for RED metrics and Four Golden Signals."""
 
     def __init__(self) -> None:
-        self._metrics: Dict[str, Any] = {}
+        self._metrics: dict[str, Any] = {}
 
     def increment(self, name: str, value: int = 1) -> None:
         """Increment a counter metric."""
@@ -80,7 +80,7 @@ class MetricCollector:
             self._metrics[name] = []
         self._metrics[name].append(value)
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Get all collected metrics."""
         return dict(self._metrics)
 
@@ -88,7 +88,7 @@ class MetricCollector:
 class HealthCheck:
     """Health check for liveness and readiness probes."""
 
-    def check(self, service_name: str) -> Dict[str, Any]:
+    def check(self, service_name: str) -> dict[str, Any]:
         """Perform a health check."""
         return {
             "service": service_name,
@@ -110,7 +110,7 @@ class ObservabilityManager:
         self.collector = MetricCollector()
         self.health_check = HealthCheck()
 
-    def log(self, level: str, message: str, **context: Any) -> Dict[str, Any]:
+    def log(self, level: str, message: str, **context: Any) -> dict[str, Any]:
         """Log a message at the given level."""
         if level == "INFO":
             return self.logger.info(message, **context)
@@ -126,22 +126,22 @@ class ObservabilityManager:
         """Collect a metric."""
         self.collector.gauge(name, value)
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Get all metrics."""
         return self.collector.get_metrics()
 
-    def health(self) -> Dict[str, Any]:
+    def health(self) -> dict[str, Any]:
         """Perform health check."""
         return self.health_check.check(self.config.service_name)
 
 
-def check_health(service_name: str) -> Dict[str, Any]:
+def check_health(service_name: str) -> dict[str, Any]:
     """Check health of a service."""
     check = HealthCheck()
     return check.check(service_name)
 
 
-def collect_metrics() -> Dict[str, Any]:
+def collect_metrics() -> dict[str, Any]:
     """Collect default metrics."""
     collector = MetricCollector()
     collector.gauge("cpu_usage", 0.0)
@@ -155,7 +155,7 @@ def create_logger(service_name: str, log_level: str = "INFO") -> StructuredLogge
     return StructuredLogger(service_name, log_level)
 
 
-def format_metric(name: str, value: float, metric_type: str) -> Dict[str, Any]:
+def format_metric(name: str, value: float, metric_type: str) -> dict[str, Any]:
     """Format a metric for export."""
     return {
         "name": name,

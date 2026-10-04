@@ -8,10 +8,9 @@ evaluation, and diagnostics.
 
 from __future__ import annotations
 
-import importlib
 from abc import ABC, abstractmethod
 from importlib.metadata import entry_points
-from typing import Any, Dict, List, Optional, Type
+from typing import Any
 
 from apex_autopilot_optimization.benchmark import (
     BenchmarkConfig,
@@ -33,7 +32,7 @@ class Plugin(ABC):
     version: str = "0.1.0"
 
     @abstractmethod
-    def run(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def run(self, config: dict[str, Any]) -> dict[str, Any]:
         """Execute the plugin with the given configuration.
 
         Args:
@@ -51,7 +50,7 @@ class BenchmarkPlugin(Plugin):
     name = "benchmark"
     version = "1.0.0"
 
-    def run(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def run(self, config: dict[str, Any]) -> dict[str, Any]:
         """Run a benchmark and return the result as a dict."""
         benchmark_config = BenchmarkConfig(
             name=config.get("name", "benchmark"),
@@ -70,7 +69,7 @@ class EvaluationPlugin(Plugin):
     name = "evaluation"
     version = "1.0.0"
 
-    def run(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def run(self, config: dict[str, Any]) -> dict[str, Any]:
         """Run an evaluation and return the result as a dict."""
         evaluation_config = EvaluationConfig(
             name=config.get("name", "evaluation"),
@@ -89,7 +88,7 @@ class DiagnosticsPlugin(Plugin):
     name = "diagnostics"
     version = "1.0.0"
 
-    def run(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def run(self, config: dict[str, Any]) -> dict[str, Any]:
         """Run diagnostics and return the report as a dict."""
         report = run_diagnostics()
         return report.to_dict()
@@ -99,7 +98,7 @@ class PluginRegistry:
     """Registry for discovering, listing, and executing plugins."""
 
     def __init__(self) -> None:
-        self._plugins: Dict[str, Plugin] = {}
+        self._plugins: dict[str, Plugin] = {}
 
     def register(self, plugin: Plugin) -> None:
         """Register a plugin instance by its name.
@@ -111,9 +110,7 @@ class PluginRegistry:
             ValueError: If a plugin with the same name is already registered.
         """
         if plugin.name in self._plugins:
-            raise ValueError(
-                f"Plugin '{plugin.name}' is already registered"
-            )
+            raise ValueError(f"Plugin '{plugin.name}' is already registered")
         self._plugins[plugin.name] = plugin
 
     def unregister(self, name: str) -> None:
@@ -145,7 +142,7 @@ class PluginRegistry:
             raise KeyError(f"Plugin '{name}' is not registered")
         return self._plugins[name]
 
-    def list_plugins(self) -> List[str]:
+    def list_plugins(self) -> list[str]:
         """List the names of all registered plugins.
 
         Returns:
@@ -153,7 +150,7 @@ class PluginRegistry:
         """
         return sorted(self._plugins.keys())
 
-    def execute(self, name: str, config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def execute(self, name: str, config: dict[str, Any] | None = None) -> dict[str, Any]:
         """Execute a registered plugin by name.
 
         Args:
@@ -169,7 +166,7 @@ class PluginRegistry:
         plugin = self.get(name)
         return plugin.run(config or {})
 
-    def discover(self) -> List[str]:
+    def discover(self) -> list[str]:
         """Discover plugins via importlib.metadata entry points.
 
         Looks up entry points in the ``apex_autopilot_plugins`` group,
@@ -178,22 +175,16 @@ class PluginRegistry:
         Returns:
             A sorted list of names of newly discovered and registered plugins.
         """
-        discovered: List[str] = []
-        try:
-            eps = entry_points(group=ENTRY_POINT_GROUP)
-        except TypeError:
-            # Python < 3.10 fallback
-            all_eps = entry_points()  # type: ignore[call-arg]
-            eps = all_eps.get(ENTRY_POINT_GROUP, [])
+        discovered: list[str] = []
+        eps: Any = entry_points(group=ENTRY_POINT_GROUP)
 
         for ep in eps:
             try:
                 plugin_class = ep.load()
                 plugin = plugin_class()
-                if isinstance(plugin, Plugin):
-                    if plugin.name not in self._plugins:
-                        self._plugins[plugin.name] = plugin
-                        discovered.append(plugin.name)
+                if isinstance(plugin, Plugin) and plugin.name not in self._plugins:
+                    self._plugins[plugin.name] = plugin
+                    discovered.append(plugin.name)
             except Exception:
                 continue
 

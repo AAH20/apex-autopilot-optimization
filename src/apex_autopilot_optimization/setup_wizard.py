@@ -6,8 +6,9 @@ progress tracking, and validation to ensure proper configuration.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -18,7 +19,7 @@ class WizardStep:
     description: str
     action: Callable[[], Any]
     skippable: bool = False
-    condition: Optional[Callable[[], bool]] = None
+    condition: Callable[[], bool] | None = None
 
 
 @dataclass
@@ -28,13 +29,14 @@ class WizardResult:
     completed: int
     total: int
     status: str
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 def _check_installation() -> str:
     """Check if the package is properly installed."""
     try:
         import apex_autopilot_optimization  # noqa: F401
+
         return "Package installed successfully"
     except ImportError as e:
         return f"Installation issue: {e}"
@@ -60,9 +62,11 @@ def _check_dependencies() -> str:
 def _check_python_version() -> str:
     """Check Python version compatibility."""
     import sys
-    if sys.version_info >= (3, 11):
-        return f"Python {sys.version_info.major}.{sys.version_info.minor} is supported"
-    return f"Python {sys.version_info.major}.{sys.version_info.minor} - upgrade to 3.11+ recommended"
+
+    return f"Python {sys.version_info.major}.{sys.version_info.minor} is supported"
+    return (
+        f"Python {sys.version_info.major}.{sys.version_info.minor} - upgrade to 3.11+ recommended"
+    )
 
 
 def _check_modules() -> str:
@@ -105,7 +109,7 @@ def _run_tests() -> str:
     return "Tests available: run 'pytest tests/ -q' to verify"
 
 
-def get_default_steps() -> List[WizardStep]:
+def get_default_steps() -> list[WizardStep]:
     """Get the default setup wizard steps."""
     return [
         WizardStep(
@@ -151,12 +155,12 @@ def get_default_steps() -> List[WizardStep]:
 class SetupWizard:
     """Interactive setup wizard."""
 
-    def __init__(self, steps: Optional[List[WizardStep]] = None) -> None:
+    def __init__(self, steps: list[WizardStep] | None = None) -> None:
         self.steps = steps or get_default_steps()
-        self._completed: List[str] = []
-        self._results: Dict[str, Any] = {}
+        self._completed: list[str] = []
+        self._results: dict[str, Any] = {}
 
-    def run(self, skip_first: bool = False) -> Dict[str, Any]:
+    def run(self, skip_first: bool = False) -> dict[str, Any]:
         """Run all wizard steps and return results."""
         self._completed = []
         self._results = {}
@@ -191,7 +195,7 @@ class SetupWizard:
             "details": self._results,
         }
 
-    def get_progress(self) -> Dict[str, Any]:
+    def get_progress(self) -> dict[str, Any]:
         """Get current wizard progress."""
         total = len(self.steps)
         completed = len(self._completed)
@@ -209,7 +213,7 @@ class SetupWizard:
         self._results = {}
 
 
-def run_setup() -> Dict[str, Any]:
+def run_setup() -> dict[str, Any]:
     """Run the setup wizard with default steps."""
     wizard = SetupWizard()
     return wizard.run()

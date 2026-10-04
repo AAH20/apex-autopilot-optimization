@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
-from numpy.typing import NDArray
 
 from apex_autopilot_optimization.core.types import (
     ControlInput,
@@ -40,18 +39,24 @@ class MPCController:
     ) -> ControlInput:
         """Compute control input to track target state."""
         # Compute position error
-        pos_error = np.array([
-            target.pose.x - state.pose.x,
-            target.pose.y - state.pose.y,
-            target.pose.z - state.pose.z,
-        ], dtype=np.float64)
+        pos_error = np.array(
+            [
+                target.pose.x - state.pose.x,
+                target.pose.y - state.pose.y,
+                target.pose.z - state.pose.z,
+            ],
+            dtype=np.float64,
+        )
 
         # Compute velocity error
-        vel_error = np.array([
-            target.velocity.vx - state.velocity.vx,
-            target.velocity.vy - state.velocity.vy,
-            target.velocity.vz - state.velocity.vz,
-        ], dtype=np.float64)
+        vel_error = np.array(
+            [
+                target.velocity.vx - state.velocity.vx,
+                target.velocity.vy - state.velocity.vy,
+                target.velocity.vz - state.velocity.vz,
+            ],
+            dtype=np.float64,
+        )
 
         # Simple proportional control with horizon-based scaling
         # In a full MPC, this would solve a QP over the horizon

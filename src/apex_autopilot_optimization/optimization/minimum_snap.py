@@ -16,7 +16,6 @@ from apex_autopilot_optimization.core.types import (
     StateVector,
     Trajectory,
     Velocity3D,
-    Waypoint,
 )
 
 
@@ -184,7 +183,9 @@ class MinimumSnapOptimizer:
         """Build Trajectory from state list."""
         n = len(states)
         if n == 0:
-            return Trajectory(states=[], controls=[], timestamps=np.array([]), vehicle_type=problem.vehicle_type)
+            return Trajectory(
+                states=[], controls=[], timestamps=np.array([]), vehicle_type=problem.vehicle_type
+            )
 
         timestamps = np.array([s.timestamp for s in states], dtype=np.float64)
         controls = [ControlInput() for _ in range(n)]

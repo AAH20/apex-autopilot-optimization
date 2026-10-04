@@ -2,15 +2,12 @@
 
 from __future__ import annotations
 
-import pytest
-
 from apex_autopilot_optimization.core.types import (
     PlanningProblem,
-    PlanningResult,
     Pose3D,
     StateVector,
-    Velocity3D,
     VehicleType,
+    Velocity3D,
     Waypoint,
 )
 from apex_autopilot_optimization.planning.rrt import RRTConfig, RRTPlanner

@@ -50,8 +50,6 @@ class TestEKFEstimator:
         ekf._state[6] = 1.0  # vx = 1.0
         initial_state = ekf.get_state()
         assert initial_state is not None
-        initial_x = initial_state.pose.x
-
         ekf.predict(dt=0.1)
         new_state = ekf.get_state()
         assert new_state is not None

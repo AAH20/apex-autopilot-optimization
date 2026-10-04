@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-import pytest
-
+from apex_autopilot_optimization.control.mpc import MPCConfig, MPCController
 from apex_autopilot_optimization.core.types import (
     ControlInput,
     Pose3D,
     StateVector,
     Velocity3D,
 )
-from apex_autopilot_optimization.control.mpc import MPCConfig, MPCController
 
 
 class TestMPCConfig:

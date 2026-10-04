@@ -7,7 +7,7 @@ enabling users to quickly experience the framework's capabilities.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -23,7 +23,7 @@ class DemoScenario:
 
 # ── Scenario Registry ───────────────────────────────────────────────────────
 
-SCENARIOS: Dict[str, DemoScenario] = {
+SCENARIOS: dict[str, DemoScenario] = {
     "startup": DemoScenario(
         name="startup",
         description="Basic path planning and trajectory optimization",
@@ -56,8 +56,17 @@ SCENARIOS: Dict[str, DemoScenario] = {
         description="Full planning, control, and swarm capabilities",
         scale="mid_market",
         modules=(
-            "core_types", "astar", "rrt", "prm", "hybrid_astar",
-            "minimum_snap", "ekf", "task_allocation", "formation", "cbf", "mpc",
+            "core_types",
+            "astar",
+            "rrt",
+            "prm",
+            "hybrid_astar",
+            "minimum_snap",
+            "ekf",
+            "task_allocation",
+            "formation",
+            "cbf",
+            "mpc",
         ),
         steps=(
             "Initialize Hybrid A* planner",
@@ -75,8 +84,17 @@ SCENARIOS: Dict[str, DemoScenario] = {
         description="Full capabilities with governance and metrics",
         scale="enterprise",
         modules=(
-            "core_types", "astar", "rrt", "prm", "hybrid_astar",
-            "minimum_snap", "ekf", "task_allocation", "formation", "cbf", "mpc",
+            "core_types",
+            "astar",
+            "rrt",
+            "prm",
+            "hybrid_astar",
+            "minimum_snap",
+            "ekf",
+            "task_allocation",
+            "formation",
+            "cbf",
+            "mpc",
         ),
         steps=(
             "Initialize all planners and controllers",
@@ -96,8 +114,17 @@ SCENARIOS: Dict[str, DemoScenario] = {
         description="Distributed operations with high availability",
         scale="large",
         modules=(
-            "core_types", "astar", "rrt", "prm", "hybrid_astar",
-            "minimum_snap", "ekf", "task_allocation", "formation", "cbf", "mpc",
+            "core_types",
+            "astar",
+            "rrt",
+            "prm",
+            "hybrid_astar",
+            "minimum_snap",
+            "ekf",
+            "task_allocation",
+            "formation",
+            "cbf",
+            "mpc",
         ),
         steps=(
             "Initialize distributed planners",
@@ -120,10 +147,10 @@ class QuickstartRunner:
     """Runs guided demo scenarios."""
 
     def __init__(self) -> None:
-        self._completed_steps: List[str] = []
-        self._modules_used: List[str] = []
+        self._completed_steps: list[str] = []
+        self._modules_used: list[str] = []
 
-    def run(self, scenario: DemoScenario) -> Dict[str, Any]:
+    def run(self, scenario: DemoScenario) -> dict[str, Any]:
         """Run a demo scenario and return results."""
         self._completed_steps = []
         self._modules_used = []
@@ -140,7 +167,7 @@ class QuickstartRunner:
             "status": "completed",
         }
 
-    def get_progress(self) -> Dict[str, Any]:
+    def get_progress(self) -> dict[str, Any]:
         """Get current progress."""
         return {
             "steps_completed": len(self._completed_steps),
@@ -148,17 +175,17 @@ class QuickstartRunner:
         }
 
 
-def list_scenarios() -> List[DemoScenario]:
+def list_scenarios() -> list[DemoScenario]:
     """List all available demo scenarios."""
     return list(SCENARIOS.values())
 
 
-def get_recommended_scenario(scale: str) -> Optional[DemoScenario]:
+def get_recommended_scenario(scale: str) -> DemoScenario | None:
     """Get the recommended scenario for an organization scale."""
     return SCENARIOS.get(scale)
 
 
-def run_demo(scale: str) -> Dict[str, Any]:
+def run_demo(scale: str) -> dict[str, Any]:
     """Run a demo for the given organization scale."""
     scenario = get_recommended_scenario(scale)
     if scenario is None:

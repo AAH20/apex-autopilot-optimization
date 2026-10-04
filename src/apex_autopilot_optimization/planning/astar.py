@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import heapq
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -179,7 +180,11 @@ class AStarPlanner:
         """Octile distance heuristic."""
         dx, dy, dz = abs(a[0] - b[0]), abs(a[1] - b[1]), abs(a[2] - b[2])
         if self.config.diagonal_movement:
-            return max(dx, dy, dz) + (np.sqrt(2) - 1) * min(dx, dy) + (np.sqrt(3) - np.sqrt(2)) * min(dx, dy, dz)
+            return float(
+                max(dx, dy, dz)
+                + (np.sqrt(2) - 1) * min(dx, dy)
+                + (np.sqrt(3) - np.sqrt(2)) * min(dx, dy, dz)
+            )
         return float(dx + dy + dz)
 
     def _move_cost(
@@ -228,7 +233,7 @@ class AStarPlanner:
             total += self._move_cost(path[i - 1], path[i])
         return total * self.config.resolution_m
 
-    def _world_to_grid(self, pose) -> tuple[int, int, int]:
+    def _world_to_grid(self, pose: Any) -> tuple[int, int, int]:
         """Convert world coordinates to grid indices."""
         return (
             int(round(pose.x / self.config.resolution_m)),
@@ -239,7 +244,11 @@ class AStarPlanner:
     def _grid_to_world(self, pos: tuple[int, int, int]) -> NDArray[np.float64]:
         """Convert grid indices to world coordinates."""
         return np.array(
-            [pos[0] * self.config.resolution_m, pos[1] * self.config.resolution_m, pos[2] * self.config.resolution_m],
+            [
+                pos[0] * self.config.resolution_m,
+                pos[1] * self.config.resolution_m,
+                pos[2] * self.config.resolution_m,
+            ],
             dtype=np.float64,
         )
 
@@ -265,7 +274,9 @@ class AStarPlanner:
         """Build Trajectory from state list."""
         n = len(states)
         if n == 0:
-            return Trajectory(states=[], controls=[], timestamps=np.array([]), vehicle_type=problem.vehicle_type)
+            return Trajectory(
+                states=[], controls=[], timestamps=np.array([]), vehicle_type=problem.vehicle_type
+            )
 
         dt = problem.time_horizon_s / max(n - 1, 1)
         timestamps = np.array([i * dt for i in range(n)], dtype=np.float64)

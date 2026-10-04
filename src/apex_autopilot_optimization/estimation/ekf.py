@@ -35,13 +35,17 @@ class EKFEstimator:
         self.config = config or EKFConfig()
         self._state = np.zeros(self.config.state_dim, dtype=np.float64)
         self._covariance = np.eye(self.config.state_dim, dtype=np.float64)
-        self._process_noise = np.eye(self.config.state_dim, dtype=np.float64) * self.config.process_noise
-        self._measurement_noise = np.eye(self.config.measurement_dim, dtype=np.float64) * self.config.measurement_noise
+        self._process_noise = (
+            np.eye(self.config.state_dim, dtype=np.float64) * self.config.process_noise
+        )
+        self._measurement_noise = (
+            np.eye(self.config.measurement_dim, dtype=np.float64) * self.config.measurement_noise
+        )
 
     def predict(self, dt: float) -> None:
         """Prediction step using constant velocity model."""
         # State transition matrix for constant velocity model
-        F = np.eye(self.config.state_dim, dtype=np.float64)
+        F = np.eye(self.config.state_dim, dtype=np.float64)  # noqa: N806
         # Position += velocity * dt
         for i in range(6):
             F[i, i + 6] = dt
@@ -55,7 +59,7 @@ class EKFEstimator:
     def update(self, measurement: NDArray[np.float64]) -> None:
         """Update step with measurement."""
         # Measurement matrix (we observe position and orientation)
-        H = np.zeros((self.config.measurement_dim, self.config.state_dim), dtype=np.float64)
+        H = np.zeros((self.config.measurement_dim, self.config.state_dim), dtype=np.float64)  # noqa: N806
         for i in range(6):
             H[i, i] = 1.0
 
@@ -63,16 +67,16 @@ class EKFEstimator:
         y = measurement - H @ self._state
 
         # Innovation covariance
-        S = H @ self._covariance @ H.T + self._measurement_noise
+        S = H @ self._covariance @ H.T + self._measurement_noise  # noqa: N806
 
         # Kalman gain
-        K = self._covariance @ H.T @ np.linalg.inv(S)
+        K = self._covariance @ H.T @ np.linalg.inv(S)  # noqa: N806
 
         # Update state
         self._state = self._state + K @ y
 
         # Update covariance (Joseph form for numerical stability)
-        I_KH = np.eye(self.config.state_dim) - K @ H
+        I_KH = np.eye(self.config.state_dim) - K @ H  # noqa: N806
         self._covariance = I_KH @ self._covariance @ I_KH.T + K @ self._measurement_noise @ K.T
 
     def get_state(self) -> StateVector:

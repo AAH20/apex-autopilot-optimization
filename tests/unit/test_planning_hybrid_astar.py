@@ -2,15 +2,12 @@
 
 from __future__ import annotations
 
-import pytest
-
 from apex_autopilot_optimization.core.types import (
     PlanningProblem,
-    PlanningResult,
     Pose3D,
     StateVector,
-    Velocity3D,
     VehicleType,
+    Velocity3D,
     Waypoint,
 )
 from apex_autopilot_optimization.planning.hybrid_astar import HybridAStarConfig, HybridAStarPlanner
@@ -96,7 +93,9 @@ class TestHybridAStarPlanner:
         assert result.computation_time_ms >= 0
 
     def test_plan_with_custom_config(self) -> None:
-        planner = HybridAStarPlanner(config=HybridAStarConfig(max_iterations=500, steering_angle=0.3))
+        planner = HybridAStarPlanner(
+            config=HybridAStarConfig(max_iterations=500, steering_angle=0.3)
+        )
         problem = self._make_problem((0, 0, 0), (10, 10, 0))
         result = planner.plan(problem)
         assert result.success

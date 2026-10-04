@@ -7,7 +7,7 @@ to exceed all benchmarks with evolution and evaluation parameters.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 
 @dataclass
@@ -15,9 +15,9 @@ class EvaluationConfig:
     """Configuration for an evaluation run."""
 
     name: str
-    metrics: List[str] = field(default_factory=list)
-    weights: Dict[str, float] = field(default_factory=dict)
-    targets: Dict[str, float] = field(default_factory=dict)
+    metrics: list[str] = field(default_factory=list)
+    weights: dict[str, float] = field(default_factory=dict)
+    targets: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -34,7 +34,7 @@ class EvaluationMetric:
         """Check if the metric meets its target."""
         return self.value >= self.target
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "value": self.value,
@@ -49,11 +49,11 @@ class EvaluationResult:
     """Result of an evaluation run."""
 
     name: str
-    metrics: List[EvaluationMetric]
+    metrics: list[EvaluationMetric]
     overall_score: float
     passed: bool
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "overall_score": self.overall_score,
@@ -66,7 +66,7 @@ class MetricAggregator:
     """Aggregates evaluation metrics."""
 
     def __init__(self) -> None:
-        self.metrics: List[EvaluationMetric] = []
+        self.metrics: list[EvaluationMetric] = []
 
     def add(self, metric: EvaluationMetric) -> None:
         """Add a metric."""
@@ -98,17 +98,19 @@ class EvaluationRunner:
 
     def run(self) -> EvaluationResult:
         """Run an evaluation and return results."""
-        metrics: List[EvaluationMetric] = []
+        metrics: list[EvaluationMetric] = []
         for metric_name in self.config.metrics:
             value = self._evaluate_metric(metric_name)
             target = self.config.targets.get(metric_name, 0.0)
             weight = self.config.weights.get(metric_name, 1.0)
-            metrics.append(EvaluationMetric(
-                name=metric_name,
-                value=value,
-                target=target,
-                weight=weight,
-            ))
+            metrics.append(
+                EvaluationMetric(
+                    name=metric_name,
+                    value=value,
+                    target=target,
+                    weight=weight,
+                )
+            )
 
         aggregator = MetricAggregator()
         for m in metrics:
@@ -139,7 +141,9 @@ class EvaluationRunner:
         return defaults.get(metric_name, 0.5)
 
 
-def evaluate_metric(name: str, value: float, target: float, weight: float = 1.0) -> EvaluationMetric:
+def evaluate_metric(
+    name: str, value: float, target: float, weight: float = 1.0
+) -> EvaluationMetric:
     """Evaluate a single metric."""
     return EvaluationMetric(
         name=name,
@@ -149,7 +153,7 @@ def evaluate_metric(name: str, value: float, target: float, weight: float = 1.0)
     )
 
 
-def aggregate_metrics(metrics: List[EvaluationMetric]) -> Dict[str, Any]:
+def aggregate_metrics(metrics: list[EvaluationMetric]) -> dict[str, Any]:
     """Aggregate metrics into a summary."""
     aggregator = MetricAggregator()
     for m in metrics:
@@ -164,22 +168,24 @@ def aggregate_metrics(metrics: List[EvaluationMetric]) -> Dict[str, Any]:
 
 
 def evaluate_all(
-    values: Dict[str, float],
-    targets: Dict[str, float],
-    weights: Optional[Dict[str, float]] = None,
+    values: dict[str, float],
+    targets: dict[str, float],
+    weights: dict[str, float] | None = None,
 ) -> EvaluationResult:
     """Evaluate all metrics."""
     weights = weights or {}
-    metrics: List[EvaluationMetric] = []
+    metrics: list[EvaluationMetric] = []
     for name, value in values.items():
         target = targets.get(name, 0.0)
         weight = weights.get(name, 1.0)
-        metrics.append(EvaluationMetric(
-            name=name,
-            value=value,
-            target=target,
-            weight=weight,
-        ))
+        metrics.append(
+            EvaluationMetric(
+                name=name,
+                value=value,
+                target=target,
+                weight=weight,
+            )
+        )
 
     aggregator = MetricAggregator()
     for m in metrics:

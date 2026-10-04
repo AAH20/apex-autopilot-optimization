@@ -1,7 +1,7 @@
 """Tests for the memory profiling module."""
+
 import time
 import tracemalloc
-from typing import Optional
 
 import pytest
 
@@ -15,7 +15,7 @@ from apex_autopilot_optimization.memory import (
 )
 
 
-def _snap(current: int, peak: Optional[int] = None, ts: int = 0) -> MemorySnapshot:
+def _snap(current: int, peak: int | None = None, ts: int = 0) -> MemorySnapshot:
     return MemorySnapshot(
         timestamp=ts,
         peak_bytes=peak if peak is not None else current,
@@ -194,6 +194,7 @@ class TestProfileMemory:
         if tracemalloc.is_tracing():
             tracemalloc.stop()
         try:
+
             @profile_memory
             def f():
                 return None

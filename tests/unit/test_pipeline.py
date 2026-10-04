@@ -20,12 +20,12 @@ from apex_autopilot_optimization.pipeline import (
     PlanningStage,
     SafetyStage,
 )
-from apex_autopilot_optimization.safety.cbf import CBFFilter, CBFConfig
-
+from apex_autopilot_optimization.safety.cbf import CBFFilter
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 class _DummyPlanner:
     """Minimal planner stub for testing."""
@@ -72,6 +72,7 @@ class _FailStage(PipelineStage[str, str]):
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 class TestEmptyPipeline:
     """Tests for an empty pipeline."""
@@ -266,11 +267,13 @@ class TestExecutionTimeTracking:
     """Tests for per-stage execution time tracking."""
 
     def test_times_are_non_negative(self) -> None:
-        pipeline = Pipeline([
-            _EchoStage("a"),
-            _EchoStage("b"),
-            _EchoStage("c"),
-        ])
+        pipeline = Pipeline(
+            [
+                _EchoStage("a"),
+                _EchoStage("b"),
+                _EchoStage("c"),
+            ]
+        )
         pipeline.run("x")
         for name, t in pipeline.stage_execution_times.items():
             assert t >= 0.0, f"Negative time for stage {name}"

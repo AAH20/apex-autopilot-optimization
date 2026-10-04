@@ -300,14 +300,10 @@ class TestPluginDiscovery(unittest.TestCase):
         """The entry point group name matches the spec."""
         assert ENTRY_POINT_GROUP == "apex_autopilot_plugins"
 
-    @pytest.mark.skipif(
-        sys.version_info < (3, 10), reason="requires Python 3.10+ entry_points API"
-    )
+    @pytest.mark.skipif(sys.version_info < (3, 10), reason="requires Python 3.10+ entry_points API")
     def test_discover_uses_group_keyword(self):
         """discover queries entry points with the plugin group."""
-        with mock.patch.object(
-            plugin_module, "entry_points", return_value=[]
-        ) as mock_ep:
+        with mock.patch.object(plugin_module, "entry_points", return_value=[]) as mock_ep:
             self.registry.discover()
         mock_ep.assert_called_once_with(group=ENTRY_POINT_GROUP)
 

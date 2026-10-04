@@ -1,8 +1,5 @@
 """Tests for observability module - verify StructuredLogger actually emits."""
 
-import json
-import sys
-from io import StringIO
 from apex_autopilot_optimization.observability import (
     ObservabilityConfig,
     ObservabilityManager,
@@ -63,11 +60,13 @@ class TestMetricCollector:
 
     def test_collector_creation(self):
         from apex_autopilot_optimization.observability import MetricCollector
+
         collector = MetricCollector()
         assert collector is not None
 
     def test_increment(self):
         from apex_autopilot_optimization.observability import MetricCollector
+
         collector = MetricCollector()
         collector.increment("requests")
         collector.increment("requests")
@@ -76,6 +75,7 @@ class TestMetricCollector:
 
     def test_gauge(self):
         from apex_autopilot_optimization.observability import MetricCollector
+
         collector = MetricCollector()
         collector.gauge("cpu_usage", 45.2)
         metrics = collector.get_metrics()
@@ -87,6 +87,7 @@ class TestHealthCheck:
 
     def test_health_check(self):
         from apex_autopilot_optimization.observability import HealthCheck
+
         check = HealthCheck()
         result = check.check("test-service")
         assert result["service"] == "test-service"
@@ -128,11 +129,13 @@ class TestObservabilityFunctions:
 
     def test_check_health(self):
         from apex_autopilot_optimization.observability import check_health
+
         result = check_health("test-service")
         assert result["status"] == "healthy"
 
     def test_collect_metrics(self):
         from apex_autopilot_optimization.observability import collect_metrics
+
         result = collect_metrics()
         assert "cpu_usage" in result
         assert "memory_usage" in result
@@ -140,11 +143,13 @@ class TestObservabilityFunctions:
 
     def test_create_logger(self):
         from apex_autopilot_optimization.observability import create_logger
+
         logger = create_logger("test-service")
         assert logger is not None
 
     def test_format_metric(self):
         from apex_autopilot_optimization.observability import format_metric
+
         result = format_metric("cpu_usage", 45.2, "gauge")
         assert result["name"] == "cpu_usage"
         assert result["value"] == 45.2

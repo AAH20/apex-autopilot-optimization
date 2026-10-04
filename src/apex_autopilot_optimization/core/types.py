@@ -87,10 +87,18 @@ class StateVector:
         """Flatten state to numpy array."""
         return np.array(
             [
-                self.pose.x, self.pose.y, self.pose.z,
-                self.pose.roll, self.pose.pitch, self.pose.yaw,
-                self.velocity.vx, self.velocity.vy, self.velocity.vz,
-                self.velocity.vroll, self.velocity.vpitch, self.velocity.vyaw,
+                self.pose.x,
+                self.pose.y,
+                self.pose.z,
+                self.pose.roll,
+                self.pose.pitch,
+                self.pose.yaw,
+                self.velocity.vx,
+                self.velocity.vy,
+                self.velocity.vz,
+                self.velocity.vroll,
+                self.velocity.vpitch,
+                self.velocity.vyaw,
             ],
             dtype=np.float64,
         )

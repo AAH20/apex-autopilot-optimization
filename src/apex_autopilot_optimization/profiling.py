@@ -15,8 +15,9 @@ import functools
 import json
 import time
 import time as _time
+from collections.abc import Callable, Generator
 from dataclasses import asdict, dataclass
-from typing import Callable, Generator, TypeVar
+from typing import TypeVar
 
 F = TypeVar("F", bound=Callable[..., object])
 
@@ -86,7 +87,9 @@ def profile_function(func: F) -> F:
 
 
 @contextlib.contextmanager
-def profile_context(name: str, results: list[ProfileResult] | None = None) -> Generator[ProfileResult, None, None]:
+def profile_context(
+    name: str, results: list[ProfileResult] | None = None
+) -> Generator[ProfileResult, None, None]:
     """Context manager that records the execution time of a code block.
 
     Args:

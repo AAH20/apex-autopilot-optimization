@@ -10,8 +10,9 @@ from __future__ import annotations
 import functools
 import time
 import tracemalloc
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 __all__ = [
     "MemoryLeakDetector",
@@ -32,7 +33,7 @@ class MemorySnapshot:
     timestamp: int
     peak_bytes: int
     current_bytes: int
-    top_allocations: List[Dict[str, Any]] = field(default_factory=list)
+    top_allocations: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
@@ -62,7 +63,7 @@ def take_snapshot(top_n: int = DEFAULT_TOP_N) -> MemorySnapshot:
         tracemalloc.start()
     current, peak = tracemalloc.get_traced_memory()
     raw = tracemalloc.take_snapshot()
-    top: List[Dict[str, Any]] = []
+    top: list[dict[str, Any]] = []
     for stat in raw.statistics("lineno")[:top_n]:
         frame = stat.traceback[0] if stat.traceback else None
         top.append(
@@ -81,7 +82,7 @@ def take_snapshot(top_n: int = DEFAULT_TOP_N) -> MemorySnapshot:
     )
 
 
-def compare_snapshots(before: MemorySnapshot, after: MemorySnapshot) -> Dict[str, Any]:
+def compare_snapshots(before: MemorySnapshot, after: MemorySnapshot) -> dict[str, Any]:
     """Compare two snapshots and report deltas and fractional growth.
 
     Returns a dict with ``peak_delta_bytes``, ``current_delta_bytes`` and
@@ -142,7 +143,7 @@ class MemoryLeakDetector:
             raise ValueError("window must be at least 2")
         self.threshold = threshold
         self.window = window
-        self._snapshots: List[MemorySnapshot] = []
+        self._snapshots: list[MemorySnapshot] = []
 
     @property
     def snapshot_count(self) -> int:
@@ -155,7 +156,7 @@ class MemoryLeakDetector:
         if len(self._snapshots) > self.window:
             del self._snapshots[: len(self._snapshots) - self.window]
 
-    def last_growth_rate(self) -> Optional[float]:
+    def last_growth_rate(self) -> float | None:
         """Fractional current-bytes growth across the retained window."""
         if len(self._snapshots) < 2:
             return None

@@ -1,6 +1,5 @@
 """Tests for CLI module."""
 
-import pytest
 from typer.testing import CliRunner
 
 from apex_autopilot_optimization.cli import app, create_app, main
@@ -53,7 +52,22 @@ class TestCLIPlan:
 
     def test_plan_with_algorithm(self):
         """Plan with algorithm flag."""
-        result = runner.invoke(app, ["plan", "--algorithm", "astar", "--start-x", "0", "--start-y", "0", "--goal-x", "5", "--goal-y", "5"])
+        result = runner.invoke(
+            app,
+            [
+                "plan",
+                "--algorithm",
+                "astar",
+                "--start-x",
+                "0",
+                "--start-y",
+                "0",
+                "--goal-x",
+                "5",
+                "--goal-y",
+                "5",
+            ],
+        )
         assert result.exit_code == 0
         assert "astar" in result.output
 

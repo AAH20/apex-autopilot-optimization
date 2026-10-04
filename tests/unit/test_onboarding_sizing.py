@@ -5,7 +5,6 @@ from apex_autopilot_optimization.onboarding.sizing import (
     SIZING_PROFILES,
     ModuleTier,
     OrganizationScale,
-    SizingProfile,
     compare_scales,
     generate_config_yaml,
     generate_onboarding_checklist,
@@ -37,9 +36,17 @@ class TestModuleRegistry:
 
     def test_all_modules_present(self):
         expected = {
-            "core_types", "astar", "rrt", "prm", "hybrid_astar",
-            "minimum_snap", "ekf", "task_allocation", "formation",
-            "cbf", "mpc",
+            "core_types",
+            "astar",
+            "rrt",
+            "prm",
+            "hybrid_astar",
+            "minimum_snap",
+            "ekf",
+            "task_allocation",
+            "formation",
+            "cbf",
+            "mpc",
         }
         assert set(MODULE_REGISTRY.keys()) == expected
 
@@ -57,8 +64,7 @@ class TestModuleRegistry:
 
     def test_min_scale_startup(self):
         startup_modules = [
-            name for name, m in MODULE_REGISTRY.items()
-            if m.min_scale == OrganizationScale.STARTUP
+            name for name, m in MODULE_REGISTRY.items() if m.min_scale == OrganizationScale.STARTUP
         ]
         assert "core_types" in startup_modules
         assert "astar" in startup_modules
@@ -67,15 +73,15 @@ class TestModuleRegistry:
 
     def test_min_scale_smb(self):
         smb_modules = [
-            name for name, m in MODULE_REGISTRY.items()
-            if m.min_scale == OrganizationScale.SMB
+            name for name, m in MODULE_REGISTRY.items() if m.min_scale == OrganizationScale.SMB
         ]
         assert "prm" in smb_modules
         assert "cbf" in smb_modules
 
     def test_min_scale_mid_market(self):
         mm_modules = [
-            name for name, m in MODULE_REGISTRY.items()
+            name
+            for name, m in MODULE_REGISTRY.items()
             if m.min_scale == OrganizationScale.MID_MARKET
         ]
         assert "hybrid_astar" in mm_modules
@@ -161,10 +167,7 @@ class TestSizingProfiles:
         assert profile.config_defaults.get("ha_enabled") is True
 
     def test_setup_time_increases_with_scale(self):
-        times = [
-            SIZING_PROFILES[scale].estimated_setup_time_min
-            for scale in OrganizationScale
-        ]
+        times = [SIZING_PROFILES[scale].estimated_setup_time_min for scale in OrganizationScale]
         assert times == sorted(times)
         assert times[0] < times[-1]
 
@@ -242,10 +245,7 @@ class TestGetAvailableModules:
         assert "formation" in names
 
     def test_module_count_increases_with_scale(self):
-        counts = [
-            len(get_available_modules(scale))
-            for scale in OrganizationScale
-        ]
+        counts = [len(get_available_modules(scale)) for scale in OrganizationScale]
         assert counts == sorted(counts)
 
 
@@ -381,9 +381,7 @@ class TestCompareScales:
 
     def test_all_scales_present(self):
         result = compare_scales()
-        assert set(result.keys()) == {
-            "startup", "smb", "mid_market", "enterprise", "large"
-        }
+        assert set(result.keys()) == {"startup", "smb", "mid_market", "enterprise", "large"}
 
     def test_startup_has_fewest_modules(self):
         result = compare_scales()

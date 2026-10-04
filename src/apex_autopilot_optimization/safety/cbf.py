@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
-from numpy.typing import NDArray
 
 from apex_autopilot_optimization.core.types import (
     ControlInput,
@@ -37,7 +37,7 @@ class CBFFilter:
         self,
         state: StateVector,
         control: ControlInput,
-        obstacles: list[dict],
+        obstacles: list[dict[str, Any]],
     ) -> ControlInput:
         """Filter control input to ensure safety."""
         if not obstacles:
@@ -68,7 +68,7 @@ class CBFFilter:
     def _min_distance_to_obstacles(
         self,
         state: StateVector,
-        obstacles: list[dict],
+        obstacles: list[dict[str, Any]],
     ) -> float:
         """Compute minimum distance from state to any obstacle."""
         pos = np.array([state.pose.x, state.pose.y, state.pose.z], dtype=np.float64)
@@ -87,7 +87,7 @@ class CBFFilter:
         self,
         h: float,
         state: StateVector,
-        obstacles: list[dict],
+        obstacles: list[dict[str, Any]],
     ) -> float:
         """Compute control correction based on CBF value."""
         # Simple proportional correction: more negative h = more correction

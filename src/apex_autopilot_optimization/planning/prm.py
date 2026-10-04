@@ -170,7 +170,7 @@ class PRMPlanner:
 
         # Sort by distance and connect to nearest neighbors
         distances.sort()
-        for dist, i in distances[: self.config.nearest_neighbors]:
+        for _dist, i in distances[: self.config.nearest_neighbors]:
             # Check edge collision
             if not self._is_collision(node.position, nodes[i].position, problem):
                 node.neighbors.append(i)
@@ -256,11 +256,11 @@ class PRMPlanner:
         ab_len_sq = np.dot(ab, ab)
 
         if ab_len_sq < 1e-10:
-            return np.linalg.norm(ac) <= radius
+            return bool(np.linalg.norm(ac) <= radius)
 
         t = np.clip(np.dot(ac, ab) / ab_len_sq, 0.0, 1.0)
         closest = a + t * ab
-        return np.linalg.norm(closest - center) <= radius
+        return bool(np.linalg.norm(closest - center) <= radius)
 
     def _compute_path_cost(self, path: list[NDArray[np.float64]]) -> float:
         """Compute total path length."""
@@ -290,7 +290,9 @@ class PRMPlanner:
         """Build Trajectory from state list."""
         n = len(states)
         if n == 0:
-            return Trajectory(states=[], controls=[], timestamps=np.array([]), vehicle_type=problem.vehicle_type)
+            return Trajectory(
+                states=[], controls=[], timestamps=np.array([]), vehicle_type=problem.vehicle_type
+            )
 
         dt = problem.time_horizon_s / max(n - 1, 1)
         timestamps = np.array([i * dt for i in range(n)], dtype=np.float64)

@@ -9,9 +9,10 @@ from __future__ import annotations
 import importlib
 import platform
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from datetime import UTC
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 
 class DiagnosticStatus(str, Enum):
@@ -30,15 +31,15 @@ class DiagnosticResult:
     name: str
     status: DiagnosticStatus
     message: str
-    fix: Optional[str] = None
-    details: Optional[Dict[str, Any]] = None
+    fix: str | None = None
+    details: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
 class DiagnosticReport:
     """Complete diagnostic report."""
 
-    results: Tuple[DiagnosticResult, ...]
+    results: tuple[DiagnosticResult, ...]
     python_version: str
     platform: str
     timestamp: str
@@ -63,7 +64,7 @@ class DiagnosticReport:
     def healthy(self) -> bool:
         return self.failed == 0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "summary": {
                 "total": self.total,
@@ -119,6 +120,7 @@ def check_numpy() -> DiagnosticResult:
     """Check NumPy installation."""
     try:
         import numpy as np
+
         version = np.__version__
         major, minor = map(int, version.split(".")[:2])
         if major >= 1 and minor >= 26:
@@ -147,6 +149,7 @@ def check_scipy() -> DiagnosticResult:
     """Check SciPy installation."""
     try:
         import scipy
+
         version = scipy.__version__
         return DiagnosticResult(
             name="scipy",
@@ -166,6 +169,7 @@ def check_pydantic() -> DiagnosticResult:
     """Check Pydantic installation."""
     try:
         import pydantic
+
         version = pydantic.__version__
         return DiagnosticResult(
             name="pydantic",
@@ -214,22 +218,26 @@ def check_planners() -> DiagnosticResult:
     """Check planner availability."""
     planners = []
     try:
-        from apex_autopilot_optimization.planning.astar import AStarPlanner
+        import apex_autopilot_optimization.planning.astar  # noqa: F401
+
         planners.append("astar")
     except ImportError:
         pass
     try:
-        from apex_autopilot_optimization.planning.rrt import RRTPlanner
+        import apex_autopilot_optimization.planning.rrt  # noqa: F401
+
         planners.append("rrt")
     except ImportError:
         pass
     try:
-        from apex_autopilot_optimization.planning.prm import PRMPlanner
+        import apex_autopilot_optimization.planning.prm  # noqa: F401
+
         planners.append("prm")
     except ImportError:
         pass
     try:
-        from apex_autopilot_optimization.planning.hybrid_astar import HybridAStarPlanner
+        import apex_autopilot_optimization.planning.hybrid_astar  # noqa: F401
+
         planners.append("hybrid_astar")
     except ImportError:
         pass
@@ -252,7 +260,8 @@ def check_planners() -> DiagnosticResult:
 def check_optimizers() -> DiagnosticResult:
     """Check optimizer availability."""
     try:
-        from apex_autopilot_optimization.optimization.minimum_snap import MinimumSnapOptimizer
+        import apex_autopilot_optimization.optimization.minimum_snap  # noqa: F401
+
         return DiagnosticResult(
             name="optimizers",
             status=DiagnosticStatus.PASS,
@@ -270,7 +279,8 @@ def check_optimizers() -> DiagnosticResult:
 def check_estimators() -> DiagnosticResult:
     """Check estimator availability."""
     try:
-        from apex_autopilot_optimization.estimation.ekf import EKFEstimator
+        import apex_autopilot_optimization.estimation.ekf  # noqa: F401
+
         return DiagnosticResult(
             name="estimators",
             status=DiagnosticStatus.PASS,
@@ -288,7 +298,8 @@ def check_estimators() -> DiagnosticResult:
 def check_safety() -> DiagnosticResult:
     """Check safety module availability."""
     try:
-        from apex_autopilot_optimization.safety.cbf import CBFFilter
+        import apex_autopilot_optimization.safety.cbf  # noqa: F401
+
         return DiagnosticResult(
             name="safety",
             status=DiagnosticStatus.PASS,
@@ -306,7 +317,8 @@ def check_safety() -> DiagnosticResult:
 def check_control() -> DiagnosticResult:
     """Check control module availability."""
     try:
-        from apex_autopilot_optimization.control.mpc import MPCController
+        import apex_autopilot_optimization.control.mpc  # noqa: F401
+
         return DiagnosticResult(
             name="control",
             status=DiagnosticStatus.PASS,
@@ -324,8 +336,9 @@ def check_control() -> DiagnosticResult:
 def check_swarm() -> DiagnosticResult:
     """Check swarm module availability."""
     try:
-        from apex_autopilot_optimization.swarm.task_allocation import TaskAllocator
-        from apex_autopilot_optimization.swarm.formation import FormationController
+        import apex_autopilot_optimization.swarm.formation  # noqa: F401
+        import apex_autopilot_optimization.swarm.task_allocation  # noqa: F401
+
         return DiagnosticResult(
             name="swarm",
             status=DiagnosticStatus.PASS,
@@ -342,7 +355,7 @@ def check_swarm() -> DiagnosticResult:
 
 def run_diagnostics() -> DiagnosticReport:
     """Run all diagnostic checks and return a report."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     checks = [
         check_python_version(),
@@ -362,7 +375,7 @@ def run_diagnostics() -> DiagnosticReport:
         results=tuple(checks),
         python_version=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
         platform=platform.platform(),
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
     )
 
 

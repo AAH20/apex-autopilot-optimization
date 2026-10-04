@@ -2,18 +2,15 @@
 
 from __future__ import annotations
 
-import pytest
-
 from apex_autopilot_optimization.core.types import (
     PlanningProblem,
-    PlanningResult,
     Pose3D,
     StateVector,
-    Velocity3D,
     VehicleType,
+    Velocity3D,
     Waypoint,
 )
-from apex_autopilot_optimization.planning.astar import AStarPlanner, AStarConfig
+from apex_autopilot_optimization.planning.astar import AStarConfig, AStarPlanner
 
 
 class TestAStarConfig:

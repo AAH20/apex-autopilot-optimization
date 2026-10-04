@@ -68,7 +68,8 @@ class PlanningStage(PipelineStage[PlanningProblem, PlanningResult]):
         self.planner = planner
 
     def run(self, input_data: PlanningProblem) -> PlanningResult:
-        return self.planner.plan(input_data)
+        result: PlanningResult = self.planner.plan(input_data)
+        return result
 
 
 class OptimizationStage(PipelineStage[PlanningProblem, PlanningResult]):
@@ -79,16 +80,21 @@ class OptimizationStage(PipelineStage[PlanningProblem, PlanningResult]):
         self.optimizer = optimizer
 
     def run(self, input_data: PlanningProblem) -> PlanningResult:
-        return self.optimizer.optimize(input_data)
+        result: PlanningResult = self.optimizer.optimize(input_data)
+        return result
 
 
-class SafetyStage(PipelineStage[tuple[StateVector, ControlInput, list[dict]], ControlInput]):
+class SafetyStage(
+    PipelineStage[tuple[StateVector, ControlInput, list[dict[str, Any]]], ControlInput]
+):
     """Pipeline stage that wraps a CBF safety filter."""
 
     def __init__(self, cbf_filter: CBFFilter, name: str = "safety") -> None:
         super().__init__(name)
         self.cbf_filter = cbf_filter
 
-    def run(self, input_data: tuple[StateVector, ControlInput, list[dict]]) -> ControlInput:
+    def run(
+        self, input_data: tuple[StateVector, ControlInput, list[dict[str, Any]]]
+    ) -> ControlInput:
         state, control, obstacles = input_data
         return self.cbf_filter.filter(state, control, obstacles)

@@ -9,12 +9,10 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import json
-import os
 import secrets
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class EncryptionHelper:
@@ -24,7 +22,7 @@ class EncryptionHelper:
     Production systems should use proper encryption libraries like cryptography.
     """
 
-    def __init__(self, key: Optional[bytes] = None) -> None:
+    def __init__(self, key: bytes | None = None) -> None:
         self._key = key or secrets.token_bytes(32)
 
     def encrypt(self, plaintext: bytes) -> bytes:
@@ -50,7 +48,7 @@ class AuthenticationHelper:
     """Authentication helper using PBKDF2 for password hashing."""
 
     def __init__(self) -> None:
-        self._tokens: Dict[str, Dict[str, Any]] = {}
+        self._tokens: dict[str, dict[str, Any]] = {}
 
     def hash_password(self, password: str) -> str:
         """Hash password using PBKDF2-SHA256."""
@@ -77,7 +75,7 @@ class AuthenticationHelper:
         }
         return token
 
-    def verify_token(self, token: str) -> Optional[Dict[str, Any]]:
+    def verify_token(self, token: str) -> dict[str, Any] | None:
         """Verify token and return payload if valid."""
         payload = self._tokens.get(token)
         if payload is None:
@@ -92,9 +90,9 @@ class AuthenticationHelper:
 class SecurityAuditLog:
     """Security audit log for tracking security events."""
 
-    entries: List[Dict[str, Any]] = field(default_factory=list)
+    entries: list[dict[str, Any]] = field(default_factory=list)
 
-    def log_event(self, event_type: str, details: Dict[str, Any]) -> None:
+    def log_event(self, event_type: str, details: dict[str, Any]) -> None:
         """Log a security event."""
         entry = {
             "timestamp": int(time.time()),
@@ -103,13 +101,13 @@ class SecurityAuditLog:
         }
         self.entries.append(entry)
 
-    def get_events(self, event_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_events(self, event_type: str | None = None) -> list[dict[str, Any]]:
         """Get audit log entries, optionally filtered by event type."""
         if event_type is None:
             return list(self.entries)
         return [e for e in self.entries if e["event_type"] == event_type]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert audit log to dictionary."""
         return {
             "total_entries": len(self.entries),
@@ -120,7 +118,7 @@ class SecurityAuditLog:
 class SecurityPolicy:
     """Security policy checker for autopilot systems."""
 
-    def check_encryption(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def check_encryption(self, config: dict[str, Any]) -> dict[str, Any]:
         """Check if encryption is enabled."""
         enabled = config.get("encryption", False)
         return {
@@ -130,27 +128,31 @@ class SecurityPolicy:
             "fix": "Enable encryption for all data at rest and in transit" if not enabled else None,
         }
 
-    def check_authentication(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def check_authentication(self, config: dict[str, Any]) -> dict[str, Any]:
         """Check if authentication is enabled."""
         enabled = config.get("authentication", False)
         return {
             "name": "authentication",
             "status": "pass" if enabled else "fail",
             "message": "Authentication is enabled" if enabled else "Authentication is disabled",
-            "fix": "Enable mutual authentication between GCS and autopilot" if not enabled else None,
+            "fix": "Enable mutual authentication between GCS and autopilot"
+            if not enabled
+            else None,
         }
 
-    def check_audit_log(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def check_audit_log(self, config: dict[str, Any]) -> dict[str, Any]:
         """Check if audit logging is enabled."""
         enabled = config.get("audit_log", False)
         return {
             "name": "audit_log",
             "status": "pass" if enabled else "fail",
             "message": "Audit logging is enabled" if enabled else "Audit logging is disabled",
-            "fix": "Enable immutable audit logging for all security events" if not enabled else None,
+            "fix": "Enable immutable audit logging for all security events"
+            if not enabled
+            else None,
         }
 
-    def check_all(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def check_all(self, config: dict[str, Any]) -> dict[str, Any]:
         """Run all security policy checks."""
         checks = [
             self.check_encryption(config),
@@ -170,25 +172,25 @@ class SecurityPolicy:
         }
 
 
-def check_encryption(config: Dict[str, Any]) -> Dict[str, Any]:
+def check_encryption(config: dict[str, Any]) -> dict[str, Any]:
     """Check if encryption is enabled."""
     policy = SecurityPolicy()
     return policy.check_encryption(config)
 
 
-def check_authentication(config: Dict[str, Any]) -> Dict[str, Any]:
+def check_authentication(config: dict[str, Any]) -> dict[str, Any]:
     """Check if authentication is enabled."""
     policy = SecurityPolicy()
     return policy.check_authentication(config)
 
 
-def check_audit_log(config: Dict[str, Any]) -> Dict[str, Any]:
+def check_audit_log(config: dict[str, Any]) -> dict[str, Any]:
     """Check if audit logging is enabled."""
     policy = SecurityPolicy()
     return policy.check_audit_log(config)
 
 
-def check_security_policy(config: Dict[str, Any]) -> Dict[str, Any]:
+def check_security_policy(config: dict[str, Any]) -> dict[str, Any]:
     """Run all security policy checks."""
     policy = SecurityPolicy()
     return policy.check_all(config)
@@ -199,7 +201,7 @@ def generate_secure_token() -> str:
     return secrets.token_urlsafe(32)
 
 
-def verify_secure_token(token: str) -> Optional[Dict[str, Any]]:
+def verify_secure_token(token: str) -> dict[str, Any] | None:
     """Verify a secure token (placeholder for JWT verification)."""
     if not token or len(token) < 20:
         return None

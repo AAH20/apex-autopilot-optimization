@@ -6,15 +6,13 @@ Uses typer (already a dependency) for modern CLI patterns.
 
 from __future__ import annotations
 
-import sys
 from enum import Enum
-from typing import Optional
 
 import typer
 
 from apex_autopilot_optimization.core.types import (
-    Pose3D,
     PlanningProblem,
+    Pose3D,
     StateVector,
     VehicleType,
     Velocity3D,
@@ -51,16 +49,16 @@ def create_app() -> typer.Typer:
 @app.command()
 def plan(
     demo: bool = typer.Option(False, "--demo", help="Run demo scenario"),
-    algorithm: PlannerAlgorithm = typer.Option(
+    algorithm: PlannerAlgorithm = typer.Option(  # noqa: B008
         PlannerAlgorithm.astar, "--algorithm", help="Planning algorithm"
     ),
     start_x: float = typer.Option(0.0, "--start-x", help="Start X position"),
     start_y: float = typer.Option(0.0, "--start-y", help="Start Y position"),
     goal_x: float = typer.Option(10.0, "--goal-x", help="Goal X position"),
     goal_y: float = typer.Option(10.0, "--goal-y", help="Goal Y position"),
-    config: Optional[str] = typer.Option(None, "--config", help="Config file path"),
-    output: Optional[str] = typer.Option(None, "--output", help="Output file path"),
-):
+    config: str | None = typer.Option(None, "--config", help="Config file path"),
+    output: str | None = typer.Option(None, "--output", help="Output file path"),
+) -> None:
     """Run path planning algorithms."""
     if demo:
         typer.echo("Running A* demo scenario...")
@@ -86,29 +84,27 @@ def plan(
                 typer.echo(f"Path length: {len(result.trajectory.states)} states")
         except Exception as e:
             typer.echo(f"Error: {e}", err=True)
-            raise typer.Exit(code=1)
+            raise typer.Exit(code=1) from e
     else:
-        typer.echo(f"Planning with {algorithm.value} from ({start_x}, {start_y}) to ({goal_x}, {goal_y})")
+        typer.echo(
+            f"Planning with {algorithm.value} from ({start_x}, {start_y}) to ({goal_x}, {goal_y})"
+        )
 
 
 @app.command()
 def optimize(
     demo: bool = typer.Option(False, "--demo", help="Run demo scenario"),
-):
+) -> None:
     """Run trajectory optimization."""
     if demo:
         typer.echo("Running minimum snap optimization demo...")
         try:
-            from apex_autopilot_optimization.optimization.minimum_snap import (
-                MinimumSnapConfig,
-                MinimumSnapOptimizer,
-            )
+            import apex_autopilot_optimization.optimization.minimum_snap  # noqa: F401
 
-            optimizer = MinimumSnapOptimizer(MinimumSnapConfig())
             typer.echo("Optimizer ready")
         except Exception as e:
             typer.echo(f"Error: {e}", err=True)
-            raise typer.Exit(code=1)
+            raise typer.Exit(code=1) from e
     else:
         typer.echo("Specify --demo to run demo scenario")
 
@@ -116,21 +112,17 @@ def optimize(
 @app.command()
 def estimate(
     demo: bool = typer.Option(False, "--demo", help="Run demo scenario"),
-):
+) -> None:
     """Run state estimation."""
     if demo:
         typer.echo("Running EKF demo...")
         try:
-            from apex_autopilot_optimization.estimation.ekf import (
-                EKFConfig,
-                EKFEstimator,
-            )
+            import apex_autopilot_optimization.estimation.ekf  # noqa: F401
 
-            ekf = EKFEstimator(EKFConfig())
             typer.echo("EKF estimator ready")
         except Exception as e:
             typer.echo(f"Error: {e}", err=True)
-            raise typer.Exit(code=1)
+            raise typer.Exit(code=1) from e
     else:
         typer.echo("Specify --demo to run demo scenario")
 
@@ -138,21 +130,17 @@ def estimate(
 @app.command()
 def control(
     demo: bool = typer.Option(False, "--demo", help="Run demo scenario"),
-):
+) -> None:
     """Run control algorithms."""
     if demo:
         typer.echo("Running MPC demo...")
         try:
-            from apex_autopilot_optimization.control.mpc import (
-                MPCConfig,
-                MPCController,
-            )
+            import apex_autopilot_optimization.control.mpc  # noqa: F401
 
-            controller = MPCController(MPCConfig())
             typer.echo("MPC controller ready")
         except Exception as e:
             typer.echo(f"Error: {e}", err=True)
-            raise typer.Exit(code=1)
+            raise typer.Exit(code=1) from e
     else:
         typer.echo("Specify --demo to run demo scenario")
 
@@ -160,18 +148,17 @@ def control(
 @app.command()
 def safety(
     demo: bool = typer.Option(False, "--demo", help="Run demo scenario"),
-):
+) -> None:
     """Run safety filters."""
     if demo:
         typer.echo("Running CBF demo...")
         try:
-            from apex_autopilot_optimization.safety.cbf import CBFConfig, CBFFilter
+            import apex_autopilot_optimization.safety.cbf  # noqa: F401
 
-            cbf = CBFFilter(CBFConfig())
             typer.echo("CBF filter ready")
         except Exception as e:
             typer.echo(f"Error: {e}", err=True)
-            raise typer.Exit(code=1)
+            raise typer.Exit(code=1) from e
     else:
         typer.echo("Specify --demo to run demo scenario")
 
@@ -179,7 +166,7 @@ def safety(
 @app.command()
 def swarm(
     demo: bool = typer.Option(False, "--demo", help="Run demo scenario"),
-):
+) -> None:
     """Run swarm algorithms."""
     if demo:
         typer.echo("Running swarm demo...")
@@ -190,8 +177,8 @@ def swarm(
 
 @app.command()
 def quickstart(
-    scale: Scale = typer.Option(Scale.startup, "--scale", help="Organization scale"),
-):
+    scale: Scale = typer.Option(Scale.startup, "--scale", help="Organization scale"),  # noqa: B008
+) -> None:
     """Run guided demo scenarios."""
     typer.echo(f"Running quickstart for {scale.value} scale...")
     try:
@@ -205,14 +192,14 @@ def quickstart(
             typer.echo(f"No scenario found for scale: {scale.value}")
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 @app.command()
 def setup(
     enterprise: bool = typer.Option(False, "--enterprise", help="Enterprise setup"),
     ha: bool = typer.Option(False, "--ha", help="High availability mode"),
-):
+) -> None:
     """Run the setup wizard."""
     typer.echo("Running setup wizard...")
     try:
@@ -222,14 +209,14 @@ def setup(
         typer.echo(f"Status: {result.get('status', 'unknown')}")
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 @app.command()
 def doctor(
     full: bool = typer.Option(False, "--full", help="Run full diagnostics"),
     ha: bool = typer.Option(False, "--ha", help="High availability checks"),
-):
+) -> None:
     """Run system diagnostics."""
     typer.echo("Running diagnostics...")
     try:
@@ -239,13 +226,13 @@ def doctor(
         typer.echo(format_report(report))
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 @app.command()
 def validate(
     config: str = typer.Option(..., "--config", help="Config file path"),
-):
+) -> None:
     """Validate configuration."""
     typer.echo(f"Validating config: {config}")
     try:
@@ -259,13 +246,13 @@ def validate(
             typer.echo("Config valid")
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 @app.command()
 def benchmark(
     iterations: int = typer.Option(100, "--iterations", help="Number of iterations"),
-):
+) -> None:
     """Run benchmarks."""
     typer.echo(f"Running benchmarks ({iterations} iterations)...")
     try:
@@ -277,13 +264,13 @@ def benchmark(
         typer.echo(f"P95: {result.p95_ms:.2f}ms")
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 @app.command()
 def evaluate(
-    config: Optional[str] = typer.Option(None, "--config", help="Config file path"),
-):
+    config: str | None = typer.Option(None, "--config", help="Config file path"),
+) -> None:
     """Run evaluations."""
     typer.echo("Running evaluation...")
     try:
@@ -298,11 +285,11 @@ def evaluate(
         typer.echo(f"Passed: {result.passed}")
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 @app.command()
-def list_modules():
+def list_modules() -> None:
     """List all available modules."""
     typer.echo("Available modules:")
     modules = [
@@ -332,7 +319,7 @@ def list_modules():
 
 
 @app.command()
-def version():
+def version() -> None:
     """Show version info."""
     try:
         from apex_autopilot_optimization import __version__
@@ -342,7 +329,7 @@ def version():
         typer.echo("apex-autopilot-optimization 0.1.0")
 
 
-def main():
+def main() -> None:
     """Entry point for the CLI."""
     app()
 

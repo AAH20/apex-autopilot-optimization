@@ -275,7 +275,7 @@ def _enum_to_value(e: Enum) -> str:
 
 def _serialize_value(value: Any) -> Any:
     """Recursively serialize a value to JSON-compatible types."""
-    if value is None or isinstance(value, (bool, int, float, str)):
+    if value is None or isinstance(value, bool | int | float | str):
         return value
     if isinstance(value, Enum):
         return _enum_to_value(value)
@@ -287,7 +287,7 @@ def _serialize_value(value: Any) -> Any:
         return {f.name: _serialize_value(getattr(value, f.name)) for f in dataclasses.fields(value)}
     if isinstance(value, dict):
         return {str(k): _serialize_value(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, list | tuple):
         return [_serialize_value(item) for item in value]
     return value
 
@@ -304,9 +304,7 @@ def _is_union_type(tp: Any) -> bool:
     origin = typing.get_origin(tp)
     if origin is typing.Union:
         return True
-    if hasattr(types, "UnionType") and origin is types.UnionType:
-        return True
-    return False
+    return hasattr(types, "UnionType") and origin is types.UnionType
 
 
 def _deserialize_value(value: Any, tp: Any) -> Any:
@@ -382,8 +380,9 @@ def save_json(data: dict[str, Any], path: str) -> None:
 
 def load_json(path: str) -> dict[str, Any]:
     """Load a dictionary from a JSON file."""
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    with open(path, encoding="utf-8") as f:
+        result: dict[str, Any] = json.load(f)
+        return result
 
 
 def save_yaml(data: dict[str, Any], path: str) -> None:
@@ -396,5 +395,6 @@ def save_yaml(data: dict[str, Any], path: str) -> None:
 
 def load_yaml(path: str) -> dict[str, Any]:
     """Load a dictionary from a YAML file."""
-    with open(path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    with open(path, encoding="utf-8") as f:
+        result: dict[str, Any] = yaml.safe_load(f)
+        return result

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import numpy as np
 import pytest
 
 from apex_autopilot_optimization.core.types import (
@@ -11,7 +10,7 @@ from apex_autopilot_optimization.core.types import (
     StateVector,
     Velocity3D,
 )
-from apex_autopilot_optimization.safety.cbf import CBFFilter, CBFConfig
+from apex_autopilot_optimization.safety.cbf import CBFConfig, CBFFilter
 
 
 class TestCBFConfig:

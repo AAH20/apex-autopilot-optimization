@@ -2,19 +2,15 @@
 
 from __future__ import annotations
 
-import pytest
-
 from apex_autopilot_optimization.core.types import (
     Pose3D,
-    StateVector,
-    Velocity3D,
     VehicleType,
 )
 from apex_autopilot_optimization.swarm.task_allocation import (
+    Agent,
+    Task,
     TaskAllocationConfig,
     TaskAllocator,
-    Task,
-    Agent,
 )
 
 

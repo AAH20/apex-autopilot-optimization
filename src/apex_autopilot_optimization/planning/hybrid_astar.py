@@ -8,7 +8,6 @@ import time
 from dataclasses import dataclass
 
 import numpy as np
-from numpy.typing import NDArray
 
 from apex_autopilot_optimization.core.types import (
     ControlInput,
@@ -151,7 +150,9 @@ class HybridAStarPlanner:
         successors = []
         for steer in [-self.config.steering_angle, 0.0, self.config.steering_angle]:
             # Bicycle model kinematics
-            new_theta = node.theta + (self.config.step_size / self.config.wheelbase) * math.tan(steer)
+            new_theta = node.theta + (self.config.step_size / self.config.wheelbase) * math.tan(
+                steer
+            )
             new_x = node.x + self.config.step_size * math.cos(new_theta)
             new_y = node.y + self.config.step_size * math.sin(new_theta)
 
@@ -231,7 +232,9 @@ class HybridAStarPlanner:
         """Build Trajectory from state list."""
         n = len(states)
         if n == 0:
-            return Trajectory(states=[], controls=[], timestamps=np.array([]), vehicle_type=problem.vehicle_type)
+            return Trajectory(
+                states=[], controls=[], timestamps=np.array([]), vehicle_type=problem.vehicle_type
+            )
 
         dt = problem.time_horizon_s / max(n - 1, 1)
         timestamps = np.array([i * dt for i in range(n)], dtype=np.float64)

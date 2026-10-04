@@ -1,7 +1,5 @@
 """Tests for diagnostic and health check system."""
 
-import sys
-
 from apex_autopilot_optimization.diagnostics import (
     DiagnosticReport,
     DiagnosticResult,
@@ -12,8 +10,8 @@ from apex_autopilot_optimization.diagnostics import (
     check_numpy,
     check_optimizers,
     check_planners,
-    check_python_version,
     check_pydantic,
+    check_python_version,
     check_safety,
     check_scipy,
     check_swarm,
@@ -91,9 +89,7 @@ class TestDiagnosticReport:
         assert report.healthy is True
 
     def test_to_dict(self):
-        results = (
-            DiagnosticResult("a", DiagnosticStatus.PASS, "ok"),
-        )
+        results = (DiagnosticResult("a", DiagnosticStatus.PASS, "ok"),)
         report = DiagnosticReport(
             results=results,
             python_version="3.11.0",
@@ -113,7 +109,11 @@ class TestCheckPythonVersion:
     def test_python_version_check(self):
         result = check_python_version()
         assert result.name == "python_version"
-        assert result.status in (DiagnosticStatus.PASS, DiagnosticStatus.WARN, DiagnosticStatus.FAIL)
+        assert result.status in (
+            DiagnosticStatus.PASS,
+            DiagnosticStatus.WARN,
+            DiagnosticStatus.FAIL,
+        )
 
 
 class TestCheckNumpy:
@@ -122,7 +122,11 @@ class TestCheckNumpy:
     def test_numpy_check(self):
         result = check_numpy()
         assert result.name == "numpy"
-        assert result.status in (DiagnosticStatus.PASS, DiagnosticStatus.WARN, DiagnosticStatus.FAIL)
+        assert result.status in (
+            DiagnosticStatus.PASS,
+            DiagnosticStatus.WARN,
+            DiagnosticStatus.FAIL,
+        )
 
 
 class TestCheckScipy:
@@ -131,7 +135,11 @@ class TestCheckScipy:
     def test_scipy_check(self):
         result = check_scipy()
         assert result.name == "scipy"
-        assert result.status in (DiagnosticStatus.PASS, DiagnosticStatus.WARN, DiagnosticStatus.FAIL)
+        assert result.status in (
+            DiagnosticStatus.PASS,
+            DiagnosticStatus.WARN,
+            DiagnosticStatus.FAIL,
+        )
 
 
 class TestCheckPydantic:
@@ -140,7 +148,11 @@ class TestCheckPydantic:
     def test_pydantic_check(self):
         result = check_pydantic()
         assert result.name == "pydantic"
-        assert result.status in (DiagnosticStatus.PASS, DiagnosticStatus.WARN, DiagnosticStatus.FAIL)
+        assert result.status in (
+            DiagnosticStatus.PASS,
+            DiagnosticStatus.WARN,
+            DiagnosticStatus.FAIL,
+        )
 
 
 class TestCheckModules:
@@ -149,7 +161,11 @@ class TestCheckModules:
     def test_modules_check(self):
         result = check_modules()
         assert result.name == "modules"
-        assert result.status in (DiagnosticStatus.PASS, DiagnosticStatus.WARN, DiagnosticStatus.FAIL)
+        assert result.status in (
+            DiagnosticStatus.PASS,
+            DiagnosticStatus.WARN,
+            DiagnosticStatus.FAIL,
+        )
 
 
 class TestCheckPlanners:
@@ -158,7 +174,11 @@ class TestCheckPlanners:
     def test_planners_check(self):
         result = check_planners()
         assert result.name == "planners"
-        assert result.status in (DiagnosticStatus.PASS, DiagnosticStatus.WARN, DiagnosticStatus.FAIL)
+        assert result.status in (
+            DiagnosticStatus.PASS,
+            DiagnosticStatus.WARN,
+            DiagnosticStatus.FAIL,
+        )
 
 
 class TestCheckOptimizers:
@@ -167,7 +187,11 @@ class TestCheckOptimizers:
     def test_optimizers_check(self):
         result = check_optimizers()
         assert result.name == "optimizers"
-        assert result.status in (DiagnosticStatus.PASS, DiagnosticStatus.WARN, DiagnosticStatus.FAIL)
+        assert result.status in (
+            DiagnosticStatus.PASS,
+            DiagnosticStatus.WARN,
+            DiagnosticStatus.FAIL,
+        )
 
 
 class TestCheckEstimators:
@@ -176,7 +200,11 @@ class TestCheckEstimators:
     def test_estimators_check(self):
         result = check_estimators()
         assert result.name == "estimators"
-        assert result.status in (DiagnosticStatus.PASS, DiagnosticStatus.WARN, DiagnosticStatus.FAIL)
+        assert result.status in (
+            DiagnosticStatus.PASS,
+            DiagnosticStatus.WARN,
+            DiagnosticStatus.FAIL,
+        )
 
 
 class TestCheckSafety:
@@ -185,7 +213,11 @@ class TestCheckSafety:
     def test_safety_check(self):
         result = check_safety()
         assert result.name == "safety"
-        assert result.status in (DiagnosticStatus.PASS, DiagnosticStatus.WARN, DiagnosticStatus.FAIL)
+        assert result.status in (
+            DiagnosticStatus.PASS,
+            DiagnosticStatus.WARN,
+            DiagnosticStatus.FAIL,
+        )
 
 
 class TestCheckControl:
@@ -194,7 +226,11 @@ class TestCheckControl:
     def test_control_check(self):
         result = check_control()
         assert result.name == "control"
-        assert result.status in (DiagnosticStatus.PASS, DiagnosticStatus.WARN, DiagnosticStatus.FAIL)
+        assert result.status in (
+            DiagnosticStatus.PASS,
+            DiagnosticStatus.WARN,
+            DiagnosticStatus.FAIL,
+        )
 
 
 class TestCheckSwarm:
@@ -203,7 +239,11 @@ class TestCheckSwarm:
     def test_swarm_check(self):
         result = check_swarm()
         assert result.name == "swarm"
-        assert result.status in (DiagnosticStatus.PASS, DiagnosticStatus.WARN, DiagnosticStatus.FAIL)
+        assert result.status in (
+            DiagnosticStatus.PASS,
+            DiagnosticStatus.WARN,
+            DiagnosticStatus.FAIL,
+        )
 
 
 class TestRunDiagnostics:
@@ -221,8 +261,17 @@ class TestRunDiagnostics:
         report = run_diagnostics()
         names = {r.name for r in report.results}
         expected = {
-            "python_version", "numpy", "scipy", "pydantic", "modules",
-            "planners", "optimizers", "estimators", "safety", "control", "swarm",
+            "python_version",
+            "numpy",
+            "scipy",
+            "pydantic",
+            "modules",
+            "planners",
+            "optimizers",
+            "estimators",
+            "safety",
+            "control",
+            "swarm",
         }
         assert expected.issubset(names)
 

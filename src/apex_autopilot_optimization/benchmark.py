@@ -8,8 +8,9 @@ from __future__ import annotations
 
 import statistics
 import time
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -36,7 +37,7 @@ class BenchmarkResult:
     min_ms: float = 0.0
     max_ms: float = 0.0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "mean_ms": self.mean_ms,
@@ -56,7 +57,7 @@ class BenchmarkRunner:
     def __init__(self, config: BenchmarkConfig) -> None:
         self.config = config
 
-    def run(self, func: Optional[Callable[[], Any]] = None) -> BenchmarkResult:
+    def run(self, func: Callable[[], Any] | None = None) -> BenchmarkResult:
         """Run a benchmark and return results."""
         if func is None:
             func = self._default_benchmark
@@ -66,7 +67,7 @@ class BenchmarkRunner:
             func()
 
         # Benchmark
-        times: List[float] = []
+        times: list[float] = []
         for _ in range(self.config.iterations):
             start = time.perf_counter()
             func()
@@ -95,7 +96,7 @@ class EvolutionTracker:
     """Tracks evolution of benchmark results across generations."""
 
     def __init__(self) -> None:
-        self.generations: List[Dict[str, Any]] = []
+        self.generations: list[dict[str, Any]] = []
 
     def record_generation(self, generation: int, score: float, **metadata: Any) -> None:
         """Record a generation's score."""
@@ -107,32 +108,32 @@ class EvolutionTracker:
         entry.update(metadata)
         self.generations.append(entry)
 
-    def get_best_generation(self) -> Optional[Dict[str, Any]]:
+    def get_best_generation(self) -> dict[str, Any] | None:
         """Get the best generation."""
         if not self.generations:
             return None
         return min(self.generations, key=lambda g: g["score"])
 
-    def get_improvement_rate(self) -> Optional[float]:
+    def get_improvement_rate(self) -> float | None:
         """Get the improvement rate between first and last generation."""
         if len(self.generations) < 2:
             return None
-        first = self.generations[0]["score"]
-        last = self.generations[-1]["score"]
+        first = float(self.generations[0]["score"])
+        last = float(self.generations[-1]["score"])
         if first == 0:
             return None
         return (first - last) / first * 100
 
-    def get_convergence_generation(self, threshold: float = 1.0) -> Optional[int]:
+    def get_convergence_generation(self, threshold: float = 1.0) -> int | None:
         """Get the generation where improvement fell below threshold."""
         if len(self.generations) < 2:
             return None
         for i in range(1, len(self.generations)):
-            prev = self.generations[i - 1]["score"]
-            curr = self.generations[i]["score"]
+            prev = float(self.generations[i - 1]["score"])
+            curr = float(self.generations[i]["score"])
             improvement = prev - curr
             if improvement < threshold:
-                return self.generations[i]["generation"]
+                return int(self.generations[i]["generation"])
         return None
 
 
@@ -142,17 +143,15 @@ def run_benchmark(config: BenchmarkConfig) -> BenchmarkResult:
     return runner.run()
 
 
-def run_benchmark_suite(configs: List[BenchmarkConfig]) -> Dict[str, BenchmarkResult]:
+def run_benchmark_suite(configs: list[BenchmarkConfig]) -> dict[str, BenchmarkResult]:
     """Run a suite of benchmarks."""
-    results: Dict[str, BenchmarkResult] = {}
+    results: dict[str, BenchmarkResult] = {}
     for config in configs:
         results[config.name] = run_benchmark(config)
     return results
 
 
-def compare_benchmarks(
-    baseline: BenchmarkResult, current: BenchmarkResult
-) -> Dict[str, Any]:
+def compare_benchmarks(baseline: BenchmarkResult, current: BenchmarkResult) -> dict[str, Any]:
     """Compare two benchmark results."""
     mean_improvement = (baseline.mean_ms - current.mean_ms) / baseline.mean_ms * 100
     p95_improvement = (baseline.p95_ms - current.p95_ms) / baseline.p95_ms * 100

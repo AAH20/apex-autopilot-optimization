@@ -6,29 +6,29 @@ and onboarding guidance tailored from startups to large enterprises.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class OrganizationScale(str, Enum):
     """Organization scale tiers."""
 
-    STARTUP = "startup"           # 1-3 people
-    SMB = "smb"                   # 3-10 people
-    MID_MARKET = "mid_market"     # 10-30 people
-    ENTERPRISE = "enterprise"     # 30-100 people
-    LARGE_ENTERPRISE = "large"    # 100+ people
+    STARTUP = "startup"  # 1-3 people
+    SMB = "smb"  # 3-10 people
+    MID_MARKET = "mid_market"  # 10-30 people
+    ENTERPRISE = "enterprise"  # 30-100 people
+    LARGE_ENTERPRISE = "large"  # 100+ people
 
 
 class ModuleTier(str, Enum):
     """Module availability tiers."""
 
-    CORE = "core"                 # Always included
-    STANDARD = "standard"         # Included in most profiles
-    ADVANCED = "advanced"         # Requires explicit opt-in
-    ENTERPRISE = "enterprise"     # Enterprise-only
-    EXPERIMENTAL = "experimental" # Early access
+    CORE = "core"  # Always included
+    STANDARD = "standard"  # Included in most profiles
+    ADVANCED = "advanced"  # Requires explicit opt-in
+    ENTERPRISE = "enterprise"  # Enterprise-only
+    EXPERIMENTAL = "experimental"  # Early access
 
 
 @dataclass(frozen=True)
@@ -52,7 +52,7 @@ class SizingProfile:
     label: str
     description: str
     modules: tuple[str, ...]
-    config_defaults: Dict[str, Any]
+    config_defaults: dict[str, Any]
     onboarding_steps: tuple[str, ...]
     estimated_setup_time_min: int
     recommended_hardware: str
@@ -60,7 +60,7 @@ class SizingProfile:
 
 # ── Module Registry ──────────────────────────────────────────────────────────
 
-MODULE_REGISTRY: Dict[str, ModuleInfo] = {
+MODULE_REGISTRY: dict[str, ModuleInfo] = {
     "core_types": ModuleInfo(
         name="core_types",
         tier=ModuleTier.CORE,
@@ -142,7 +142,7 @@ MODULE_REGISTRY: Dict[str, ModuleInfo] = {
 
 # ── Sizing Profiles ─────────────────────────────────────────────────────────
 
-SIZING_PROFILES: Dict[OrganizationScale, SizingProfile] = {
+SIZING_PROFILES: dict[OrganizationScale, SizingProfile] = {
     OrganizationScale.STARTUP: SizingProfile(
         scale=OrganizationScale.STARTUP,
         label="Startup (1-3 people)",
@@ -194,8 +194,17 @@ SIZING_PROFILES: Dict[OrganizationScale, SizingProfile] = {
         label="Mid-Market (10-30 people)",
         description="Full planning, control, and swarm capabilities",
         modules=(
-            "core_types", "astar", "rrt", "prm", "hybrid_astar",
-            "minimum_snap", "ekf", "task_allocation", "formation", "cbf", "mpc",
+            "core_types",
+            "astar",
+            "rrt",
+            "prm",
+            "hybrid_astar",
+            "minimum_snap",
+            "ekf",
+            "task_allocation",
+            "formation",
+            "cbf",
+            "mpc",
         ),
         config_defaults={
             "planner": "hybrid_astar",
@@ -223,8 +232,17 @@ SIZING_PROFILES: Dict[OrganizationScale, SizingProfile] = {
         label="Enterprise (30-100 people)",
         description="Governance, security, and scalability",
         modules=(
-            "core_types", "astar", "rrt", "prm", "hybrid_astar",
-            "minimum_snap", "ekf", "task_allocation", "formation", "cbf", "mpc",
+            "core_types",
+            "astar",
+            "rrt",
+            "prm",
+            "hybrid_astar",
+            "minimum_snap",
+            "ekf",
+            "task_allocation",
+            "formation",
+            "cbf",
+            "mpc",
         ),
         config_defaults={
             "planner": "hybrid_astar",
@@ -255,8 +273,17 @@ SIZING_PROFILES: Dict[OrganizationScale, SizingProfile] = {
         label="Large Enterprise (100+ people)",
         description="Full governance, distributed operations, and compliance",
         modules=(
-            "core_types", "astar", "rrt", "prm", "hybrid_astar",
-            "minimum_snap", "ekf", "task_allocation", "formation", "cbf", "mpc",
+            "core_types",
+            "astar",
+            "rrt",
+            "prm",
+            "hybrid_astar",
+            "minimum_snap",
+            "ekf",
+            "task_allocation",
+            "formation",
+            "cbf",
+            "mpc",
         ),
         config_defaults={
             "planner": "hybrid_astar",
@@ -293,7 +320,7 @@ def get_profile(scale: OrganizationScale) -> SizingProfile:
     return SIZING_PROFILES[scale]
 
 
-def get_available_modules(scale: OrganizationScale) -> List[ModuleInfo]:
+def get_available_modules(scale: OrganizationScale) -> list[ModuleInfo]:
     """Get modules available for an organization scale."""
     scale_order = list(OrganizationScale)
     scale_idx = scale_order.index(scale)
@@ -305,7 +332,7 @@ def get_available_modules(scale: OrganizationScale) -> List[ModuleInfo]:
     return available
 
 
-def get_module_dependencies(module_name: str) -> List[str]:
+def get_module_dependencies(module_name: str) -> list[str]:
     """Get all dependencies for a module (transitive)."""
     if module_name not in MODULE_REGISTRY:
         return []
@@ -317,13 +344,13 @@ def get_module_dependencies(module_name: str) -> List[str]:
 
 
 def validate_module_selection(
-    scale: OrganizationScale, selected_modules: List[str]
-) -> tuple[bool, List[str]]:
+    scale: OrganizationScale, selected_modules: list[str]
+) -> tuple[bool, list[str]]:
     """Validate a module selection for an organization scale.
 
     Returns (is_valid, list_of_errors).
     """
-    errors: List[str] = []
+    errors: list[str] = []
     available = get_available_modules(scale)
     available_names = {m.name for m in available}
 
@@ -344,8 +371,7 @@ def validate_module_selection(
             for dep in MODULE_REGISTRY[module_name].dependencies:
                 if dep not in selected_modules:
                     errors.append(
-                        f"Module '{module_name}' depends on '{dep}' "
-                        f"which is not selected"
+                        f"Module '{module_name}' depends on '{dep}' " f"which is not selected"
                     )
 
     return (len(errors) == 0, errors)
@@ -390,36 +416,38 @@ def generate_onboarding_checklist(scale: OrganizationScale) -> str:
     profile = get_profile(scale)
     lines = [
         f"# Onboarding Checklist - {profile.label}",
-        f"",
+        "",
         f"**Estimated time:** {profile.estimated_setup_time_min} minutes",
         f"**Recommended hardware:** {profile.recommended_hardware}",
-        f"",
-        f"## Setup",
-        f"",
+        "",
+        "## Setup",
+        "",
     ]
     for i, step in enumerate(profile.onboarding_steps, 1):
         lines.append(f"- [ ] {i}. {step}")
-    lines.extend([
-        "",
-        "## Verification",
-        "",
-        "- [ ] All tests pass",
-        "- [ ] Demo plan completes successfully",
-        "- [ ] Diagnostics report no issues",
-        "",
-        "## Next Steps",
-        "",
-        "- [ ] Review API reference",
-        "- [ ] Run example projects",
-        "- [ ] Join community",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Verification",
+            "",
+            "- [ ] All tests pass",
+            "- [ ] Demo plan completes successfully",
+            "- [ ] Diagnostics report no issues",
+            "",
+            "## Next Steps",
+            "",
+            "- [ ] Review API reference",
+            "- [ ] Run example projects",
+            "- [ ] Join community",
+            "",
+        ]
+    )
     return "\n".join(lines)
 
 
-def compare_scales() -> Dict[str, Any]:
+def compare_scales() -> dict[str, Any]:
     """Compare all organization scales."""
-    result: Dict[str, Any] = {}
+    result: dict[str, Any] = {}
     for scale in OrganizationScale:
         profile = get_profile(scale)
         modules = get_available_modules(scale)

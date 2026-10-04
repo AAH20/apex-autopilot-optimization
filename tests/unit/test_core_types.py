@@ -8,16 +8,13 @@ import pytest
 from apex_autopilot_optimization.core.types import (
     BottleneckReport,
     ComplexityClass,
-    ControlInput,
-    OptimizationConstraint,
-    OptimizationObjective,
     PlanningProblem,
     PlanningResult,
     Pose3D,
     StateVector,
     Trajectory,
-    Velocity3D,
     VehicleType,
+    Velocity3D,
     Waypoint,
 )
 
@@ -92,7 +89,9 @@ class TestTrajectory:
     """Tests for Trajectory dataclass."""
 
     def test_duration_empty(self) -> None:
-        traj = Trajectory(states=[], controls=[], timestamps=np.array([]), vehicle_type=VehicleType.UAV_MULTIROTOR)
+        traj = Trajectory(
+            states=[], controls=[], timestamps=np.array([]), vehicle_type=VehicleType.UAV_MULTIROTOR
+        )
         assert traj.duration() == 0.0
 
     def test_duration_single_point(self) -> None:
@@ -117,7 +116,9 @@ class TestTrajectory:
         assert traj.duration() == pytest.approx(5.0)
 
     def test_length_empty(self) -> None:
-        traj = Trajectory(states=[], controls=[], timestamps=np.array([]), vehicle_type=VehicleType.UAV_MULTIROTOR)
+        traj = Trajectory(
+            states=[], controls=[], timestamps=np.array([]), vehicle_type=VehicleType.UAV_MULTIROTOR
+        )
         assert traj.length() == 0.0
 
     def test_length_two_points(self) -> None:

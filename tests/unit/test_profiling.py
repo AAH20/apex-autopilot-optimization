@@ -47,7 +47,7 @@ class TestProfileFunction:
 
         result = add(2, 3)
         assert result == 5
-        results = getattr(add, "profile_results")
+        results = add.profile_results
         assert len(results) == 1
         entry = results[0]
         assert entry.function_name == "add"
@@ -64,7 +64,7 @@ class TestProfileFunction:
         noop()
         noop()
         noop()
-        results = getattr(noop, "profile_results")
+        results = noop.profile_results
         assert len(results) == 3
         assert [r.call_count for r in results] == [1, 2, 3]
 
@@ -75,7 +75,7 @@ class TestProfileFunction:
             return "done"
 
         assert slow() == "done"
-        results = getattr(slow, "profile_results")
+        results = slow.profile_results
         assert len(results) == 1
         assert results[0].execution_time_ms >= 5.0
 
@@ -94,7 +94,7 @@ class TestProfileFunction:
 
         with pytest.raises(ValueError, match="kaboom"):
             boom()
-        results = getattr(boom, "profile_results")
+        results = boom.profile_results
         assert len(results) == 1
         assert results[0].function_name == "boom"
 
@@ -104,7 +104,7 @@ class TestProfileFunction:
             return (a + b) * scale
 
         assert combine(1, 2, scale=3) == 9
-        assert getattr(combine, "profile_results")[0].call_count == 1
+        assert combine.profile_results[0].call_count == 1
 
     def test_decorated_functions_are_independent(self):
         @profile_function
@@ -116,9 +116,9 @@ class TestProfileFunction:
             return 2
 
         first()
-        assert len(getattr(first, "profile_results")) == 1
-        assert len(getattr(second, "profile_results")) == 0
-        assert getattr(first, "profile_results")[0].function_name == "first"
+        assert len(first.profile_results) == 1
+        assert len(second.profile_results) == 0
+        assert first.profile_results[0].function_name == "first"
 
 
 class TestProfileContext:
@@ -143,9 +143,8 @@ class TestProfileContext:
 
     def test_context_manager_records_on_exception(self):
         results: list[ProfileResult] = []
-        with pytest.raises(RuntimeError):
-            with profile_context("exploding", results):
-                raise RuntimeError("fail")
+        with pytest.raises(RuntimeError), profile_context("exploding", results):
+            raise RuntimeError("fail")
         assert len(results) == 1
         assert results[0].function_name == "exploding"
 
@@ -257,7 +256,7 @@ class TestProfilingIntegration:
 
         fast()
         slow()
-        combined = getattr(fast, "profile_results") + getattr(slow, "profile_results")
+        combined = fast.profile_results + slow.profile_results
         top = get_top_consumers(combined, 1)
         assert top[0].function_name == "slow"
 

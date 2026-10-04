@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 import pytest
@@ -39,7 +39,6 @@ from apex_autopilot_optimization.serialization import (
     state_from_dict,
     state_to_dict,
 )
-
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -134,10 +133,10 @@ def _assert_result_equal(a: PlanningResult, b: PlanningResult) -> None:
         assert a.trajectory is b.trajectory
         return
     assert len(a.trajectory.states) == len(b.trajectory.states)
-    for sa, sb in zip(a.trajectory.states, b.trajectory.states):
+    for sa, sb in zip(a.trajectory.states, b.trajectory.states, strict=False):
         assert sa == sb
     assert len(a.trajectory.controls) == len(b.trajectory.controls)
-    for ca, cb in zip(a.trajectory.controls, b.trajectory.controls):
+    for ca, cb in zip(a.trajectory.controls, b.trajectory.controls, strict=False):
         assert ca == cb
     np.testing.assert_array_equal(a.trajectory.timestamps, b.trajectory.timestamps)
     assert a.trajectory.vehicle_type == b.trajectory.vehicle_type
@@ -234,7 +233,7 @@ class TestPlanningProblemRoundTrip:
         data = problem_to_dict(problem)
         restored = problem_from_dict(data)
         assert len(restored.waypoints) == len(problem.waypoints)
-        for orig, rest in zip(problem.waypoints, restored.waypoints):
+        for orig, rest in zip(problem.waypoints, restored.waypoints, strict=False):
             assert orig == rest
 
     def test_obstacles_preserved(self) -> None:
@@ -248,7 +247,7 @@ class TestPlanningProblemRoundTrip:
         data = problem_to_dict(problem)
         restored = problem_from_dict(data)
         assert len(restored.constraints) == len(problem.constraints)
-        for orig, rest in zip(problem.constraints, restored.constraints):
+        for orig, rest in zip(problem.constraints, restored.constraints, strict=False):
             assert orig == rest
 
     def test_objectives_preserved(self) -> None:
@@ -256,7 +255,7 @@ class TestPlanningProblemRoundTrip:
         data = problem_to_dict(problem)
         restored = problem_from_dict(data)
         assert len(restored.objectives) == len(problem.objectives)
-        for orig, rest in zip(problem.objectives, restored.objectives):
+        for orig, rest in zip(problem.objectives, restored.objectives, strict=False):
             assert orig == rest
 
     def test_scalar_fields_preserved(self) -> None:
@@ -348,7 +347,7 @@ class SimpleConfig:
     enabled: bool = True
     color: Color = Color.RED
     tags: list[str] = field(default_factory=list)
-    nested: Optional[NestedConfig] = None
+    nested: NestedConfig | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
 

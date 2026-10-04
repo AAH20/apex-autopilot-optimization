@@ -1,5 +1,19 @@
 """Apex Autopilot Optimization - Unified API facade."""
 
+from apex_autopilot_optimization.benchmark import (
+    BenchmarkConfig,
+    BenchmarkResult,
+    BenchmarkRunner,
+    EvolutionTracker,
+    compare_benchmarks,
+    run_benchmark,
+    run_benchmark_suite,
+)
+from apex_autopilot_optimization.config_validator import (
+    validate_config,
+    validate_module_config,
+)
+from apex_autopilot_optimization.control import MPCConfig, MPCController
 from apex_autopilot_optimization.core.types import (
     BottleneckReport,
     ComplexityClass,
@@ -15,30 +29,29 @@ from apex_autopilot_optimization.core.types import (
     Velocity3D,
     Waypoint,
 )
-from apex_autopilot_optimization.planning import (
-    AStarConfig,
-    AStarPlanner,
-    HybridAStarConfig,
-    HybridAStarPlanner,
-    PRMConfig,
-    PRMPlanner,
-    RRTConfig,
-    RRTPlanner,
-)
-from apex_autopilot_optimization.optimization import (
-    MinimumSnapConfig,
-    MinimumSnapOptimizer,
+from apex_autopilot_optimization.diagnostics import (
+    DiagnosticReport,
+    format_report,
+    run_diagnostics,
 )
 from apex_autopilot_optimization.estimation import EKFConfig, EKFEstimator
-from apex_autopilot_optimization.control import MPCConfig, MPCController
-from apex_autopilot_optimization.safety import CBFConfig, CBFFilter
-from apex_autopilot_optimization.swarm import (
-    Agent,
-    FormationConfig,
-    FormationController,
-    Task,
-    TaskAllocationConfig,
-    TaskAllocator,
+from apex_autopilot_optimization.evaluation import (
+    EvaluationConfig,
+    EvaluationMetric,
+    EvaluationResult,
+    EvaluationRunner,
+    MetricAggregator,
+    aggregate_metrics,
+    evaluate_all,
+    evaluate_metric,
+    run_evaluation,
+)
+from apex_autopilot_optimization.observability import (
+    ObservabilityConfig,
+    ObservabilityManager,
+    check_health,
+    collect_metrics,
+    create_logger,
 )
 from apex_autopilot_optimization.onboarding import (
     MODULE_REGISTRY,
@@ -55,15 +68,29 @@ from apex_autopilot_optimization.onboarding import (
     get_profile,
     validate_module_selection,
 )
-from apex_autopilot_optimization.diagnostics import (
-    DiagnosticReport,
-    format_report,
-    run_diagnostics,
+from apex_autopilot_optimization.optimization import (
+    MinimumSnapConfig,
+    MinimumSnapOptimizer,
 )
-from apex_autopilot_optimization.config_validator import (
-    validate_config,
-    validate_module_config,
+from apex_autopilot_optimization.planning import (
+    AStarConfig,
+    AStarPlanner,
+    HybridAStarConfig,
+    HybridAStarPlanner,
+    PRMConfig,
+    PRMPlanner,
+    RRTConfig,
+    RRTPlanner,
 )
+from apex_autopilot_optimization.quickstart import (
+    SCENARIOS,
+    DemoScenario,
+    QuickstartRunner,
+    get_recommended_scenario,
+    list_scenarios,
+    run_demo,
+)
+from apex_autopilot_optimization.safety import CBFConfig, CBFFilter
 from apex_autopilot_optimization.security import (
     AuthenticationHelper,
     EncryptionHelper,
@@ -71,47 +98,20 @@ from apex_autopilot_optimization.security import (
     SecurityPolicy,
     check_security_policy,
 )
-from apex_autopilot_optimization.observability import (
-    ObservabilityConfig,
-    ObservabilityManager,
-    check_health,
-    collect_metrics,
-    create_logger,
-)
-from apex_autopilot_optimization.benchmark import (
-    BenchmarkConfig,
-    BenchmarkResult,
-    BenchmarkRunner,
-    EvolutionTracker,
-    compare_benchmarks,
-    run_benchmark,
-    run_benchmark_suite,
-)
-from apex_autopilot_optimization.evaluation import (
-    EvaluationConfig,
-    EvaluationMetric,
-    EvaluationResult,
-    EvaluationRunner,
-    MetricAggregator,
-    aggregate_metrics,
-    evaluate_all,
-    evaluate_metric,
-    run_evaluation,
-)
-from apex_autopilot_optimization.quickstart import (
-    DemoScenario,
-    QuickstartRunner,
-    SCENARIOS,
-    get_recommended_scenario,
-    list_scenarios,
-    run_demo,
-)
 from apex_autopilot_optimization.setup_wizard import (
     SetupWizard,
     WizardResult,
     WizardStep,
     get_default_steps,
     run_setup,
+)
+from apex_autopilot_optimization.swarm import (
+    Agent,
+    FormationConfig,
+    FormationController,
+    Task,
+    TaskAllocationConfig,
+    TaskAllocator,
 )
 
 __version__ = "0.1.0"

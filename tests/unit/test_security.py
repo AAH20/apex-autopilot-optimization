@@ -1,13 +1,13 @@
 """Tests for security module."""
 
 from apex_autopilot_optimization.security import (
-    EncryptionHelper,
     AuthenticationHelper,
+    EncryptionHelper,
     SecurityAuditLog,
     SecurityPolicy,
-    check_encryption,
-    check_authentication,
     check_audit_log,
+    check_authentication,
+    check_encryption,
     check_security_policy,
     generate_secure_token,
     verify_secure_token,

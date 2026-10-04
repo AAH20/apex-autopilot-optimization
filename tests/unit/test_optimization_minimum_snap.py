@@ -2,16 +2,12 @@
 
 from __future__ import annotations
 
-import numpy as np
-import pytest
-
 from apex_autopilot_optimization.core.types import (
     PlanningProblem,
-    PlanningResult,
     Pose3D,
     StateVector,
-    Velocity3D,
     VehicleType,
+    Velocity3D,
     Waypoint,
 )
 from apex_autopilot_optimization.optimization.minimum_snap import (

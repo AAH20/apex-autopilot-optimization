@@ -86,7 +86,7 @@ class RRTPlanner:
 
         goal_node: _RRTNode | None = None
 
-        for iteration in range(self.config.max_iterations):
+        for _iteration in range(self.config.max_iterations):
             # Sample random point (with goal biasing)
             if np.random.random() < self.config.goal_sample_rate:
                 random_pos = goal_pos
@@ -191,11 +191,11 @@ class RRTPlanner:
         ab_len_sq = np.dot(ab, ab)
 
         if ab_len_sq < 1e-10:
-            return np.linalg.norm(ac) <= radius
+            return bool(np.linalg.norm(ac) <= radius)
 
         t = np.clip(np.dot(ac, ab) / ab_len_sq, 0.0, 1.0)
         closest = a + t * ab
-        return np.linalg.norm(closest - center) <= radius
+        return bool(np.linalg.norm(closest - center) <= radius)
 
     def _reconstruct_path(self, goal_node: _RRTNode) -> list[NDArray[np.float64]]:
         """Reconstruct path from goal node to root."""
@@ -234,7 +234,9 @@ class RRTPlanner:
         """Build Trajectory from state list."""
         n = len(states)
         if n == 0:
-            return Trajectory(states=[], controls=[], timestamps=np.array([]), vehicle_type=problem.vehicle_type)
+            return Trajectory(
+                states=[], controls=[], timestamps=np.array([]), vehicle_type=problem.vehicle_type
+            )
 
         dt = problem.time_horizon_s / max(n - 1, 1)
         timestamps = np.array([i * dt for i in range(n)], dtype=np.float64)

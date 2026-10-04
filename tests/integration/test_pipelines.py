@@ -1,21 +1,15 @@
 """Integration tests for cross-module pipelines."""
 
-import pytest
-
 from apex_autopilot_optimization.core.types import (
     ControlInput,
+    PlanningProblem,
     Pose3D,
     StateVector,
     VehicleType,
     Velocity3D,
     Waypoint,
-    PlanningProblem,
 )
 from apex_autopilot_optimization.estimation.ekf import EKFConfig, EKFEstimator
-from apex_autopilot_optimization.optimization.minimum_snap import (
-    MinimumSnapConfig,
-    MinimumSnapOptimizer,
-)
 from apex_autopilot_optimization.planning.astar import AStarConfig, AStarPlanner
 from apex_autopilot_optimization.safety.cbf import CBFConfig, CBFFilter
 
@@ -36,7 +30,6 @@ class TestPlanningOptimizationPipeline:
     def test_astar_to_minimum_snap_pipeline(self):
         """A* path feeds into minimum snap trajectory optimization."""
         planner = AStarPlanner(AStarConfig())
-        optimizer = MinimumSnapOptimizer(MinimumSnapConfig())
         problem = self._make_problem()
 
         plan_result = planner.plan(problem)

@@ -1,18 +1,19 @@
 """Core domain types for the autopilot optimization framework."""
+
 from apex_autopilot_optimization.core.types import (
-    VehicleType,
-    Pose3D,
-    Velocity3D,
-    StateVector,
+    BottleneckReport,
+    ComplexityClass,
     ControlInput,
-    Waypoint,
-    Trajectory,
     OptimizationConstraint,
     OptimizationObjective,
     PlanningProblem,
     PlanningResult,
-    ComplexityClass,
-    BottleneckReport,
+    Pose3D,
+    StateVector,
+    Trajectory,
+    VehicleType,
+    Velocity3D,
+    Waypoint,
 )
 
 __all__ = [
