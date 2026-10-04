@@ -6,8 +6,8 @@ Synthesized from **200 parallel research agents** (2 waves × 100), **2000+ web 
 
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
-![Tests](https://img.shields.io/badge/tests-327%20GREEN-brightgreen)
-![Modules](https://img.shields.io/badge/modules-18-orange)
+![Tests](https://img.shields.io/badge/tests-365%20GREEN-brightgreen)
+![Modules](https://img.shields.io/badge/modules-20-orange)
 ![Research](https://img.shields.io/badge/research--agents-300-purple)
 
 ---
@@ -57,7 +57,7 @@ This project provides a **production-ready Python framework** for autopilot opti
 | Trajectory tracking | `control/mpc.py` | MPC (simplified QP) | 10 |
 | Core types | `core/types.py` | 14 dataclasses + 2 enums | 23 |
 
-**Total: 327/327 tests GREEN**
+**Total: 365/365 tests GREEN**
 
 ---
 
@@ -222,6 +222,8 @@ sequenceDiagram
 | Config Validator | `config_validator.py` | 280 | 18 | `ConfigValidator`, `validate_config`, `validate_module_config` |
 | Security | `security.py` | 220 | 32 | `EncryptionHelper`, `AuthenticationHelper`, `SecurityAuditLog`, `SecurityPolicy` |
 | Observability | `observability.py` | 160 | 31 | `StructuredLogger`, `MetricCollector`, `HealthCheck`, `ObservabilityManager` |
+| Benchmark | `benchmark.py` | 180 | 18 | `BenchmarkRunner`, `EvolutionTracker`, `compare_benchmarks` |
+| Evaluation | `evaluation.py` | 170 | 20 | `EvaluationRunner`, `MetricAggregator`, `evaluate_all` |
 
 ---
 
@@ -239,7 +241,7 @@ pip install -e ".[dev]"
 
 ```bash
 pytest tests/ -v
-# 327 passed in ~3s
+# 365 passed in ~3s
 ```
 
 ### Onboarding & Sizing
@@ -405,6 +407,65 @@ print(f"Status: {health['status']}")
 
 # Quick health check
 result = check_health("my-autopilot")
+```
+
+### Benchmark
+
+Run benchmarks and track evolution:
+
+```python
+from apex_autopilot_optimization.benchmark import (
+    BenchmarkConfig,
+    BenchmarkRunner,
+    EvolutionTracker,
+    run_benchmark,
+    compare_benchmarks,
+)
+
+# Run a benchmark
+config = BenchmarkConfig(name="planning", iterations=100, warmup_iterations=10)
+result = run_benchmark(config)
+print(f"Mean: {result.mean_ms:.2f}ms, P95: {result.p95_ms:.2f}ms")
+
+# Track evolution across generations
+tracker = EvolutionTracker()
+tracker.record_generation(0, 100.0)
+tracker.record_generation(1, 80.0)
+tracker.record_generation(2, 75.0)
+print(f"Best: {tracker.get_best_generation()}")
+print(f"Improvement: {tracker.get_improvement_rate():.1f}%")
+
+# Compare benchmarks
+comparison = compare_benchmarks(baseline_result, current_result)
+print(f"Improvement: {comparison['improvement_pct']:.1f}%")
+```
+
+### Evaluation
+
+Evaluate system performance against targets:
+
+```python
+from apex_autopilot_optimization.evaluation import (
+    EvaluationConfig,
+    EvaluationRunner,
+    evaluate_all,
+    run_evaluation,
+)
+
+# Run evaluation
+config = EvaluationConfig(
+    name="system-eval",
+    metrics=["accuracy", "latency", "safety"],
+    targets={"accuracy": 0.90, "latency": 0.80, "safety": 0.95},
+)
+result = run_evaluation(config)
+print(f"Score: {result.overall_score:.2f}, Passed: {result.passed}")
+
+# Evaluate specific metrics
+values = {"accuracy": 0.95, "latency": 0.85, "safety": 0.98}
+targets = {"accuracy": 0.90, "latency": 0.80, "safety": 0.95}
+result = evaluate_all(values, targets)
+print(f"Overall: {result.overall_score:.2f}")
 ```
 
 ### Organization Scale Profiles
@@ -900,7 +961,9 @@ dev = [
 | Config Validator | 18 | ✅ |
 | Security | 32 | ✅ |
 | Observability | 31 | ✅ |
-| **TOTAL** | **327** | **ALL GREEN** |
+| Benchmark | 18 | ✅ |
+| Evaluation | 20 | ✅ |
+| **TOTAL** | **365** | **ALL GREEN** |
 
 ### Running Tests
 
