@@ -6,8 +6,8 @@ Synthesized from **200 parallel research agents** (2 waves × 100), **2000+ web 
 
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
-![Tests](https://img.shields.io/badge/tests-264%20GREEN-brightgreen)
-![Modules](https://img.shields.io/badge/modules-16-orange)
+![Tests](https://img.shields.io/badge/tests-327%20GREEN-brightgreen)
+![Modules](https://img.shields.io/badge/modules-18-orange)
 ![Research](https://img.shields.io/badge/research--agents-300-purple)
 
 ---
@@ -57,7 +57,7 @@ This project provides a **production-ready Python framework** for autopilot opti
 | Trajectory tracking | `control/mpc.py` | MPC (simplified QP) | 10 |
 | Core types | `core/types.py` | 14 dataclasses + 2 enums | 23 |
 
-**Total: 264/264 tests GREEN**
+**Total: 327/327 tests GREEN**
 
 ---
 
@@ -220,6 +220,8 @@ sequenceDiagram
 | Quickstart | `quickstart.py` | 160 | 16 | `DemoScenario`, `QuickstartRunner`, `run_demo` |
 | Setup Wizard | `setup_wizard.py` | 180 | 14 | `SetupWizard`, `WizardStep`, `run_setup` |
 | Config Validator | `config_validator.py` | 280 | 18 | `ConfigValidator`, `validate_config`, `validate_module_config` |
+| Security | `security.py` | 220 | 32 | `EncryptionHelper`, `AuthenticationHelper`, `SecurityAuditLog`, `SecurityPolicy` |
+| Observability | `observability.py` | 160 | 31 | `StructuredLogger`, `MetricCollector`, `HealthCheck`, `ObservabilityManager` |
 
 ---
 
@@ -237,7 +239,7 @@ pip install -e ".[dev]"
 
 ```bash
 pytest tests/ -v
-# 264 passed in ~3s
+# 327 passed in ~3s
 ```
 
 ### Onboarding & Sizing
@@ -336,6 +338,73 @@ for issue in issues:
 issues = validate_module_config("astar", {"grid_size": 1.0, "heuristic_weight": 1.0})
 for issue in issues:
     print(f"[{issue.severity.value}] {issue.field}: {issue.message}")
+```
+
+### Security
+
+Check security posture and manage encryption/authentication:
+
+```python
+from apex_autopilot_optimization.security import (
+    EncryptionHelper,
+    AuthenticationHelper,
+    SecurityAuditLog,
+    SecurityPolicy,
+    check_security_policy,
+)
+
+# Check security policy
+result = check_security_policy({
+    "encryption": True,
+    "authentication": True,
+    "audit_log": True,
+})
+print(f"Healthy: {result['summary']['healthy']}")
+
+# Encrypt data
+helper = EncryptionHelper()
+ciphertext = helper.encrypt(b"sensitive data")
+plaintext = helper.decrypt(ciphertext)
+
+# Hash passwords
+auth = AuthenticationHelper()
+hashed = auth.hash_password("my_password")
+assert auth.verify_password("my_password", hashed)
+
+# Audit logging
+log = SecurityAuditLog()
+log.log_event("login", {"user": "test"})
+```
+
+### Observability
+
+Structured logging, metrics, and health checks:
+
+```python
+from apex_autopilot_optimization.observability import (
+    ObservabilityConfig,
+    ObservabilityManager,
+    check_health,
+    collect_metrics,
+)
+
+# Create manager
+config = ObservabilityConfig(service_name="my-autopilot")
+manager = ObservabilityManager(config)
+
+# Log structured messages
+manager.log("INFO", "System started", version="1.0.0")
+
+# Collect metrics
+manager.collect("cpu_usage", 45.2)
+manager.collect("memory_usage", 1024.0)
+
+# Health check
+health = manager.health()
+print(f"Status: {health['status']}")
+
+# Quick health check
+result = check_health("my-autopilot")
 ```
 
 ### Organization Scale Profiles
@@ -829,7 +898,9 @@ dev = [
 | Quickstart | 16 | ✅ |
 | Setup Wizard | 14 | ✅ |
 | Config Validator | 18 | ✅ |
-| **TOTAL** | **264** | **ALL GREEN** |
+| Security | 32 | ✅ |
+| Observability | 31 | ✅ |
+| **TOTAL** | **327** | **ALL GREEN** |
 
 ### Running Tests
 
