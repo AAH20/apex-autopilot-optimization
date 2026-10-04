@@ -1,0 +1,153 @@
+{
+  "type": "architecture",
+  "title": "Apex Autopilot Optimization — Unified Macro Architecture",
+  "description": "Unified framework for UAV/UAS and ground vehicle autopilot optimization, synthesizing 100 research agents across 1000+ queries.",
+  "nodes": [
+    {
+      "id": "core",
+      "label": "Core Layer",
+      "description": "Types, interfaces, configuration, and utilities shared across all modules",
+      "category": "core",
+      "x": 400,
+      "y": 50
+    },
+    {
+      "id": "perception",
+      "label": "Perception Layer",
+      "description": "Sensor fusion, SLAM, and perception pipelines for environment understanding",
+      "category": "perception",
+      "x": 200,
+      "y": 150
+    },
+    {
+      "id": "estimation",
+      "label": "Estimation Layer",
+      "description": "EKF/UKF state estimation, factor graphs, and visual-inertial odometry",
+      "category": "estimation",
+      "x": 600,
+      "y": 150
+    },
+    {
+      "id": "planning",
+      "label": "Planning Layer",
+      "description": "A*, RRT, PRM, and Hybrid A* path planning algorithms",
+      "category": "planning",
+      "x": 200,
+      "y": 250
+    },
+    {
+      "id": "optimization",
+      "label": "Optimization Layer",
+      "description": "Minimum snap, MPC, convex optimization, and GCS trajectory optimization",
+      "category": "optimization",
+      "x": 600,
+      "y": 250
+    },
+    {
+      "id": "swarm",
+      "label": "Swarm Layer",
+      "description": "Task allocation, formation control, coverage control, and search coordination",
+      "category": "swarm",
+      "x": 400,
+      "y": 350
+    },
+    {
+      "id": "control",
+      "label": "Control Layer",
+      "description": "PID, LQR, MPC, sliding mode, and adaptive control algorithms",
+      "category": "control",
+      "x": 200,
+      "y": 450
+    },
+    {
+      "id": "safety",
+      "label": "Safety Layer",
+      "description": "Control Barrier Functions, geofencing, and failsafe systems",
+      "category": "safety",
+      "x": 600,
+      "y": 450
+    },
+    {
+      "id": "interface",
+      "label": "Interface Layer",
+      "description": "PX4, ArduPilot, ROS 2, and DDS integration adapters",
+      "category": "interface",
+      "x": 400,
+      "y": 550
+    },
+    {
+      "id": "simulation",
+      "label": "Simulation Layer",
+      "description": "SITL, HITL, and digital twin simulation environments",
+      "category": "simulation",
+      "x": 400,
+      "y": 650
+    }
+  ],
+  "relationships": [
+    {
+      "from": "core",
+      "to": "perception",
+      "label": "feeds"
+    },
+    {
+      "from": "core",
+      "to": "estimation",
+      "label": "feeds"
+    },
+    {
+      "from": "perception",
+      "to": "estimation",
+      "label": "sensor data"
+    },
+    {
+      "from": "estimation",
+      "to": "planning",
+      "label": "state estimate"
+    },
+    {
+      "from": "estimation",
+      "to": "optimization",
+      "label": "state estimate"
+    },
+    {
+      "from": "planning",
+      "to": "optimization",
+      "label": "path"
+    },
+    {
+      "from": "optimization",
+      "to": "swarm",
+      "label": "trajectory"
+    },
+    {
+      "from": "swarm",
+      "to": "control",
+      "label": "commands"
+    },
+    {
+      "from": "swarm",
+      "to": "safety",
+      "label": "constraints"
+    },
+    {
+      "from": "safety",
+      "to": "control",
+      "label": "filtered commands"
+    },
+    {
+      "from": "control",
+      "to": "interface",
+      "label": "actuation"
+    },
+    {
+      "from": "interface",
+      "to": "simulation",
+      "validation": "validation"
+    }
+  ],
+  "meta": {
+    "quality_profile": "showcase",
+    "output": "docs/architecture/apex-autopilot-architecture.html"
+  }
+}
