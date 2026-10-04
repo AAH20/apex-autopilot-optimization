@@ -6,8 +6,8 @@ Synthesized from **200 parallel research agents** (2 waves × 100), **2000+ web 
 
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
-![Tests](https://img.shields.io/badge/tests-195%20GREEN-brightgreen)
-![Modules](https://img.shields.io/badge/modules-12-orange)
+![Tests](https://img.shields.io/badge/tests-216%20GREEN-brightgreen)
+![Modules](https://img.shields.io/badge/modules-13-orange)
 ![Research](https://img.shields.io/badge/research--agents-300-purple)
 
 ---
@@ -57,7 +57,7 @@ This project provides a **production-ready Python framework** for autopilot opti
 | Trajectory tracking | `control/mpc.py` | MPC (simplified QP) | 10 |
 | Core types | `core/types.py` | 14 dataclasses + 2 enums | 23 |
 
-**Total: 195/195 tests GREEN**
+**Total: 216/216 tests GREEN**
 
 ---
 
@@ -216,6 +216,7 @@ sequenceDiagram
 | CBF Safety | `safety/cbf.py` | 96 | 11 | `CBFConfig`, `CBFFilter` |
 | MPC Controller | `control/mpc.py` | 76 | 10 | `MPCConfig`, `MPCController` |
 | Onboarding/Sizing | `onboarding/sizing.py` | 380 | 66 | `OrganizationScale`, `SizingProfile`, `ModuleInfo` |
+| Diagnostics | `diagnostics.py` | 310 | 21 | `run_diagnostics`, `format_report`, `DiagnosticReport` |
 
 ---
 
@@ -233,7 +234,7 @@ pip install -e ".[dev]"
 
 ```bash
 pytest tests/ -v
-# 195 passed in ~3s
+# 216 passed in ~3s
 ```
 
 ### Onboarding & Sizing
@@ -268,6 +269,22 @@ is_valid, errors = validate_module_selection(
     OrganizationScale.SMB,
     ["core_types", "astar", "prm", "cbf"],
 )
+```
+
+### Diagnostics
+
+Run system diagnostics to check your environment:
+
+```python
+from apex_autopilot_optimization.diagnostics import run_diagnostics, format_report
+
+# Run all checks
+report = run_diagnostics()
+print(format_report(report))
+
+# Check specific results
+print(f"Passed: {report.passed}/{report.total}")
+print(f"Healthy: {report.healthy}")
 ```
 
 ### Organization Scale Profiles
@@ -757,7 +774,8 @@ dev = [
 | MPC Controller | 10 | ✅ |
 | Formation Control | 10 | ✅ |
 | Onboarding/Sizing | 66 | ✅ |
-| **TOTAL** | **195** | **ALL GREEN** |
+| Diagnostics | 21 | ✅ |
+| **TOTAL** | **216** | **ALL GREEN** |
 
 ### Running Tests
 
