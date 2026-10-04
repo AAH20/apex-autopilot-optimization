@@ -1,0 +1,38 @@
+# Example configuration for startup scale
+
+scale: startup
+modules:
+  - core_types
+  - astar
+  - minimum_snap
+  - ekf
+
+config:
+  planner: astar
+  optimizer: minimum_snap
+  estimator: ekf
+  max_iterations: 10000
+  log_level: INFO
+
+planner:
+  resolution_m: 1.0
+  max_iterations: 10000
+  diagonal_movement: true
+  heuristic_weight: 1.0
+
+optimizer:
+  num_waypoints: 10
+  time_horizon: 10.0
+  max_velocity: 5.0
+  max_acceleration: 2.0
+
+estimator:
+  process_noise: 0.01
+  measurement_noise: 0.1
+  initial_covariance: 1.0
+
+safety:
+  enabled: false
+
+swarm:
+  enabled: false

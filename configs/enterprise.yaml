@@ -1,0 +1,72 @@
+# Example configuration for enterprise scale
+
+scale: enterprise
+modules:
+  - core_types
+  - astar
+  - rrt
+  - prm
+  - hybrid_astar
+  - minimum_snap
+  - ekf
+  - mpc
+  - cbf
+  - task_allocation
+  - formation
+  - security
+  - observability
+  - benchmark
+  - evaluation
+
+config:
+  planner: hybrid_astar
+  optimizer: minimum_snap
+  estimator: ekf
+  controller: mpc
+  safety_filter: cbf
+  max_iterations: 50000
+  log_level: INFO
+  metrics_enabled: true
+
+planner:
+  resolution_m: 0.5
+  max_iterations: 50000
+  diagonal_movement: true
+  heuristic_weight: 1.2
+
+optimizer:
+  num_waypoints: 20
+  time_horizon: 30.0
+  max_velocity: 15.0
+  max_acceleration: 5.0
+
+estimator:
+  process_noise: 0.001
+  measurement_noise: 0.01
+  initial_covariance: 0.1
+
+controller:
+  prediction_horizon: 20
+  control_horizon: 5
+  dt: 0.02
+  max_throttle: 1.0
+
+safety:
+  enabled: true
+  safety_margin: 2.0
+  alpha: 1.0
+
+swarm:
+  enabled: true
+  max_agents: 100
+  formation_type: hexagon
+
+security:
+  encryption: true
+  authentication: true
+  audit_log: true
+
+observability:
+  metrics_enabled: true
+  health_check_enabled: true
+  log_level: INFO

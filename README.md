@@ -6,8 +6,8 @@ Synthesized from **200 parallel research agents** (2 waves × 100), **2000+ web 
 
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
-![Tests](https://img.shields.io/badge/tests-365%20GREEN-brightgreen)
-![Modules](https://img.shields.io/badge/modules-20-orange)
+![Tests](https://img.shields.io/badge/tests-560%20GREEN-brightgreen)
+![Modules](https://img.shields.io/badge/modules-26-orange)
 ![Research](https://img.shields.io/badge/research--agents-300-purple)
 
 ---
@@ -57,7 +57,7 @@ This project provides a **production-ready Python framework** for autopilot opti
 | Trajectory tracking | `control/mpc.py` | MPC (simplified QP) | 10 |
 | Core types | `core/types.py` | 14 dataclasses + 2 enums | 23 |
 
-**Total: 365/365 tests GREEN**
+**Total: 560/560 tests GREEN** (365 existing + 17 CLI + 20 observability fix + 8 integration + 27 pipeline + 30 plugin + 42 serialization + 25 profiling + 26 memory)
 
 ---
 
@@ -224,6 +224,14 @@ sequenceDiagram
 | Observability | `observability.py` | 160 | 31 | `StructuredLogger`, `MetricCollector`, `HealthCheck`, `ObservabilityManager` |
 | Benchmark | `benchmark.py` | 180 | 18 | `BenchmarkRunner`, `EvolutionTracker`, `compare_benchmarks` |
 | Evaluation | `evaluation.py` | 170 | 20 | `EvaluationRunner`, `MetricAggregator`, `evaluate_all` |
+| CLI | `cli.py` | 340 | 17 | `apex-autopilot` command with plan, setup, doctor, quickstart, benchmark, evaluate |
+| Pipeline | `pipeline.py` | 180 | 27 | `Pipeline`, `PipelineStage`, `PlanningStage`, `OptimizationStage`, `SafetyStage` |
+| Plugin | `plugin.py` | 220 | 30 | `Plugin` ABC, `PluginRegistry`, `BenchmarkPlugin`, `EvaluationPlugin`, `DiagnosticsPlugin` |
+| Serialization | `serialization.py` | 280 | 42 | JSON/YAML round-trips for all domain types, `save_json`, `load_yaml` |
+| Profiling | `profiling.py` | 160 | 25 | `profile_function`, `profile_context`, `get_top_consumers`, `export_stats` |
+| Memory | `memory.py` | 200 | 26 | `MemorySnapshot`, `take_snapshot`, `compare_snapshots`, `MemoryLeakDetector` |
+| Integration | `tests/integration/` | 200 | 8 | Cross-module pipeline tests (plan→optimize→filter, EKF→CBF) |
+| CI/CD | `.github/workflows/ci.yml` | 80 | — | GitHub Actions: lint, typecheck, unit tests, integration tests, coverage |
 
 ---
 
@@ -241,7 +249,7 @@ pip install -e ".[dev]"
 
 ```bash
 pytest tests/ -v
-# 365 passed in ~3s
+# 560 passed in ~3s
 ```
 
 ### Onboarding & Sizing
