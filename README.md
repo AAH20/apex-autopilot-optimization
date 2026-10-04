@@ -2,13 +2,13 @@
 
 **Unified macro architecture for UAV/UAS (PX4, ArduPilot) and ground vehicle autopilot optimization.**
 
-Synthesized from **100 parallel research agents**, **1000+ web queries**, and **300+ cited sources** spanning PX4/ArduPilot architecture, path planning, trajectory optimization, SLAM, multi-agent coordination, NP-hard problems, sensor fusion, safety, HRI, ethics, regulations, certification, testing, validation, verification, simulation, and future trends.
+Synthesized from **200 parallel research agents** (2 waves × 100), **2000+ web queries**, and **500+ cited sources** spanning PX4/ArduPilot architecture, MAVLink protocol, path planning, trajectory optimization, SLAM, multi-agent coordination, NP-hard problems, sensor fusion, safety, HRI, ethics, regulations, certification, testing, validation, verification, simulation, hardware compatibility, benchmarks, evolution, evaluation metrics, and future trends.
 
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![Tests](https://img.shields.io/badge/tests-129%20GREEN-brightgreen)
 ![Modules](https://img.shields.io/badge/modules-11-orange)
-![Research](https://img.shields.io/badge/research--agents-100-purple)
+![Research](https://img.shields.io/badge/research--agents-200-purple)
 
 ---
 
@@ -23,6 +23,11 @@ Synthesized from **100 parallel research agents**, **1000+ web queries**, and **
 - [Bottleneck Registry](#bottleneck-registry)
 - [NP-Hard Problem Registry](#np-hard-problem-registry)
 - [Gap Analysis](#gap-analysis)
+- [MAVLink Protocol Research](#mavlink-protocol-research)
+- [Hardware Compatibility Matrix](#hardware-compatibility-matrix)
+- [Autopilot Benchmarks](#autopilot-benchmarks)
+- [Evolution Parameters](#evolution-parameters)
+- [Evaluation Metrics](#evaluation-metrics)
 - [Development](#development)
 - [Testing](#testing)
 - [Roadmap](#roadmap)
@@ -783,10 +788,279 @@ Every module follows strict **RED-GREEN-REFACTOR**:
 
 ---
 
+## MAVLink Protocol Research
+
+### Protocol Overview
+
+| Feature | MAVLink v1 (2009) | MAVLink v2 (2017) |
+|---------|-------------------|-------------------|
+| Magic byte | `0xFE` | `0xFD` |
+| Header size | 8 bytes | 10 bytes |
+| Message IDs | 8-bit (256) | 24-bit (16.7M) |
+| Payload max | 255 bytes | 255 bytes |
+| Signing | None | HMAC-SHA256 (optional) |
+| Extensions | None | Append-only fields |
+| Truncation | None | Zero-byte trailing |
+| Compat flags | None | Incompat/Compat bits |
+| Encryption | None | None (MAVLink-S proposed) |
+
+**Packet structure (v2):** 10-byte header + payload (0-255 bytes) + 2-byte CRC + optional 13-byte signature
+
+**CRC_EXTRA:** 1-byte seed derived from message name + field types/names via CRC-16/MCRF4XX, folded to 8 bits. Ensures sender/receiver share compatible message definitions. Silent drop on mismatch.
+
+**Message signing:** HMAC-SHA-256 truncated to 48 bits. 13-byte signature block (link ID + timestamp + signature). 32-byte key. Replay protection via monotonic timestamps. Overhead: 5.2 kbps at 50 Hz.
+
+### Network Architecture
+
+| Feature | Status |
+|---------|--------|
+| Native encryption | None (MAVSec proposed: ChaCha20) |
+| Authentication | Optional HMAC-SHA256 (disabled by default) |
+| Authorization | Completely absent |
+| QoS | None (ArduPilot 3-tier bucket scheduler) |
+| Multicast | Topic mode (no guarantee) |
+| Congestion control | None |
+| System ID limit | 255 (8-bit sysid) |
+| Time sync | TIMESYNC (ms-level, software only) |
+| TSN support | None |
+| Cloud-native | None (COMPASS architecture proposed) |
+
+### Alternatives Comparison
+
+| Protocol | Overhead | Max Systems | QoS | Security | Best For |
+|----------|----------|-------------|-----|----------|----------|
+| MAVLink v2 | 12 bytes | 255 | None | Optional signing | GCS/constrained links |
+| DroneCAN | 8 bytes | 127 | Hardware arbitration | None | Internal sensor bus |
+| uORB | 0 (shared mem) | N/A | Lock-free pub-sub | None | PX4 internal |
+| LCM | 50-100 µs | Unlimited | None | None | Academic robotics |
+| ROS2 DDS | 200-500 µs | Unlimited | Rich (11 policies) | DDS-Security | Intra-robot |
+| Zenoh | 5 bytes | Unlimited | Yes | Yes | Cloud/edge |
+
+---
+
+## Hardware Compatibility Matrix
+
+### PX4 Supported Flight Controllers
+
+| Board | MCU | Flash | RAM | IMU | CAN | Tier | Price |
+|-------|-----|-------|-----|-----|-----|------|-------|
+| Pixhawk 6X-RT | i.MX RT1176 @ 1GHz | 64MB | 1MB | Triple | Yes | Pixhawk Standard | $340 |
+| Pixhawk 6X | STM32H753 @ 480MHz | 2MB | 1MB | Triple | Yes | Pixhawk Standard | $300 |
+| Pixhawk 6C | STM32H743 @ 480MHz | 2MB | 1MB | Triple | Yes | Pixhawk Standard | $280 |
+| Cube Orange+ | STM32H753 | 2MB | 1MB | Triple | Yes | Manufacturer | $250 |
+| ARK FPV | STM32H743 | 2MB | 1MB | Dual | Yes | Manufacturer | $200 |
+| CUAV V5+ | STM32F765 | 2MB | 512KB | Dual | Yes | Manufacturer | $180 |
+| Navio2 | BCM2711 | SD | 1GB | Dual | No | Community | $150 |
+
+### ArduPilot Supported Flight Controllers
+
+| Board | MCU | Flash | RAM | IMU | CAN | Min Firmware | Price |
+|-------|-----|-------|-----|-----|-----|--------------|-------|
+| Pixhawk 6X | STM32H753 | 2MB | 1MB | Triple | Yes | Full | $300 |
+| Cube Orange+ | STM32H753 | 2MB | 1MB | Triple | Yes | Full | $250 |
+| Matek H743-WING | STM32H743 | 2MB | 1MB | Dual | Yes | Full | $120 |
+| Matek F405-WING | STM32F405 | 1MB | 256KB | Single | Yes | Reduced | $60 |
+| Pixhawk 1 | STM32F427 | 1MB | 256KB | Single | No | Legacy | $100 |
+
+### Companion Computers
+
+| Computer | AI TOPS | Power | Weight | Best For | Price |
+|-----------|---------|-------|--------|----------|-------|
+| Jetson Orin NX | 100 | 10-25W | 150g | AI/CV/SLaM | $500 |
+| Jetson Orin Nano | 40 | 7-15W | 80g | Edge AI | $250 |
+| Raspberry Pi 5 | 0 | 5-8W | 50g | Telemetry/MAVROS | $80 |
+| Intel NUC | 0 | 15-65W | 500g | x86 workloads | $400 |
+| ModalAI VOXL 2 | 15 | 5-10W | 16g | FC+AI fused | $300 |
+
+### Sensor Compatibility
+
+| Sensor | Protocol | PX4 | ArduPilot | Notes |
+|--------|----------|-----|-----------|-------|
+| ICM-42688-P | SPI/I2C | Yes | Yes | Gold-standard IMU, 32kHz ODR |
+| BMI088 | SPI | Yes | Yes | Robust, vibration-resistant |
+| u-blox F9P | UART/I2C | Yes | Yes | RTK GNSS, 10Hz |
+| RM3100 | I2C | Yes | Yes | Superior noise rejection |
+| LightWare SF45 | UART | Yes | Yes | Rangefinder, 50m |
+| TeraRanger Evo | I2C/UART | Yes | Yes | Rangefinder, 60m |
+
+---
+
+## Autopilot Benchmarks
+
+### Loop Rate & Latency
+
+| Platform | PID Loop | Pipeline Latency | EKF | Flash | Best For |
+|----------|----------|------------------|-----|-------|----------|
+| Betaflight | 8 kHz | <125 µs | None | ~500KB | Raw acro performance |
+| INAV | 4 kHz | ~250 µs | Custom | ~1-2MB | Lightweight navigation |
+| PX4 | 200-500 Hz | ~1-2 ms | EKF2 (121KB) | ~1-2MB | Modularity + simulation |
+| ArduPilot | 1-2 kHz | ~2-5 ms | EKF3 (24 IMU) | ~1.5-2MB | Maximum autonomy |
+
+### MAVLink Performance
+
+| Metric | Value | Source |
+|--------|-------|--------|
+| Forwarding latency | 162-4,521 ns/message | Real hardware |
+| End-to-end (satellite) | 600-1,600 ms | Iridium/Starlink |
+| End-to-end (MAVROS) | 1.6-2.1 ms | Pixhawk 4 |
+| Protocol overhead | 8-14 bytes/packet | v1/v2 |
+| Delivery success (open field) | 83% | Field trials |
+| Delivery success (obstructed) | 70% | Field trials |
+| DDS latency advantage | 20-35% lower | MicroXRCE-DDS |
+| MAVROS CPU overhead | 59% vs 29% DDS | Pixhawk 4 |
+
+### Hardware Performance
+
+| Metric | STM32F4 | STM32F7 | STM32H7 | i.MX RT1176 |
+|--------|---------|---------|---------|-------------|
+| Clock | 168 MHz | 216-400 MHz | 480 MHz | 1 GHz |
+| Flash | 1-2MB | 2MB | 2MB | 64MB |
+| RAM | 256-512KB | 512KB | 1MB | 1MB |
+| FPU | Single | Single | Double | Double |
+| CPU load | 60-75% | 25-40% | 8-15% | <5% |
+| EKF instances | 1 | 2-4 | 4-16 | 16+ |
+
+---
+
+## Evolution Parameters
+
+### Version Migration
+
+| Parameter | v1 | v2 | Notes |
+|-----------|----|----|-------|
+| Message IDs | 8-bit (256) | 24-bit (16.7M) | Non-breaking per-channel negotiation |
+| Signing | None | HMAC-SHA256 | Optional, disabled by default |
+| Extensions | None | Append-only | Excluded from CRC_EXTRA |
+| Truncation | None | Zero-byte trailing | Lossy by design |
+| Compat flags | None | Incompat/Compat | Ignorable vs must-discard |
+
+### Dialect Evolution
+
+| Dialect | Messages | Purpose |
+|---------|----------|---------|
+| common.xml | 232 | Base message set |
+| standard.xml | +20 | Standard extensions |
+| minimal.xml | 10 | Minimal set |
+| ardupilotmega | +200 | ArduPilot-specific |
+| storm32 | +50 | Storm32 gimbal |
+| development | WIP | Unstable definitions |
+
+### Message ID Allocation
+
+| Range | Purpose |
+|-------|---------|
+| 0-254 | v1 zone |
+| 256-14,999 | Standard |
+| 15,000-23,999 | Third-party |
+| 25,000-25,599 | Vendor |
+| 25,600+ | Private |
+
+### Governance
+
+| Aspect | Model |
+|--------|-------|
+| Foundation | Dronecode Foundation (Linux Foundation) |
+| License | MIT (XML + C library) |
+| RFC process | RFC 0001: 4-week discussion + 4-week implementation |
+| Code generation | mavgen (C/Python/Rust/Swift/JS) |
+| Testing | gtest, libfuzzer, all.xml cross-dialect |
+| Release cycle | No formal process; last tag v1.0.12 (May 2019) |
+
+---
+
+## Evaluation Metrics
+
+### Performance Metrics
+
+| Metric | Description | Target |
+|--------|-------------|--------|
+| MTBI | Mean time between incidents | >500h |
+| CPSA | Cost per successful autonomous operation | <20% human cost |
+| TSR | Task success rate | >95% |
+| Step efficiency | Steps to complete task | Minimize |
+| Tool-call accuracy | Correct tool invocation | >98% |
+
+### Reliability Metrics
+
+| Metric | Description | Challenge |
+|--------|-------------|-----------|
+| MTBF | Mean time between failures | AI non-determinism breaks classical MTBF |
+| Availability | System uptime | ML uncertainty quantification needed |
+| pass^k | Reliability across k runs | Agent pass^8 < 25% |
+
+### Safety Metrics
+
+| Framework | Axes | Scale |
+|-----------|------|-------|
+| ALFUS | 3-axis (capability, autonomy, usability) | 0-5 |
+| PerMFUS | 6 core metrics | 0-100 |
+| SORA | SAIL I-V | I-V |
+| SkyCheck v2.0 | Operational risk | 0-100 |
+
+### Security Metrics
+
+| Framework | Scale | Coverage |
+|-----------|-------|----------|
+| D3S | 0-5 | Communications, software, characteristics, cyber-attacks |
+| CVSS | 0-10 | CVE severity |
+| ATT&CK | Tactics/Techniques | Threat-oriented |
+
+### Unified Compatibility Scoring (Proposed)
+
+| Dimension | Weight | Metrics |
+|-----------|--------|---------|
+| Compatibility | 25% | FMU version, binary compat, sensor voting |
+| Performance | 20% | Loop rate, EKF latency, CPU load |
+| Reliability | 20% | MTBF, delivery success, redundancy |
+| Safety | 15% | SORA SAIL, CBF enforcement, certification |
+| Security | 10% | Signing, encryption, intrusion detection |
+| TCO | 10% | Acquisition + sustainment |
+
+---
+
+## MAVLink Citations
+
+### Protocol & Architecture
+1. MAVLink Protocol Overview — https://mavlink.io/en/
+2. MAVLink v2 Guide — https://mavlink.io/en/guide/mavlink_v2.html
+3. MAVLink CRC_EXTRA — https://mavlink.io/en/guide/define_xml_element.html
+4. MAVLink Signing — https://mavlink.io/en/guide/message_signing.html
+5. MAVLink Routing — https://mavlink.io/en/guide/routing.html
+
+### Hardware & Benchmarks
+6. Pixhawk Standards — https://pixhawk.org/
+7. PX4 Supported Boards — https://docs.px4.io/main/en/flight_controller/
+8. ArduPilot Supported Boards — https://ardupilot.org/copter/docs/common-autopilots.html
+9. STM32H7 Reference Manual — https://www.st.com/en/microcontrollers-microprocessors/stm32h7-series.html
+10. Jetson Orin Documentation — https://developer.nvidia.com/embedded/jetson-orin
+
+### Security & Formal Methods
+11. CVE-2020-10281 — https://nvd.nist.gov/vuln/detail/CVE-2020-10281
+12. CVE-2020-10282 — https://nvd.nist.gov/vuln/detail/CVE-2020-10282
+13. CVE-2020-10283 — https://nvd.nist.gov/vuln/detail/CVE-2020-10283
+14. CVE-2026-1579 — https://nvd.nist.gov/vuln/detail/CVE-2026-1579
+15. DATUM Formal Verification — https://arxiv.org/abs/2501.18874
+16. Platum Runtime Monitors — https://arxiv.org/abs/2604.03886
+
+### Alternatives & Integration
+17. DroneCAN Specification — https://dronecan.github.io/
+18. ROS 2 DDS — https://docs.ros.org/en/rolling/
+19. uORB Messaging — https://docs.px4.io/main/en/middleware/uorb.html
+20. LCM — https://lcm-proj.github.io/
+21. Zenoh — https://zenoh.io/
+
+### Evaluation & Standards
+22. IEEE P3777 — https://standards.ieee.org/ieee/3777/7397/
+23. NIST PerMIS — https://www.nist.gov/el/intelligent-systems-division-73500/permis
+24. ALFUS Framework — https://www.nist.gov/publications/autonomous-levels-fusion-unmanned-systems-alfus
+25. SORA — https://www.easa.europa.eu/en/domains/civil-drones-rpas/sora
+
+---
+
 ## License
 
 AGPL-3.0
 
 ---
 
-**This project was generated by 100 parallel AI agents. All claims should be verified before external use.**
+**This project was generated by 200 parallel AI agents (2 waves × 100 agents). All claims should be verified before external use.**
