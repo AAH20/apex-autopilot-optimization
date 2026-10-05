@@ -34,7 +34,7 @@ class ResourceQuota:
     def __post_init__(self) -> None:
         if not isinstance(self.resource_type, ResourceType):
             raise TypeError(
-                "resource_type must be a ResourceType, got " f"{type(self.resource_type).__name__}"
+                f"resource_type must be a ResourceType, got {type(self.resource_type).__name__}"
             )
         if not isinstance(self.owner, str) or not self.owner:
             raise ValueError("owner must be a non-empty string")

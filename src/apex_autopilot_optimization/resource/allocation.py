@@ -9,12 +9,12 @@ from __future__ import annotations
 import math
 import time
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 
 __all__ = ["ResourceAllocation", "ResourceStatus", "ResourceType"]
 
 
-class ResourceType(str, Enum):
+class ResourceType(StrEnum):
     """Types of managed resources."""
 
     CPU = "cpu"
@@ -24,7 +24,7 @@ class ResourceType(str, Enum):
     STORAGE = "storage"
 
 
-class ResourceStatus(str, Enum):
+class ResourceStatus(StrEnum):
     """Lifecycle status of a resource allocation."""
 
     ALLOCATED = "allocated"

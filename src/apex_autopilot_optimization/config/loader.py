@@ -67,7 +67,13 @@ def save_config(path: str, config: dict[str, Any]) -> None:
         with open(p, "w", encoding="utf-8") as f:
             json.dump(config, f, indent=2)
     elif suffix == ".toml":
-        import tomli_w
+        try:
+            import tomli_w
+        except ImportError as exc:
+            raise ValueError(
+                "TOML writing requires the optional 'tomli-w' dependency; "
+                "install it with: pip install 'apex-autopilot-optimization[toml]'"
+            ) from exc
 
         with open(p, "w", encoding="utf-8") as f:
             f.write(tomli_w.dumps(config))
