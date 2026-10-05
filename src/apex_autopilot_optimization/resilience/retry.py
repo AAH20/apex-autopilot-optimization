@@ -36,13 +36,19 @@ class RetryConfig:
 
 
 def _compute_delay(attempt: int, config: RetryConfig) -> float:
-    """Compute delay with exponential backoff and full jitter.
+    """Compute delay with exponential backoff and equal jitter.
 
-    Uses the "full jitter" approach: sleep = random(0, min(cap, base * 2**attempt)).
+    Uses the "equal jitter" approach: sleep = capped/2 + random(0, capped/2).
+    This decorrelates retries across clients (avoiding a thundering herd)
+    while guaranteeing each successive window lies strictly above the
+    previous one, so backoff remains monotonically increasing. Full jitter
+    (random(0, capped)) is deliberately avoided: its overlapping windows
+    can produce a shorter delay on a later attempt.
     """
     exp_delay = config.base_delay * (config.exponential_base**attempt)
     capped = min(exp_delay, config.max_delay)
-    return random.uniform(0, capped)
+    half = capped / 2.0
+    return half + random.uniform(0, half)
 
 
 def retry(
