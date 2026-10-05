@@ -59,12 +59,18 @@ class FallbackChain:
 class DegradationManager:
     """Manages capability degradation tiers based on system health.
 
-    Tiers (from most to least capable):
-        FULL: All features available.
-        REDUCED: Non-essential features disabled.
-        CACHED: Serving cached/stale data.
-        STATIC: Serving static fallback data.
-        EMERGENCY: Minimal safe-mode operation only.
+    Tiers (from most to least capable), selected by ``get_tier`` when the
+    system is unhealthy:
+
+        FULL: All features available (system healthy).
+        REDUCED: Non-essential features disabled; a fresh cache *and* a
+            static fallback are both still available, so no capability is
+            actually lost yet.
+        CACHED: Serving cached data; the fresh cache is the last line of
+            defence (no static fallback remains).
+        STATIC: Cache is unavailable or too stale to use; serving static
+            fallback data.
+        EMERGENCY: Minimal safe-mode operation only (no cache, no static).
     """
 
     FULL = "FULL"
@@ -114,6 +120,10 @@ class DegradationManager:
     def get_tier(self) -> str:
         """Determine the current capability tier.
 
+        Walks the degradation ladder from most to least capable. A fresh
+        cache (staleness < 0.9) is usable; a stale cache is discarded in
+        favour of the static fallback.
+
         Returns:
             One of FULL, REDUCED, CACHED, STATIC, EMERGENCY.
         """
@@ -121,7 +131,9 @@ class DegradationManager:
             return self.FULL
 
         if self._cache_available and self._cache_staleness < 0.9:
-            return self.CACHED
+            # Fresh cache is usable. If a static fallback still exists we
+            # are merely REDUCED; otherwise the cache is the last resort.
+            return self.REDUCED if self._static_available else self.CACHED
 
         if self._static_available:
             return self.STATIC

@@ -423,14 +423,17 @@ class TestDegradationManager:
     def test_reduced_tier_when_degraded(self) -> None:
         dm = DegradationManager()
         dm.set_health(False)
-        dm.set_cache_available(False)
-        dm.set_static_available(False)
-        assert dm.get_tier() == "EMERGENCY"
+        # Fresh cache *and* static fallback both available: only non-essential
+        # features are shed, so no capability is lost yet -> REDUCED.
+        dm.set_cache_available(True)
+        dm.set_static_available(True)
+        assert dm.get_tier() == "REDUCED"
 
     def test_cached_tier_when_stale(self) -> None:
         dm = DegradationManager()
         dm.set_health(False)
         dm.set_cache_available(True)
+        dm.set_static_available(False)
         assert dm.get_tier() == "CACHED"
 
     def test_static_tier_when_no_cache(self) -> None:
@@ -463,3 +466,29 @@ class TestDegradationManager:
 
         dm.set_health(True)
         assert dm.get_tier() == "FULL"
+
+    def test_degradation_ladder_is_monotonic(self) -> None:
+        """Each capability removed must move strictly down the ladder."""
+        dm = DegradationManager()
+
+        # Healthy -> FULL
+        assert dm.get_tier() == "FULL"
+
+        # Unhealthy, cache + static intact -> REDUCED
+        dm.set_health(False)
+        dm.set_cache_available(True)
+        dm.set_static_available(True)
+        assert dm.get_tier() == "REDUCED"
+
+        # Lose static -> CACHED
+        dm.set_static_available(False)
+        assert dm.get_tier() == "CACHED"
+
+        # Lose (stale) cache -> STATIC
+        dm.set_cache_staleness(0.95)
+        dm.set_static_available(True)
+        assert dm.get_tier() == "STATIC"
+
+        # Lose static too -> EMERGENCY
+        dm.set_static_available(False)
+        assert dm.get_tier() == "EMERGENCY"
