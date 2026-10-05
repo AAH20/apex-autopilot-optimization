@@ -4,6 +4,7 @@ The EdgeAI component manages a small set of models that can be loaded,
 queried, and unloaded at runtime. Inference is deterministic and
 dependency-free so it runs in constrained edge environments.
 """
+
 from __future__ import annotations
 
 import hashlib

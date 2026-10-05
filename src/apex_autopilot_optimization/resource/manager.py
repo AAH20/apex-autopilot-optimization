@@ -1,5 +1,6 @@
 """Thread-safe resource manager: allocation, deallocation, quotas, and
 utilization tracking for finite resource pools."""
+
 from __future__ import annotations
 
 import math
@@ -89,9 +90,7 @@ class ResourceManager:
                 quota.limit = limit_f
             return quota
 
-    def get_quota(
-        self, resource_type: ResourceType | str, owner: str
-    ) -> ResourceQuota | None:
+    def get_quota(self, resource_type: ResourceType | str, owner: str) -> ResourceQuota | None:
         """Return the quota record for (resource_type, owner), or None."""
         rt = _coerce_resource_type(resource_type)
         own = _validate_owner(owner)
@@ -169,9 +168,7 @@ class ResourceManager:
                 quota.used += amt
             return alloc
 
-    def deallocate(
-        self, resource_type: ResourceType | str, amount: float, owner: str
-    ) -> bool:
+    def deallocate(self, resource_type: ResourceType | str, amount: float, owner: str) -> bool:
         """Release ``amount`` of ``resource_type`` from ``owner``.
 
         Releases are applied FIFO across the owner's active allocations.
@@ -257,9 +254,7 @@ class ResourceManager:
         rt = _coerce_resource_type(resource_type)
         with self._lock:
             return sum(
-                quota.reserved
-                for (quota_rt, _), quota in self._quotas.items()
-                if quota_rt is rt
+                quota.reserved for (quota_rt, _), quota in self._quotas.items() if quota_rt is rt
             )
 
     def get_utilization(self, resource_type: ResourceType | str) -> float:
@@ -302,15 +297,11 @@ class ResourceManager:
                 if capacity is None or capacity <= 0:
                     utilization[rt.value] = 0.0
                 else:
-                    utilization[rt.value] = min(
-                        1.0, self._allocated_locked(rt) / capacity
-                    )
+                    utilization[rt.value] = min(1.0, self._allocated_locked(rt) / capacity)
             return {
                 "total_allocations": len(self._allocations),
                 "active_allocations": sum(
-                    1
-                    for a in self._allocations.values()
-                    if a.status is ResourceStatus.ALLOCATED
+                    1 for a in self._allocations.values() if a.status is ResourceStatus.ALLOCATED
                 ),
                 "utilization": utilization,
             }
@@ -328,8 +319,7 @@ class ResourceManager:
         return sum(
             a.amount
             for a in self._allocations.values()
-            if a.resource_type is resource_type
-            and a.status is ResourceStatus.ALLOCATED
+            if a.resource_type is resource_type and a.status is ResourceStatus.ALLOCATED
         )
 
     def _sweep_expired_locked(self) -> list[ResourceAllocation]:

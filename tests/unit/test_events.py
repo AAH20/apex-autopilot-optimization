@@ -1,4 +1,5 @@
 """Tests for the event bus system."""
+
 from __future__ import annotations
 
 import time

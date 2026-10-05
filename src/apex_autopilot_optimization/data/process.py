@@ -69,9 +69,7 @@ class DataProcessor:
         logger.info("Cleaned %d records -> %d (removed %d)", original_count, len(cleaned), removed)
         return cleaned
 
-    def transform(
-        self, data: list[dict[str, Any]], transform_type: str
-    ) -> list[dict[str, Any]]:
+    def transform(self, data: list[dict[str, Any]], transform_type: str) -> list[dict[str, Any]]:
         """Apply a transformation to the data.
 
         Args:
@@ -148,9 +146,7 @@ class DataProcessor:
         """Normalize numeric fields to [0, 1] range per column."""
         if not data:
             return []
-        numeric_keys = [
-            k for k in data[0] if all(isinstance(r.get(k), int | float) for r in data)
-        ]
+        numeric_keys = [k for k in data[0] if all(isinstance(r.get(k), int | float) for r in data)]
         if not numeric_keys:
             return list(data)
 
@@ -180,9 +176,7 @@ class DataProcessor:
         return [
             record
             for record in data
-            if not any(
-                isinstance(v, int | float) and v < 0 for v in record.values()
-            )
+            if not any(isinstance(v, int | float) and v < 0 for v in record.values())
         ]
 
     @staticmethod

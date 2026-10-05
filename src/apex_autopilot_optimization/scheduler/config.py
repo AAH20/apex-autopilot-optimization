@@ -1,4 +1,5 @@
 """Configuration for the task scheduler."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

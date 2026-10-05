@@ -150,9 +150,7 @@ class KeyManager:
             current = self._keys.get(self._current_key_id)
             if current is not None:
                 keys_to_try.append(current)
-        keys_to_try.extend(
-            k for k in self._keys.values() if k.key_id != self._current_key_id
-        )
+        keys_to_try.extend(k for k in self._keys.values() if k.key_id != self._current_key_id)
 
         if not keys_to_try:
             raise KeyError("No keys available for decryption")

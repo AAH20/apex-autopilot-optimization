@@ -1,4 +1,5 @@
 """Edge-to-cloud synchronization with conflict resolution."""
+
 from __future__ import annotations
 
 import threading

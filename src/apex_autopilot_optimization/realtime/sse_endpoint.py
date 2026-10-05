@@ -1,4 +1,5 @@
 """Production-ready Server-Sent Events endpoint for real-time channel publishing."""
+
 from __future__ import annotations
 
 import json
@@ -101,11 +102,7 @@ class SSEEndpoint:
             The number of subscribers removed.
         """
         with self._lock:
-            to_remove = [
-                sid
-                for sid, sub in self._subscribers.items()
-                if sub.channel == channel
-            ]
+            to_remove = [sid for sid, sub in self._subscribers.items() if sub.channel == channel]
             for sid in to_remove:
                 del self._subscribers[sid]
             return len(to_remove)
@@ -199,11 +196,7 @@ class SSEEndpoint:
             List of subscriber IDs subscribed to the channel.
         """
         with self._lock:
-            return [
-                sid
-                for sid, sub in self._subscribers.items()
-                if sub.channel == channel
-            ]
+            return [sid for sid, sub in self._subscribers.items() if sub.channel == channel]
 
     def get_subscriber_info(self, sub_id: str) -> dict[str, Any] | None:
         """Return info about a specific subscriber.

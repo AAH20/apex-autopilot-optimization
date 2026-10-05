@@ -1,4 +1,5 @@
 """Edge node: sensing, local inference, and store-and-forward buffering."""
+
 from __future__ import annotations
 
 import threading
@@ -116,9 +117,7 @@ class EdgeNode:
         """
         info = self._ai.get_model_info()
         if info is None or info.get("path") != model:
-            raise RuntimeError(
-                f"model {model!r} is not loaded on node {self.config.node_id!r}"
-            )
+            raise RuntimeError(f"model {model!r} is not loaded on node {self.config.node_id!r}")
         return self._ai.run_inference(input_data)
 
     # ------------------------------------------------------------------

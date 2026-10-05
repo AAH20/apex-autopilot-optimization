@@ -140,53 +140,66 @@ class TestEvaluateAction:
 
     def test_min_operator_passes(self):
         policy = EthicsPolicy(
-            name="min", description="d", principles=[], constraints=[
+            name="min",
+            description="d",
+            principles=[],
+            constraints=[
                 {"principle": "safety", "field": "confidence", "operator": "min", "value": 0.5}
-            ]
+            ],
         )
         assert evaluate_action({"confidence": 0.7}, policy) is True
 
     def test_min_operator_fails(self):
         policy = EthicsPolicy(
-            name="min", description="d", principles=[], constraints=[
+            name="min",
+            description="d",
+            principles=[],
+            constraints=[
                 {"principle": "safety", "field": "confidence", "operator": "min", "value": 0.5}
-            ]
+            ],
         )
         assert evaluate_action({"confidence": 0.3}, policy) is False
 
     def test_equals_operator(self):
         policy = EthicsPolicy(
-            name="eq", description="d", principles=[], constraints=[
+            name="eq",
+            description="d",
+            principles=[],
+            constraints=[
                 {
                     "principle": "privacy",
                     "field": "data_class",
                     "operator": "equals",
                     "value": "public",
                 }
-            ]
+            ],
         )
         assert evaluate_action({"data_class": "public"}, policy) is True
         assert evaluate_action({"data_class": "private"}, policy) is False
 
     def test_not_equals_operator(self):
         policy = EthicsPolicy(
-            name="neq", description="d", principles=[], constraints=[
+            name="neq",
+            description="d",
+            principles=[],
+            constraints=[
                 {
                     "principle": "privacy",
                     "field": "data_class",
                     "operator": "not_equals",
                     "value": "sensitive",
                 }
-            ]
+            ],
         )
         assert evaluate_action({"data_class": "public"}, policy) is True
         assert evaluate_action({"data_class": "sensitive"}, policy) is False
 
     def test_unknown_operator_fails(self):
         policy = EthicsPolicy(
-            name="unk", description="d", principles=[], constraints=[
-                {"principle": "safety", "field": "x", "operator": "nope", "value": 1}
-            ]
+            name="unk",
+            description="d",
+            principles=[],
+            constraints=[{"principle": "safety", "field": "x", "operator": "nope", "value": 1}],
         )
         assert evaluate_action({"x": 1}, policy) is False
 

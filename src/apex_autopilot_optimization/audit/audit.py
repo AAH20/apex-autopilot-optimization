@@ -1,4 +1,5 @@
 """Audit logging module."""
+
 from __future__ import annotations
 
 import csv
@@ -135,15 +136,29 @@ class AuditLogger:
             writer = csv.writer(buf)
             writer.writerow(
                 [
-                    "id", "timestamp", "level", "actor", "action",
-                    "resource", "outcome", "details", "trace_id",
+                    "id",
+                    "timestamp",
+                    "level",
+                    "actor",
+                    "action",
+                    "resource",
+                    "outcome",
+                    "details",
+                    "trace_id",
                 ]
             )
             for e in self._events:
                 writer.writerow(
                     [
-                        e.id, e.timestamp, e.level.value, e.actor, e.action,
-                        e.resource, e.outcome, json.dumps(e.details), e.trace_id,
+                        e.id,
+                        e.timestamp,
+                        e.level.value,
+                        e.actor,
+                        e.action,
+                        e.resource,
+                        e.outcome,
+                        json.dumps(e.details),
+                        e.trace_id,
                     ]
                 )
             return buf.getvalue()

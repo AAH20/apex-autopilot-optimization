@@ -1,4 +1,5 @@
 """Tamper-evident audit trail using hash chaining."""
+
 from __future__ import annotations
 
 import hashlib

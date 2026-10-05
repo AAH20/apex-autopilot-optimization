@@ -1,4 +1,5 @@
 """Event bus system for inter-module communication."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -26,9 +27,7 @@ __all__ = [
 ]
 
 
-def subscribe(
-    bus: EventBus, event_type: str, handler: Callable[[Event], None]
-) -> None:
+def subscribe(bus: EventBus, event_type: str, handler: Callable[[Event], None]) -> None:
     """Convenience function to subscribe a handler to a bus."""
     bus.subscribe(event_type, handler)
 

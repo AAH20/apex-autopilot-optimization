@@ -131,9 +131,7 @@ class ROS2Bridge(VehicleInterface):
             self._connected = True
             self._current_state = self._default_state()
             self._telemetry = self._generate_simulated_telemetry()
-            logger.info(
-                "ROS2 simulation connection established to %s", connection_string
-            )
+            logger.info("ROS2 simulation connection established to %s", connection_string)
             return True
 
         try:

@@ -1,4 +1,5 @@
 """Fog node: aggregation and task offloading across edge nodes."""
+
 from __future__ import annotations
 
 import threading

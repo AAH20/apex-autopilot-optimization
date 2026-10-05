@@ -3,6 +3,7 @@
 This module also hosts the small shared validation helpers used by the
 quota and manager modules.
 """
+
 from __future__ import annotations
 
 import math
@@ -59,9 +60,7 @@ class ResourceAllocation:
         if not isinstance(self.owner, str) or not self.owner:
             raise ValueError("owner must be a non-empty string")
         if not isinstance(self.status, ResourceStatus):
-            raise TypeError(
-                f"status must be a ResourceStatus, got {type(self.status).__name__}"
-            )
+            raise TypeError(f"status must be a ResourceStatus, got {type(self.status).__name__}")
         _validate_amount(self.amount)
         _validate_timestamp(self.created_at, "created_at")
         if self.expires_at is not None:

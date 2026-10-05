@@ -38,7 +38,9 @@ class EncryptionHelper:
         if len(parts) != 3:
             raise ValueError("Invalid ciphertext format")
         signature, timestamp, plaintext = parts
-        expected = hmac.new(self._key, timestamp + b":" + plaintext, hashlib.sha256).hexdigest().encode()
+        expected = (
+            hmac.new(self._key, timestamp + b":" + plaintext, hashlib.sha256).hexdigest().encode()
+        )
         if not hmac.compare_digest(signature, expected):
             raise ValueError("Integrity check failed")
         return plaintext

@@ -1,5 +1,6 @@
 """Tests for the edge computing package: EdgeNode, EdgeConfig, EdgeAI,
 FogNode, and EdgeCloudSync."""
+
 from __future__ import annotations
 
 import pytest

@@ -117,7 +117,7 @@ class SimulationRunner:
                     message=f"Failed to connect to {config.connection_string}",
                 )
 
-            sim.time_scale = config.time_scale
+            sim.time_scale = config.time_scale  # type: ignore[misc]
 
             if not sim.arm():
                 self._failed_missions += 1

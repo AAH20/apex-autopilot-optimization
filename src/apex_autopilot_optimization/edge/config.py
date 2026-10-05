@@ -1,4 +1,5 @@
 """Edge computing configuration objects."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -38,6 +39,5 @@ class EdgeConfig:
             raise ValueError("max_buffer_size must be positive")
         if self.power_profile not in POWER_PROFILES:
             raise ValueError(
-                f"power_profile must be one of {POWER_PROFILES}, "
-                f"got {self.power_profile!r}"
+                f"power_profile must be one of {POWER_PROFILES}, " f"got {self.power_profile!r}"
             )

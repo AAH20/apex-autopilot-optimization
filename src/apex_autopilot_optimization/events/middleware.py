@@ -1,4 +1,5 @@
 """Event middleware: ABC and concrete implementations."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

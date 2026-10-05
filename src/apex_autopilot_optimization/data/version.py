@@ -18,9 +18,7 @@ class DataVersionManager:
     def __init__(self) -> None:
         self._versions: dict[str, list[dict[str, Any]]] = {}
 
-    def create_version(
-        self, dataset_id: str, metadata: dict[str, Any] | None = None
-    ) -> int:
+    def create_version(self, dataset_id: str, metadata: dict[str, Any] | None = None) -> int:
         """Create a new version for a dataset.
 
         Args:

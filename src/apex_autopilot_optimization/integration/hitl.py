@@ -234,9 +234,7 @@ class HITLAdapter(MAVLinkBridge):
         risk = ACTION_RISK_LEVELS.get(action, "low")
         return not (risk == "low" and self._hitl_config.auto_approve_low_risk)
 
-    def _create_approval_request(
-        self, action: str, context: dict[str, Any]
-    ) -> ApprovalRequest:
+    def _create_approval_request(self, action: str, context: dict[str, Any]) -> ApprovalRequest:
         """Create an approval request for an action.
 
         Args:

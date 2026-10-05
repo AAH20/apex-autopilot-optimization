@@ -1,4 +1,5 @@
 """Event bus implementation."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -17,17 +18,13 @@ class EventBus:
         self._history: list[Event] = []
         self._max_history: int = max_history
 
-    def subscribe(
-        self, event_type: str, handler: Callable[[Event], None]
-    ) -> None:
+    def subscribe(self, event_type: str, handler: Callable[[Event], None]) -> None:
         """Subscribe a handler to an event type."""
         if event_type not in self._subscribers:
             self._subscribers[event_type] = []
         self._subscribers[event_type].append(handler)
 
-    def unsubscribe(
-        self, event_type: str, handler: Callable[[Event], None]
-    ) -> None:
+    def unsubscribe(self, event_type: str, handler: Callable[[Event], None]) -> None:
         """Unsubscribe a handler from an event type."""
         if event_type in self._subscribers:
             self._subscribers[event_type] = [

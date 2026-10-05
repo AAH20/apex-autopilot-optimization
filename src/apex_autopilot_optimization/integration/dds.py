@@ -73,14 +73,14 @@ class DDSBridge(VehicleInterface):
             try:
                 # Try Fast-DDS first, then CycloneDDS
                 try:
-                    import fastdds  # type: ignore[import-not-found] # noqa: F401
+                    import fastdds  # noqa: F401
 
                     self._dds_available = True
                     self._dds_backend = "fastdds"
                 except ImportError:
                     try:
                         from cyclonedds.domain import (
-                            DomainParticipant,  # type: ignore[import-not-found] # noqa: F401
+                            DomainParticipant,  # noqa: F401
                         )
 
                         self._dds_available = True
@@ -151,9 +151,7 @@ class DDSBridge(VehicleInterface):
             self._connected = True
             self._current_state = self._default_state()
             self._telemetry = self._generate_simulated_telemetry()
-            logger.info(
-                "DDS simulation connection established to %s", connection_string
-            )
+            logger.info("DDS simulation connection established to %s", connection_string)
             return True
 
         try:
@@ -162,9 +160,7 @@ class DDSBridge(VehicleInterface):
 
                 factory = fastdds.DomainParticipantFactory.get_instance()
                 qos = factory.get_default_participant_qos()
-                self._participant = factory.create_participant(
-                    self._domain_id, qos
-                )
+                self._participant = factory.create_participant(self._domain_id, qos)
             elif self._dds_backend == "cyclonedds":
                 from cyclonedds.domain import DomainParticipant
 
@@ -378,15 +374,12 @@ class DDSBridge(VehicleInterface):
 
         try:
             if self._dds_backend == "fastdds":
-
                 # Create topics and data writers/readers
                 # Topic names follow DDS naming conventions
                 self._publishers["control"] = self._participant.create_publisher(
                     "ControlTopic", "ControlType"
                 )
-                self._publishers["arm"] = self._participant.create_publisher(
-                    "ArmTopic", "ArmType"
-                )
+                self._publishers["arm"] = self._participant.create_publisher("ArmTopic", "ArmType")
                 self._publishers["mode"] = self._participant.create_publisher(
                     "ModeTopic", "ModeType"
                 )
@@ -397,9 +390,9 @@ class DDSBridge(VehicleInterface):
                     "TelemetryTopic", "TelemetryType"
                 )
             elif self._dds_backend == "cyclonedds":
-                from cyclonedds.pub import DataWriter, Publisher  # type: ignore[import-not-found]
-                from cyclonedds.sub import DataReader, Subscriber  # type: ignore[import-not-found]
-                from cyclonedds.topic import Topic  # type: ignore[import-not-found]
+                from cyclonedds.pub import DataWriter, Publisher  # noqa: F401
+                from cyclonedds.sub import DataReader, Subscriber  # noqa: F401
+                from cyclonedds.topic import Topic  # noqa: F401
 
                 publisher = Publisher(self._participant)
                 subscriber = Subscriber(self._participant)

@@ -1,4 +1,5 @@
 """Event data structures: Event, EventPriority, EventFilter."""
+
 from __future__ import annotations
 
 import uuid

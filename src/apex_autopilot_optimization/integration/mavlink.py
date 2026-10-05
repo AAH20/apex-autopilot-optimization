@@ -295,7 +295,10 @@ class MAVLinkBridge(VehicleInterface):
                 int(control.roll_rate * 500 + 1500),
                 int(control.pitch_rate * 500 + 1500),
                 int(control.yaw_rate * 500 + 1500),
-                0, 0, 0, 0,
+                0,
+                0,
+                0,
+                0,
             )
             return True
         except Exception as exc:
@@ -325,7 +328,12 @@ class MAVLinkBridge(VehicleInterface):
                 400,  # MAV_CMD_COMPONENT_ARM_DISARM
                 0,
                 1,  # arm
-                0, 0, 0, 0, 0, 0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
             )
             self._armed = True
             return True

@@ -1,4 +1,5 @@
 """Job queue for task scheduling."""
+
 from __future__ import annotations
 
 from collections import deque

@@ -1,5 +1,6 @@
 """Tests for the resource package: ResourceType, ResourceStatus,
 ResourceAllocation, ResourceQuota, and ResourceManager."""
+
 from __future__ import annotations
 
 import math
@@ -175,9 +176,7 @@ class TestResourceAllocation:
 
 class TestResourceQuota:
     def test_valid_construction(self):
-        quota = ResourceQuota(
-            resource_type=ResourceType.MEMORY, owner="w1", limit=1024.0
-        )
+        quota = ResourceQuota(resource_type=ResourceType.MEMORY, owner="w1", limit=1024.0)
         assert quota.resource_type is ResourceType.MEMORY
         assert quota.owner == "w1"
         assert quota.limit == 1024.0
@@ -185,9 +184,7 @@ class TestResourceQuota:
         assert quota.reserved == 0.0
 
     def test_check_quota_within_limit(self):
-        quota = ResourceQuota(
-            resource_type=ResourceType.CPU, owner="w1", limit=10.0, used=4.0
-        )
+        quota = ResourceQuota(resource_type=ResourceType.CPU, owner="w1", limit=10.0, used=4.0)
         assert quota.check_quota(ResourceType.CPU, "w1", 6.0)
         assert not quota.check_quota(ResourceType.CPU, "w1", 6.1)
 
@@ -223,17 +220,13 @@ class TestResourceQuota:
         assert quota.reserved == 0.0
 
     def test_release_reservation(self):
-        quota = ResourceQuota(
-            resource_type=ResourceType.CPU, owner="w1", limit=10.0, reserved=5.0
-        )
+        quota = ResourceQuota(resource_type=ResourceType.CPU, owner="w1", limit=10.0, reserved=5.0)
         remaining = quota.release_reservation(ResourceType.CPU, "w1", 2.0)
         assert remaining == 3.0
         assert quota.reserved == 3.0
 
     def test_release_reservation_too_much_raises(self):
-        quota = ResourceQuota(
-            resource_type=ResourceType.CPU, owner="w1", limit=10.0, reserved=2.0
-        )
+        quota = ResourceQuota(resource_type=ResourceType.CPU, owner="w1", limit=10.0, reserved=2.0)
         with pytest.raises(ValueError, match="cannot release"):
             quota.release_reservation(ResourceType.CPU, "w1", 3.0)
 
@@ -416,9 +409,7 @@ class TestResourceManager:
 
     def test_ttl_expiry_frees_resources(self):
         clock = [1000.0]
-        mgr = ResourceManager(
-            capacities={ResourceType.CPU: 10.0}, clock=lambda: clock[0]
-        )
+        mgr = ResourceManager(capacities={ResourceType.CPU: 10.0}, clock=lambda: clock[0])
         mgr.allocate(ResourceType.CPU, 6.0, "w1", ttl=10.0)
         assert mgr.get_allocated(ResourceType.CPU) == 6.0
         clock[0] = 1011.0

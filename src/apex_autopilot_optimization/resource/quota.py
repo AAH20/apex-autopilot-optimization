@@ -1,4 +1,5 @@
 """Per-owner resource quota tracking."""
+
 from __future__ import annotations
 
 import math
@@ -33,8 +34,7 @@ class ResourceQuota:
     def __post_init__(self) -> None:
         if not isinstance(self.resource_type, ResourceType):
             raise TypeError(
-                "resource_type must be a ResourceType, got "
-                f"{type(self.resource_type).__name__}"
+                "resource_type must be a ResourceType, got " f"{type(self.resource_type).__name__}"
             )
         if not isinstance(self.owner, str) or not self.owner:
             raise ValueError("owner must be a non-empty string")
@@ -79,9 +79,7 @@ class ResourceQuota:
         self._check_match(resource_type, owner)
         _validate_amount(amount)
         if amount > self.reserved:
-            raise ValueError(
-                f"cannot release {amount}: only {self.reserved} is reserved"
-            )
+            raise ValueError(f"cannot release {amount}: only {self.reserved} is reserved")
         self.reserved -= amount
         return self.reserved
 
