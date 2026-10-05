@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -11,8 +12,8 @@ class TwinAsset:
 
     id: str
     type: str
-    state: dict = field(default_factory=dict)
-    metadata: dict = field(default_factory=dict)
+    state: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
     created_at: float = 0.0
     updated_at: float = 0.0
 

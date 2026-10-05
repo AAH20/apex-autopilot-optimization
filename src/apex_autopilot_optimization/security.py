@@ -29,7 +29,7 @@ class EncryptionHelper:
         """Encrypt plaintext with HMAC-SHA256 for integrity."""
         timestamp = str(int(time.time())).encode()
         data = timestamp + b":" + plaintext
-        signature = hmac.new(self._key, data, hashlib.sha256).digest()
+        signature = hmac.new(self._key, data, hashlib.sha256).hexdigest().encode()
         return signature + b":" + data
 
     def decrypt(self, ciphertext: bytes) -> bytes:
@@ -38,7 +38,7 @@ class EncryptionHelper:
         if len(parts) != 3:
             raise ValueError("Invalid ciphertext format")
         signature, timestamp, plaintext = parts
-        expected = hmac.new(self._key, timestamp + b":" + plaintext, hashlib.sha256).digest()
+        expected = hmac.new(self._key, timestamp + b":" + plaintext, hashlib.sha256).hexdigest().encode()
         if not hmac.compare_digest(signature, expected):
             raise ValueError("Integrity check failed")
         return plaintext

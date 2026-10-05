@@ -225,5 +225,10 @@ class TestTwinSyncManager:
         assert TwinSyncMode.CLOSED_LOOP is not None
         assert TwinSyncMode.CALIBRATED is not None
         assert TwinSyncMode.MIRRORED is not None
-        modes = {TwinSyncMode.OPEN_LOOP, TwinSyncMode.CLOSED_LOOP, TwinSyncMode.CALIBRATED, TwinSyncMode.MIRRORED}
+        modes = {
+            TwinSyncMode.OPEN_LOOP,
+            TwinSyncMode.CLOSED_LOOP,
+            TwinSyncMode.CALIBRATED,
+            TwinSyncMode.MIRRORED,
+        }
         assert len(modes) == 4

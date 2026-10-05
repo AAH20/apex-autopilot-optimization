@@ -1,10 +1,11 @@
 """SQLite database wrapper for persistence layer."""
+
 from __future__ import annotations
 
 import sqlite3
 from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Any
+from typing import Any, cast
 
 
 class Database:
@@ -35,7 +36,7 @@ class Database:
         if self._connection is None:
             raise RuntimeError("Database not connected")
         cursor = self._connection.execute(query, params)
-        return cursor.fetchone()
+        return cast(tuple[Any, ...] | None, cursor.fetchone())
 
     @contextmanager
     def transaction(self) -> Generator[None, None, None]:

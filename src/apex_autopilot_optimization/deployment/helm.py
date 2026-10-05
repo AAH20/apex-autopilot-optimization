@@ -12,7 +12,7 @@ from apex_autopilot_optimization.deployment.container import ContainerConfig
 class HelmValues:
     """Helm chart values configuration."""
 
-    replicaCount: int = 1
+    replicaCount: int = 1  # noqa: N815
     image: dict[str, Any] = field(default_factory=dict)
     service: dict[str, Any] = field(default_factory=dict)
     resources: dict[str, Any] = field(default_factory=dict)

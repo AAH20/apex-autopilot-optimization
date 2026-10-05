@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -27,7 +27,7 @@ class ApprovalRequest:
     context: dict[str, Any] = field(default_factory=dict)
     priority: str = "medium"
     created_at: float = 0.0
-    expires_at: Optional[float] = None
+    expires_at: float | None = None
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ApprovalRequest):

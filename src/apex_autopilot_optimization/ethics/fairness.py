@@ -25,29 +25,29 @@ class FairnessMetric:
     passed: bool
 
 
-def _selection_rate(predictions: list, protected: list) -> float:
+def _selection_rate(predictions: list[bool], protected: list[str]) -> float:
     if not protected:
         return 0.0
     return sum(1 for p in predictions if p) / len(protected)
 
 
-def _true_positive_rate(predictions: list, labels: list) -> float | None:
-    positives = [(p, y) for p, y in zip(predictions, labels) if y]
+def _true_positive_rate(predictions: list[bool], labels: list[bool]) -> float | None:
+    positives = [(p, y) for p, y in zip(predictions, labels, strict=False) if y]
     if not positives:
         return None
     return sum(1 for p, _ in positives if p) / len(positives)
 
 
-def _false_positive_rate(predictions: list, labels: list) -> float | None:
-    negatives = [(p, y) for p, y in zip(predictions, labels) if not y]
+def _false_positive_rate(predictions: list[bool], labels: list[bool]) -> float | None:
+    negatives = [(p, y) for p, y in zip(predictions, labels, strict=False) if not y]
     if not negatives:
         return None
     return sum(1 for p, _ in negatives if p) / len(negatives)
 
 
-def _grouped(values: list, protected: list) -> dict[str, list]:
-    grouped: dict[str, list] = {}
-    for value, group in zip(values, protected):
+def _grouped(values: list[Any], protected: list[str]) -> dict[str, list[Any]]:
+    grouped: dict[str, list[Any]] = {}
+    for value, group in zip(values, protected, strict=False):
         grouped.setdefault(str(group), []).append(value)
     return grouped
 
@@ -60,7 +60,7 @@ class FairnessAuditor:
         self._metrics: list[FairnessMetric] = []
 
     def calculate_fairness(
-        self, predictions: list, labels: list, protected_attrs: list
+        self, predictions: list[bool], labels: list[bool], protected_attrs: list[str]
     ) -> list[FairnessMetric]:
         """Compute fairness metrics for ``predictions`` against ``labels``.
 
@@ -83,25 +83,16 @@ class FairnessAuditor:
         di_passed = disparate_impact >= DISPARATE_IMPACT_THRESHOLD
 
         # Equal opportunity: max difference in true-positive rates across groups.
-        tprs = [
-            _true_positive_rate(pred_groups[g], label_groups.get(g, []))
-            for g in pred_groups
-        ]
+        tprs = [_true_positive_rate(pred_groups[g], label_groups.get(g, [])) for g in pred_groups]
         tprs = [t for t in tprs if t is not None]
-        if len(tprs) >= 2:
-            equal_opportunity = max(tprs) - min(tprs)
-        else:
-            equal_opportunity = 0.0
+        equal_opportunity = max(tprs) - min(tprs) if len(tprs) >= 2 else 0.0  # type: ignore[type-var,operator]
         eo_passed = equal_opportunity <= (1.0 - self.fairness_threshold)
 
         # Equalized odds: worst of TPR/FPR spreads.
-        fprs = [
-            _false_positive_rate(pred_groups[g], label_groups.get(g, []))
-            for g in pred_groups
-        ]
+        fprs = [_false_positive_rate(pred_groups[g], label_groups.get(g, [])) for g in pred_groups]
         fprs = [f for f in fprs if f is not None]
         if len(tprs) >= 2 and len(fprs) >= 2:
-            equalized_odds = max(max(tprs) - min(tprs), max(fprs) - min(fprs))
+            equalized_odds = max(max(tprs) - min(tprs), max(fprs) - min(fprs))  # type: ignore[type-var,operator]
         else:
             equalized_odds = 0.0
         eo_odds_passed = equalized_odds <= (1.0 - self.fairness_threshold)
@@ -138,7 +129,7 @@ class FairnessAuditor:
         ]
         return list(self._metrics)
 
-    def get_fairness_report(self) -> dict:
+    def get_fairness_report(self) -> dict[str, Any]:
         """Return a structured fairness report."""
         return {
             "metrics": [
@@ -177,7 +168,7 @@ _default_auditor = FairnessAuditor()
 
 
 def calculate_fairness(
-    predictions: list, labels: list, protected_attrs: list
+    predictions: list[bool], labels: list[bool], protected_attrs: list[str]
 ) -> list[FairnessMetric]:
     """Compute fairness metrics using the shared auditor."""
     return _default_auditor.calculate_fairness(predictions, labels, protected_attrs)

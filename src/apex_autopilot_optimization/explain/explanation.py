@@ -7,7 +7,7 @@ confidence score, and the model that produced it.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 

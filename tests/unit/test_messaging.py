@@ -1,7 +1,6 @@
 """Tests for the messaging package (message queue, stream processing, event store)."""
-from __future__ import annotations
 
-import time
+from __future__ import annotations
 
 import pytest
 

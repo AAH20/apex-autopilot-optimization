@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import math
 import tempfile
 from pathlib import Path
 
@@ -17,7 +16,6 @@ from apex_autopilot_optimization.experiments import (
     assign_variant,
     is_statistically_significant,
 )
-
 
 # ---------------------------------------------------------------------------
 # FeatureFlag dataclass
@@ -165,7 +163,9 @@ class TestFeatureFlagStore:
 
     def test_store_save_to_yaml(self):
         store = FeatureFlagStore()
-        store.create(FeatureFlag(name="f1", enabled=True, rollout_percentage=50.0, description="test"))
+        store.create(
+            FeatureFlag(name="f1", enabled=True, rollout_percentage=50.0, description="test")
+        )
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "flags.yaml"
             store.save_to_yaml(str(path))
@@ -176,7 +176,9 @@ class TestFeatureFlagStore:
 
     def test_store_load_from_yaml(self):
         store = FeatureFlagStore()
-        store.create(FeatureFlag(name="f1", enabled=True, rollout_percentage=50.0, description="test flag"))
+        store.create(
+            FeatureFlag(name="f1", enabled=True, rollout_percentage=50.0, description="test flag")
+        )
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "flags.yaml"
             store.save_to_yaml(str(path))

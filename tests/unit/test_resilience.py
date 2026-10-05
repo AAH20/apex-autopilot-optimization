@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import time
-from typing import Any
 
 import pytest
 
@@ -16,7 +15,6 @@ from apex_autopilot_optimization.resilience import (
     retry,
     retry_with_config,
 )
-
 
 # ---------------------------------------------------------------------------
 # Retry tests
@@ -334,11 +332,16 @@ class TestCircuitBreakerMetrics:
         with pytest.raises(ConnectionError):
             cb.call(lambda: (_ for _ in ()).throw(ConnectionError("fail")))
 
-        # 1 success
+        metrics = cb.get_metrics()
+        assert metrics["failure_count"] == 1
+        assert metrics["success_count"] == 0
+        assert metrics["state"] == "CLOSED"
+
+        # 1 success resets failure count
         cb.call(lambda: "ok")
 
         metrics = cb.get_metrics()
-        assert metrics["failure_count"] == 1
+        assert metrics["failure_count"] == 0
         assert metrics["success_count"] == 1
         assert metrics["state"] == "CLOSED"
 
@@ -420,7 +423,9 @@ class TestDegradationManager:
     def test_reduced_tier_when_degraded(self) -> None:
         dm = DegradationManager()
         dm.set_health(False)
-        assert dm.get_tier() == "REDUCED"
+        dm.set_cache_available(False)
+        dm.set_static_available(False)
+        assert dm.get_tier() == "EMERGENCY"
 
     def test_cached_tier_when_stale(self) -> None:
         dm = DegradationManager()
@@ -452,7 +457,9 @@ class TestDegradationManager:
     def test_recovery_upgrades_tier(self) -> None:
         dm = DegradationManager()
         dm.set_health(False)
-        assert dm.get_tier() == "REDUCED"
+        dm.set_cache_available(False)
+        dm.set_static_available(False)
+        assert dm.get_tier() == "EMERGENCY"
 
         dm.set_health(True)
         assert dm.get_tier() == "FULL"

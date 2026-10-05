@@ -66,9 +66,7 @@ class DecisionAudit:
             "total_entries": len(self._entries),
             "unique_decisions": len(by_decision),
             "by_decision": by_decision,
-            "explanations_logged": sum(
-                1 for e in self._entries if e["explanation"] is not None
-            ),
+            "explanations_logged": sum(1 for e in self._entries if e["explanation"] is not None),
         }
 
     def export_audit(self, format: str = "json") -> str:

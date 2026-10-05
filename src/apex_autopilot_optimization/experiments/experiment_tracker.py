@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import statistics
 import time
 import uuid
 from dataclasses import dataclass, field

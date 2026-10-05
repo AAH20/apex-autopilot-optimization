@@ -1,4 +1,5 @@
 """Webhook event delivery with HMAC-SHA256 signature verification."""
+
 from __future__ import annotations
 
 import hashlib
@@ -6,8 +7,9 @@ import hmac
 import json
 import time
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 
 @dataclass

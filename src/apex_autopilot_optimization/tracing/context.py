@@ -51,7 +51,7 @@ class TraceContext:
         baggage: dict[str, Any] = {}
         for key, value in carrier.items():
             if key.startswith("x-baggage-"):
-                baggage_key = key[len("x-baggage-"):]
+                baggage_key = key[len("x-baggage-") :]
                 baggage[baggage_key] = value
         return TraceContext(trace_id=trace_id, span_id=span_id, baggage=baggage)
 

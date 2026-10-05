@@ -3,12 +3,62 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from typing import Any
-from unittest.mock import MagicMock
 
 from apex_autopilot_optimization.simulation.config import SimulationConfig
 from apex_autopilot_optimization.simulation.interface import SimulationInterface
 from apex_autopilot_optimization.simulation.result import SimulationResult
+
+
+class _NoOpPlanner:
+    """Fallback planner used when no components are supplied to run_batch.
+
+    Returns ``None`` so the mission loop terminates immediately, making a
+    component-free batch run a backend connectivity smoke test.
+    """
+
+    def plan(self, problem: Any, state: Any) -> Any:
+        return None
+
+
+class _NoOpController:
+    """Fallback controller that produces no control input."""
+
+    def compute_control(self, state: Any, plan: Any) -> Any:
+        return None
+
+
+class _NoOpSafetyFilter:
+    """Fallback safety filter that passes control through unchanged."""
+
+    def filter(self, state: Any, control: Any, obstacles: Any) -> Any:
+        return control
+
+
+class _NoOpOptimizer:
+    """Fallback optimizer that performs no optimization."""
+
+    def optimize(self, *args: Any, **kwargs: Any) -> Any:
+        return None
+
+
+class _NoOpEstimator:
+    """Fallback state estimator that performs no estimation."""
+
+    def estimate(self, *args: Any, **kwargs: Any) -> Any:
+        return None
+
+
+def _default_components() -> dict[str, Any]:
+    """Build the default no-op component set for component-free batch runs."""
+    return {
+        "planner": _NoOpPlanner(),
+        "optimizer": _NoOpOptimizer(),
+        "safety": _NoOpSafetyFilter(),
+        "controller": _NoOpController(),
+        "estimator": _NoOpEstimator(),
+    }
 
 
 class SimulationRunner:
@@ -33,6 +83,7 @@ class SimulationRunner:
         controller: Any,
         estimator: Any,
         config: SimulationConfig,
+        sim_factory: Callable[[], SimulationInterface] | None = None,
     ) -> SimulationResult:
         """Execute a single simulation mission.
 
@@ -44,6 +95,11 @@ class SimulationRunner:
             controller: Controller instance.
             estimator: State estimator instance.
             config: Simulation configuration.
+            sim_factory: Optional factory returning a concrete
+                SimulationInterface implementation. When ``None``, the
+                module-level ``SimulationInterface`` symbol is used, which
+                production callers can monkeypatch or replace with a
+                backend-specific factory (e.g. Gazebo, AirSim).
 
         Returns:
             SimulationResult with outcome and metrics.
@@ -51,7 +107,7 @@ class SimulationRunner:
         start = time.perf_counter()
         self._total_missions += 1
 
-        sim = SimulationInterface()
+        sim = (sim_factory or SimulationInterface)()
 
         try:
             if not sim.connect(config.connection_string):
@@ -130,26 +186,38 @@ class SimulationRunner:
         self,
         problems: list[Any],
         config: SimulationConfig,
+        sim_factory: Callable[[], SimulationInterface] | None = None,
+        **components: Any,
     ) -> list[SimulationResult]:
         """Execute a batch of simulation missions.
 
         Args:
             problems: List of planning problem definitions.
             config: Simulation configuration.
+            sim_factory: Optional factory returning a concrete
+                SimulationInterface implementation (see run_mission).
+            **components: Optional planner/optimizer/safety/controller/
+                estimator instances. When omitted, no-op fallbacks are used,
+                making the batch run a backend connectivity smoke test.
 
         Returns:
             List of SimulationResult, one per problem.
         """
+        factory = sim_factory or SimulationInterface
+        comps = _default_components()
+        comps.update(components)
+
         results: list[SimulationResult] = []
         for problem in problems:
             result = self.run_mission(
                 problem=problem,
-                planner=MagicMock(),
-                optimizer=MagicMock(),
-                safety=MagicMock(),
-                controller=MagicMock(),
-                estimator=MagicMock(),
+                planner=comps["planner"],
+                optimizer=comps["optimizer"],
+                safety=comps["safety"],
+                controller=comps["controller"],
+                estimator=comps["estimator"],
                 config=config,
+                sim_factory=factory,
             )
             results.append(result)
         return results

@@ -7,16 +7,15 @@ import pytest
 from apex_autopilot_optimization.api import (
     APIError,
     APIKeyAuth,
-    APIRouter,
     APIRequest,
     APIResponse,
+    APIRouter,
     APIVersion,
     api_route,
     get_version,
     require_auth,
     version_route,
 )
-
 
 # ---------------------------------------------------------------------------
 # Router — route registration
@@ -103,9 +102,7 @@ class TestRouterDispatch:
     def test_dispatch_post(self) -> None:
         router = APIRouter()
         router.post("/echo", lambda req: APIResponse.success(req.body))
-        req = APIRequest(
-            method="POST", path="/echo", headers={}, body={"x": 1}, query_params={}
-        )
+        req = APIRequest(method="POST", path="/echo", headers={}, body={"x": 1}, query_params={})
         resp = router.dispatch(req)
         assert resp.status == 200
         assert resp.body == {"x": 1}

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from apex_autopilot_optimization.deployment import (
     ContainerConfig,
     DeploymentConfig,
@@ -28,7 +26,6 @@ from apex_autopilot_optimization.deployment.terraform import (
     generate_outputs_tf,
     generate_variables_tf,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -71,7 +68,9 @@ def _terraform_config() -> TerraformConfig:
         provider="aws",
         region="us-west-2",
         cluster_name="apex-cluster",
-        node_pools=[{"name": "default", "instance_type": "t3.medium", "min_size": 1, "max_size": 5}],
+        node_pools=[
+            {"name": "default", "instance_type": "t3.medium", "min_size": 1, "max_size": 5}
+        ],
     )
 
 

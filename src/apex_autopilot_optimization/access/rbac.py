@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class Role(str, Enum):
+class Role(StrEnum):
     """User roles in the access control system."""
 
     ADMIN = "admin"
@@ -14,7 +14,7 @@ class Role(str, Enum):
     AUDITOR = "auditor"
 
 
-class Permission(str, Enum):
+class Permission(StrEnum):
     """Permissions that can be granted to roles."""
 
     PLAN = "plan"
@@ -80,14 +80,14 @@ class RBACPolicy:
             raise ValueError(f"Invalid permission: {permission!r}")
         # Also accept a role name directly (e.g. "admin" -> Role.ADMIN)
         try:
-            role = Role(user_id)
-            return permission in self._role_permissions.get(role, set())
+            role_from_name = Role(user_id)
+            return permission in self._role_permissions.get(role_from_name, set())
         except ValueError:
             pass
-        role = self._user_roles.get(user_id)
-        if role is None:
+        user_role = self._user_roles.get(user_id)
+        if user_role is None:
             return False
-        return permission in self._role_permissions.get(role, set())
+        return permission in self._role_permissions.get(user_role, set())
 
     def get_permissions(self, role: Role) -> set[Permission]:
         """Return the permission set for a role (a copy)."""

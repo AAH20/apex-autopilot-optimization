@@ -1,4 +1,5 @@
 """Checkpoint management for saving and restoring state."""
+
 from __future__ import annotations
 
 import json

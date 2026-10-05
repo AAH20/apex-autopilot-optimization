@@ -1,4 +1,5 @@
 """Time-To-Live (TTL) cache with per-entry expiration."""
+
 from __future__ import annotations
 
 import time

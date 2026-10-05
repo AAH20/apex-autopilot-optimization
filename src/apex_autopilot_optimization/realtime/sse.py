@@ -1,8 +1,10 @@
 """Server-Sent Events endpoint for real-time channel publishing."""
+
 from __future__ import annotations
 
 import uuid
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 
 class SSEEndpoint:
@@ -23,11 +25,7 @@ class SSEEndpoint:
 
     def unsubscribe(self, channel: str) -> None:
         """Remove all subscribers for a channel."""
-        to_remove = [
-            sid
-            for sid, sub in self._subscribers.items()
-            if sub["channel"] == channel
-        ]
+        to_remove = [sid for sid, sub in self._subscribers.items() if sub["channel"] == channel]
         for sid in to_remove:
             del self._subscribers[sid]
 
@@ -39,11 +37,7 @@ class SSEEndpoint:
 
     def get_subscribers(self, channel: str) -> list[str]:
         """Return subscriber IDs for a channel."""
-        return [
-            sid
-            for sid, sub in self._subscribers.items()
-            if sub["channel"] == channel
-        ]
+        return [sid for sid, sub in self._subscribers.items() if sub["channel"] == channel]
 
     def get_connection_count(self) -> int:
         """Return the total number of subscribers."""

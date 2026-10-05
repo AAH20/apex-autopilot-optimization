@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from collections.abc import Callable
 from enum import Enum
-from typing import Any
 
 from apex_autopilot_optimization.api.request import APIRequest
 from apex_autopilot_optimization.api.response import APIResponse

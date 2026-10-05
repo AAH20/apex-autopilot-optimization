@@ -8,7 +8,7 @@ and returns the best result.
 from __future__ import annotations
 
 from concurrent.futures import Future
-from typing import Any, Callable, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from apex_autopilot_optimization.concurrent.async_executor import AsyncExecutor
 from apex_autopilot_optimization.concurrent.parallel_planner import (

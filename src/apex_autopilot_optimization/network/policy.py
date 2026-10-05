@@ -1,4 +1,5 @@
 """Network policy and firewall rule definitions with enforcement logic."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -27,9 +28,7 @@ def check_allowed(policy: NetworkPolicy, host: str, port: int) -> bool:
         return False
     if policy.allowed_hosts and host not in policy.allowed_hosts:
         return False
-    if policy.allowed_ports and port not in policy.allowed_ports:
-        return False
-    return True
+    return not (policy.allowed_ports and port not in policy.allowed_ports)
 
 
 @dataclass

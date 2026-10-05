@@ -1,7 +1,7 @@
 """Connection manager for tracking real-time client connections."""
+
 from __future__ import annotations
 
-import uuid
 from typing import Any
 
 

@@ -41,9 +41,7 @@ class ServiceRegistry:
             if service_name not in self._services:
                 return None
             instances = self._services[service_name]
-            healthy = [
-                i for i in instances if self._health.get((service_name, i), True)
-            ]
+            healthy = [i for i in instances if self._health.get((service_name, i), True)]
             if healthy:
                 return healthy[0]
             return instances[0] if instances else None
@@ -59,8 +57,7 @@ class ServiceRegistry:
             if service_name not in self._services:
                 return False
             return any(
-                self._health.get((service_name, i), True)
-                for i in self._services[service_name]
+                self._health.get((service_name, i), True) for i in self._services[service_name]
             )
 
     def set_health(self, service_name: str, instance: str, healthy: bool) -> None:

@@ -1,7 +1,6 @@
 """Tests for the notification system."""
-from __future__ import annotations
 
-import time
+from __future__ import annotations
 
 from apex_autopilot_optimization.notify import (
     Notification,

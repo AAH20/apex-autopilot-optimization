@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import Any, cast
 
 
 class EthicsPrinciple(Enum):
@@ -40,11 +40,11 @@ class EthicsPolicy:
     name: str
     description: str
     principles: list[str] = field(default_factory=list)
-    constraints: list[dict] = field(default_factory=list)
+    constraints: list[dict[str, Any]] = field(default_factory=list)
     enforcement: str = "strict"
 
 
-def _constraint_satisfied(action: dict[str, Any], constraint: dict) -> bool:
+def _constraint_satisfied(action: dict[str, Any], constraint: dict[str, Any]) -> bool:
     """Return True if a single constraint holds for ``action``."""
     field_name = constraint.get("field")
     if field_name not in action:
@@ -55,23 +55,23 @@ def _constraint_satisfied(action: dict[str, Any], constraint: dict) -> bool:
     threshold = constraint.get("value")
 
     if operator == "max":
-        return value <= threshold
+        return cast(bool, value <= threshold)
     if operator == "min":
-        return value >= threshold
+        return cast(bool, value >= threshold)
     if operator == "must_be_true":
         return value is True
     if operator == "must_be_false":
         return value is False
     if operator == "equals":
-        return value == threshold
+        return cast(bool, value == threshold)
     if operator == "not_equals":
-        return value != threshold
+        return cast(bool, value != threshold)
 
     # Unknown operator: treat as unsatisfied rather than silently passing.
     return False
 
 
-def _describe_constraint(constraint: dict) -> str:
+def _describe_constraint(constraint: dict[str, Any]) -> str:
     """Build a human-readable message for a violated constraint."""
     field_name = constraint.get("field")
     operator = constraint.get("operator")
@@ -101,9 +101,9 @@ def evaluate_action(action: dict[str, Any], policy: EthicsPolicy) -> bool:
     return all(_constraint_satisfied(action, c) for c in policy.constraints)
 
 
-def get_violations(action: dict[str, Any], policy: EthicsPolicy) -> list[dict]:
+def get_violations(action: dict[str, Any], policy: EthicsPolicy) -> list[dict[str, Any]]:
     """Return the constraints of ``policy`` that ``action`` violates."""
-    violations: list[dict] = []
+    violations: list[dict[str, Any]] = []
     for constraint in policy.constraints:
         if not _constraint_satisfied(action, constraint):
             violations.append(
@@ -117,7 +117,7 @@ def get_violations(action: dict[str, Any], policy: EthicsPolicy) -> list[dict]:
     return violations
 
 
-def get_policy_summary(policy: EthicsPolicy) -> dict:
+def get_policy_summary(policy: EthicsPolicy) -> dict[str, Any]:
     """Return a structured summary of ``policy``."""
     constraints_by_principle: dict[str, int] = {}
     for constraint in policy.constraints:

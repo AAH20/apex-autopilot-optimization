@@ -17,7 +17,6 @@ from apex_autopilot_optimization.hitl import (
     HumanOverride,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -178,7 +177,9 @@ class TestApprovalWorkflowQueries:
             workflow.get_audit_trail("nope")
 
     def test_expired_request_detected_via_status(self, workflow):
-        req = workflow.submit(make_request(created_at=time.time() - 120, expires_at=time.time() - 60))
+        req = workflow.submit(
+            make_request(created_at=time.time() - 120, expires_at=time.time() - 60)
+        )
         assert workflow.get_status(req.id) is ApprovalStatus.EXPIRED
 
     def test_unexpired_request_stays_pending(self, workflow):

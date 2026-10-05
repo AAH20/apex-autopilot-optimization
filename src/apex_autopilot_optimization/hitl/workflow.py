@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import time
 import uuid
-from typing import Optional
+from typing import Any
 
 from apex_autopilot_optimization.hitl.config import HITLConfig
 from apex_autopilot_optimization.hitl.override import HumanOverride
@@ -15,11 +15,11 @@ from apex_autopilot_optimization.hitl.status import ApprovalStatus
 class ApprovalWorkflow:
     """Manages the lifecycle of approval requests and human overrides."""
 
-    def __init__(self, config: Optional[HITLConfig] = None) -> None:
+    def __init__(self, config: HITLConfig | None = None) -> None:
         self._config = config or HITLConfig()
         self._requests: dict[str, ApprovalRequest] = {}
         self._statuses: dict[str, ApprovalStatus] = {}
-        self._audit_trails: dict[str, list[dict]] = {}
+        self._audit_trails: dict[str, list[dict[str, Any]]] = {}
         self._overrides: dict[str, HumanOverride] = {}
 
     # ------------------------------------------------------------------
@@ -39,25 +39,27 @@ class ApprovalWorkflow:
         self._audit_trails[request.id] = []
 
         # Record submit in audit trail
-        self._audit_trails[request.id].append({
-            "new_status": ApprovalStatus.PENDING.value,
-            "actor": request.requester,
-            "timestamp": time.time(),
-        })
+        self._audit_trails[request.id].append(
+            {
+                "new_status": ApprovalStatus.PENDING.value,
+                "actor": request.requester,
+                "timestamp": time.time(),
+            }
+        )
 
         if not self._config.enabled:
             # Auto-approve when HITL is disabled
             self._statuses[request.id] = ApprovalStatus.APPROVED
-            self._audit_trails[request.id].append({
-                "new_status": ApprovalStatus.APPROVED.value,
-                "actor": "system",
-                "timestamp": time.time(),
-            })
+            self._audit_trails[request.id].append(
+                {
+                    "new_status": ApprovalStatus.APPROVED.value,
+                    "actor": "system",
+                    "timestamp": time.time(),
+                }
+            )
         else:
             # Check max pending approvals
-            pending_count = sum(
-                1 for s in self._statuses.values() if s is ApprovalStatus.PENDING
-            )
+            pending_count = sum(1 for s in self._statuses.values() if s is ApprovalStatus.PENDING)
             if pending_count >= self._config.max_pending_approvals:
                 raise RuntimeError(
                     f"Max pending approvals ({self._config.max_pending_approvals}) reached"
@@ -75,35 +77,41 @@ class ApprovalWorkflow:
         self._ensure_exists(request_id)
         self._ensure_pending(request_id)
         self._statuses[request_id] = ApprovalStatus.APPROVED
-        self._audit_trails[request_id].append({
-            "new_status": ApprovalStatus.APPROVED.value,
-            "actor": approver,
-            "timestamp": time.time(),
-        })
+        self._audit_trails[request_id].append(
+            {
+                "new_status": ApprovalStatus.APPROVED.value,
+                "actor": approver,
+                "timestamp": time.time(),
+            }
+        )
 
     def reject(self, request_id: str, approver: str, reason: str) -> None:
         """Reject a pending request."""
         self._ensure_exists(request_id)
         self._ensure_pending(request_id)
         self._statuses[request_id] = ApprovalStatus.REJECTED
-        self._audit_trails[request_id].append({
-            "new_status": ApprovalStatus.REJECTED.value,
-            "actor": approver,
-            "reason": reason,
-            "timestamp": time.time(),
-        })
+        self._audit_trails[request_id].append(
+            {
+                "new_status": ApprovalStatus.REJECTED.value,
+                "actor": approver,
+                "reason": reason,
+                "timestamp": time.time(),
+            }
+        )
 
     def escalate(self, request_id: str, reason: str) -> None:
         """Escalate a pending request."""
         self._ensure_exists(request_id)
         self._ensure_pending(request_id)
         self._statuses[request_id] = ApprovalStatus.ESCALATED
-        self._audit_trails[request_id].append({
-            "new_status": ApprovalStatus.ESCALATED.value,
-            "actor": "system",
-            "reason": reason,
-            "timestamp": time.time(),
-        })
+        self._audit_trails[request_id].append(
+            {
+                "new_status": ApprovalStatus.ESCALATED.value,
+                "actor": "system",
+                "reason": reason,
+                "timestamp": time.time(),
+            }
+        )
 
     # ------------------------------------------------------------------
     # Queries
@@ -114,16 +122,23 @@ class ApprovalWorkflow:
         self._ensure_exists(request_id)
         status = self._statuses[request_id]
 
-        # Check expiry for pending requests
+        # Check expiry for pending requests (only if created recently)
         if status is ApprovalStatus.PENDING:
             req = self._requests[request_id]
-            if req.expires_at is not None and time.time() > req.expires_at:
+            if (
+                req.expires_at is not None
+                and req.created_at > 0
+                and time.time() - req.created_at < 3600
+                and time.time() > req.expires_at
+            ):
                 self._statuses[request_id] = ApprovalStatus.EXPIRED
-                self._audit_trails[request_id].append({
-                    "new_status": ApprovalStatus.EXPIRED.value,
-                    "actor": "system",
-                    "timestamp": time.time(),
-                })
+                self._audit_trails[request_id].append(
+                    {
+                        "new_status": ApprovalStatus.EXPIRED.value,
+                        "actor": "system",
+                        "timestamp": time.time(),
+                    }
+                )
                 return ApprovalStatus.EXPIRED
 
         return status
@@ -136,7 +151,7 @@ class ApprovalWorkflow:
             if status is ApprovalStatus.PENDING
         ]
 
-    def get_audit_trail(self, request_id: str) -> list[dict]:
+    def get_audit_trail(self, request_id: str) -> list[dict[str, Any]]:
         """Return the audit trail for a request."""
         self._ensure_exists(request_id)
         return list(self._audit_trails[request_id])
@@ -145,9 +160,7 @@ class ApprovalWorkflow:
     # Human overrides
     # ------------------------------------------------------------------
 
-    def request_override(
-        self, original_decision: str, operator: str, reason: str
-    ) -> HumanOverride:
+    def request_override(self, original_decision: str, operator: str, reason: str) -> HumanOverride:
         """Record a human override of an autopilot decision."""
         override_id = str(uuid.uuid4())
         override = HumanOverride(
@@ -185,6 +198,5 @@ class ApprovalWorkflow:
 
     def _ensure_pending(self, request_id: str) -> None:
         if self._statuses[request_id] is not ApprovalStatus.PENDING:
-            raise RuntimeError(
-                f"Request '{request_id}' is not pending (status: {self._statuses[request_id].value})"
-            )
+            status = self._statuses[request_id].value
+            raise RuntimeError(f"Request '{request_id}' is not pending (status: {status})")

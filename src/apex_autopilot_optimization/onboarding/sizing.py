@@ -7,11 +7,11 @@ and onboarding guidance tailored from startups to large enterprises.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class OrganizationScale(str, Enum):
+class OrganizationScale(StrEnum):
     """Organization scale tiers."""
 
     STARTUP = "startup"  # 1-3 people
@@ -21,7 +21,7 @@ class OrganizationScale(str, Enum):
     LARGE_ENTERPRISE = "large"  # 100+ people
 
 
-class ModuleTier(str, Enum):
+class ModuleTier(StrEnum):
     """Module availability tiers."""
 
     CORE = "core"  # Always included
@@ -371,7 +371,7 @@ def validate_module_selection(
             for dep in MODULE_REGISTRY[module_name].dependencies:
                 if dep not in selected_modules:
                     errors.append(
-                        f"Module '{module_name}' depends on '{dep}' " f"which is not selected"
+                        f"Module '{module_name}' depends on '{dep}' which is not selected"
                     )
 
     return (len(errors) == 0, errors)

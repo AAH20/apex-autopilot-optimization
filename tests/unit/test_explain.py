@@ -15,8 +15,8 @@ import pytest
 from apex_autopilot_optimization.explain import (
     DecisionAudit,
     ExplainConfig,
-    Explanation,
     Explainer,
+    Explanation,
     FeatureImportance,
 )
 from apex_autopilot_optimization.explain.importance import (
@@ -24,7 +24,6 @@ from apex_autopilot_optimization.explain.importance import (
     get_importance_distribution,
     get_top_features,
 )
-
 
 # ── Test models ──────────────────────────────────────────────────────────────
 
@@ -239,9 +238,7 @@ class TestFeatureImportance:
         assert fi.direction == "positive"
 
     def test_calculate_importance(self) -> None:
-        result = calculate_importance(
-            ["x", "y"], _linear_model, {"x": 1.0, "y": 5.0}
-        )
+        result = calculate_importance(["x", "y"], _linear_model, {"x": 1.0, "y": 5.0})
         assert {fi.feature for fi in result} == {"x", "y"}
         by_name = {fi.feature: fi for fi in result}
         # y contributes more absolute change than x.

@@ -1,4 +1,5 @@
 """Unit tests for audit logging module."""
+
 import json
 import time
 
@@ -11,7 +12,6 @@ from apex_autopilot_optimization.audit import (
     AuditLogger,
     AuditTrail,
 )
-
 
 # ---------------------------------------------------------------------------
 # AuditLevel tests

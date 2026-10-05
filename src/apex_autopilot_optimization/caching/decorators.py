@@ -1,9 +1,11 @@
 """Memoization decorators and cache-key helpers."""
+
 from __future__ import annotations
 
 import functools
 import inspect
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from apex_autopilot_optimization.caching.lru import LRUCache
 from apex_autopilot_optimization.caching.ttl import TTLCache

@@ -19,7 +19,6 @@ from apex_autopilot_optimization.concurrent import (
     ThreadSafeWrapper,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -176,6 +175,7 @@ class TestAsyncExecutor:
         """Exceptions raised in the worker propagate on result()."""
         executor = AsyncExecutor(max_workers=1)
         try:
+
             def boom() -> None:
                 raise ValueError("kaboom")
 
@@ -189,7 +189,7 @@ class TestAsyncExecutor:
         """map applies func to all items and returns results in order."""
         executor = AsyncExecutor(max_workers=4)
         try:
-            results = executor.map(lambda x: x ** 2, [1, 2, 3, 4, 5])
+            results = executor.map(lambda x: x**2, [1, 2, 3, 4, 5])
             assert results == [1, 4, 9, 16, 25]
         finally:
             executor.shutdown()
@@ -205,6 +205,7 @@ class TestAsyncExecutor:
         """map with a slow function still returns correct ordered results."""
         executor = AsyncExecutor(max_workers=3)
         try:
+
             def slow_square(x: int) -> int:
                 time.sleep(0.01)
                 return x * x
@@ -241,6 +242,7 @@ class TestThreadSafeWrapper:
 
     def test_prevents_race_conditions(self) -> None:
         """Concurrent increments on a wrapped counter produce the correct total."""
+
         class Counter:
             def __init__(self) -> None:
                 self.value = 0
@@ -253,7 +255,9 @@ class TestThreadSafeWrapper:
         increments_per_thread = 100
 
         threads = [
-            threading.Thread(target=lambda: [counter.increment() for _ in range(increments_per_thread)])
+            threading.Thread(
+                target=lambda: [counter.increment() for _ in range(increments_per_thread)]
+            )
             for _ in range(num_threads)
         ]
         for t in threads:
@@ -265,6 +269,7 @@ class TestThreadSafeWrapper:
 
     def test_wrapped_object_methods(self) -> None:
         """Methods on the wrapped object are accessible."""
+
         class Greeter:
             def greet(self, name: str) -> str:
                 return f"Hello, {name}"
@@ -274,6 +279,7 @@ class TestThreadSafeWrapper:
 
     def test_wrapped_object_attributes(self) -> None:
         """Attributes on the wrapped object are accessible."""
+
         class Config:
             def __init__(self) -> None:
                 self.setting = 42
@@ -423,6 +429,7 @@ class TestConcurrentFuture:
     def test_concurrent_future_exception(self) -> None:
         executor = AsyncExecutor(max_workers=1)
         try:
+
             def fail() -> None:
                 raise RuntimeError("nope")
 

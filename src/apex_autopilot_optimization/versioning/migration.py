@@ -59,9 +59,7 @@ class MigrationManager:
                 )
         self._migrations.append(migration)
 
-    def get_migration_path(
-        self, from_version: Version, to_version: Version
-    ) -> list[Migration]:
+    def get_migration_path(self, from_version: Version, to_version: Version) -> list[Migration]:
         """Return the ordered migrations connecting two versions.
 
         Performs a breadth-first search over registered migrations. Returns an
@@ -98,8 +96,7 @@ class MigrationManager:
         path = self.get_migration_path(from_version, to_version)
         if not path:
             raise ValueError(
-                f"No migration path from {from_version.to_string()} "
-                f"to {to_version.to_string()}"
+                f"No migration path from {from_version.to_string()} to {to_version.to_string()}"
             )
         for migration in path:
             migration.up()
@@ -117,8 +114,6 @@ class MigrationManager:
             ValueError: If ``migration`` has not been applied.
         """
         if migration not in self._applied:
-            raise ValueError(
-                f"Migration {migration.name!r} has not been applied; cannot roll back"
-            )
+            raise ValueError(f"Migration {migration.name!r} has not been applied; cannot roll back")
         migration.down()
         self._applied.remove(migration)

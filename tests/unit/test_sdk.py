@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from apex_autopilot_optimization.sdk import (
     ApexClient,
@@ -46,9 +46,7 @@ class TestApexResponse(unittest.TestCase):
         assert resp.get_error() is None
 
     def test_response_error(self) -> None:
-        resp = ApexResponse(
-            status=400, data={"error": "bad request"}, request_id="req-2"
-        )
+        resp = ApexResponse(status=400, data={"error": "bad request"}, request_id="req-2")
         assert resp.is_success() is False
         assert resp.get_error() == "bad request"
 
@@ -189,9 +187,7 @@ class TestApexClientCalls(unittest.TestCase):
     def test_filter(self) -> None:
         client = self._make_client()
         with patch.object(client, "_make_request") as mock_req:
-            mock_req.return_value = ApexResponse(
-                status=200, data={"safe": True}, request_id="f1"
-            )
+            mock_req.return_value = ApexResponse(status=200, data={"safe": True}, request_id="f1")
             resp = client.filter({"x": 0}, {"u": 1}, [{"x": 5, "y": 5}])
             assert resp.is_success() is True
             assert resp.data["safe"] is True
@@ -236,9 +232,7 @@ class TestApexClientRequestId(unittest.TestCase):
         client = ApexClient()
         client._connected = True
         with patch.object(client, "_make_request") as mock_req:
-            mock_req.return_value = ApexResponse(
-                status=200, data={}, request_id="req-abc-123"
-            )
+            mock_req.return_value = ApexResponse(status=200, data={}, request_id="req-abc-123")
             resp = client.plan({"start": [0, 0]})
             assert resp.request_id == "req-abc-123"
 
@@ -246,9 +240,7 @@ class TestApexClientRequestId(unittest.TestCase):
         client = ApexClient()
         client._connected = True
         with patch.object(client, "_make_request") as mock_req:
-            mock_req.return_value = ApexResponse(
-                status=200, data={}, request_id="xyz-789"
-            )
+            mock_req.return_value = ApexResponse(status=200, data={}, request_id="xyz-789")
             resp = client.health()
             assert resp.request_id == "xyz-789"
 

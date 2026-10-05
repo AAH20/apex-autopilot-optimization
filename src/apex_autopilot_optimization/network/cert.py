@@ -1,4 +1,5 @@
 """Certificate management: generation, loading, verification, rotation."""
+
 from __future__ import annotations
 
 import datetime
@@ -23,7 +24,7 @@ class CertificateManager:
                 x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Apex Autopilot"),
             ]
         )
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = datetime.datetime.now(datetime.UTC)
         cert = (
             x509.CertificateBuilder()
             .subject_name(subject)
@@ -73,7 +74,7 @@ class CertificateManager:
             cert = x509.load_pem_x509_certificate(Path(cert_path).read_bytes())
         except (ValueError, OSError):
             return False
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = datetime.datetime.now(datetime.UTC)
         return cert.not_valid_before_utc <= now <= cert.not_valid_after_utc
 
     def rotate_certificates(self, cert_path: str, key_path: str, hostname: str) -> None:

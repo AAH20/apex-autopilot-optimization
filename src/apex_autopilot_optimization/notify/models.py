@@ -1,8 +1,10 @@
 """Notification data models: priority, channel, notification, and config."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum, IntEnum
+from typing import Any
 
 
 class NotificationPriority(IntEnum):
@@ -35,7 +37,7 @@ class Notification:
     channel: NotificationChannel
     recipient: str
     timestamp: float
-    metadata: dict = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

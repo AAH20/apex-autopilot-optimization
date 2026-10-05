@@ -1,4 +1,5 @@
 """Tests for the task scheduling system."""
+
 from __future__ import annotations
 
 import time
@@ -266,7 +267,9 @@ class TestTaskScheduler:
 class TestJobQueue:
     """Tests for JobQueue operations."""
 
-    def _make_task(self, task_id: str, priority: TaskPriority = TaskPriority.NORMAL) -> ScheduledTask:
+    def _make_task(
+        self, task_id: str, priority: TaskPriority = TaskPriority.NORMAL
+    ) -> ScheduledTask:
         return ScheduledTask(
             id=task_id,
             name=f"job_{task_id}",

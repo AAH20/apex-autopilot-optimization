@@ -18,7 +18,6 @@ from apex_autopilot_optimization.backup import (
     validate_dr_plan,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -320,9 +319,7 @@ class TestBackupEncryption:
         mgr.create_backup("b1", "secret state")
 
         # A manager with a different key cannot restore the payload.
-        other = BackupManager(
-            _config(tmp_path, encryption=True, key="different-key")
-        )
+        other = BackupManager(_config(tmp_path, encryption=True, key="different-key"))
         with pytest.raises(ValueError):
             other.restore_backup("b1")
 

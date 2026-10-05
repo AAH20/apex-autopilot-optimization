@@ -1,11 +1,12 @@
 """FMEA (Failure Mode and Effects Analysis) entries."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 
 
-class FMEARiskLevel(str, Enum):
+class FMEARiskLevel(StrEnum):
     """Risk levels derived from FMEA risk priority numbers."""
 
     LOW = "LOW"

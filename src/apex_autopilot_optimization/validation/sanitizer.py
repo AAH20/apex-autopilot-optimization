@@ -50,7 +50,7 @@ class Sanitizer:
         return float(max(min_val, min(max_val, num)))
 
     @staticmethod
-    def sanitize_collection(value: Any, max_size: int) -> list:
+    def sanitize_collection(value: Any, max_size: int) -> list[Any]:
         """Convert an iterable to a list, truncating to max_size elements.
 
         Args:

@@ -6,7 +6,7 @@ Uses typer (already a dependency) for modern CLI patterns.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 import typer
 
@@ -26,7 +26,7 @@ app = typer.Typer(
 )
 
 
-class Scale(str, Enum):
+class Scale(StrEnum):
     startup = "startup"
     smb = "smb"
     mid_market = "mid_market"
@@ -34,7 +34,7 @@ class Scale(str, Enum):
     large = "large"
 
 
-class PlannerAlgorithm(str, Enum):
+class PlannerAlgorithm(StrEnum):
     astar = "astar"
     rrt = "rrt"
     prm = "prm"

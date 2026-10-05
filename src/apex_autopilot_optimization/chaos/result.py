@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -22,7 +23,7 @@ class ChaosResult:
     target: str
     start_time: float
     end_time: float | None = None
-    params: dict = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
     status: str = "active"
 
     def duration(self) -> float | None:

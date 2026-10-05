@@ -1,4 +1,5 @@
 """TLS configuration and socket wrapper for secure communications."""
+
 from __future__ import annotations
 
 import socket

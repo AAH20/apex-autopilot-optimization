@@ -64,7 +64,7 @@ class TwinSyncManager:
             for key in all_keys:
                 rv = real_state.get(key, 0)
                 tv = twin_state.get(key, 0)
-                if isinstance(rv, (int, float)) and isinstance(tv, (int, float)):
+                if isinstance(rv, int | float) and isinstance(tv, int | float):
                     drift += abs(float(rv) - float(tv))
         return drift
 
@@ -80,9 +80,7 @@ class TwinSyncManager:
         """Set the sync mode."""
         self._mode = mode
 
-    def create_sensor(
-        self, asset_id: str, sensor_type: str, value: float
-    ) -> TwinSensor:
+    def create_sensor(self, asset_id: str, sensor_type: str, value: float) -> TwinSensor:
         """Create and register a sensor for a twin asset."""
         sensor = TwinSensor(
             id=uuid.uuid4().hex[:12],
@@ -94,9 +92,7 @@ class TwinSyncManager:
         self._sensors[sensor.id] = sensor
         return sensor
 
-    def create_actuator(
-        self, asset_id: str, actuator_type: str, state: str
-    ) -> TwinActuator:
+    def create_actuator(self, asset_id: str, actuator_type: str, state: str) -> TwinActuator:
         """Create and register an actuator for a twin asset."""
         actuator = TwinActuator(
             id=uuid.uuid4().hex[:12],

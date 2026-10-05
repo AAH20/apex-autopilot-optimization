@@ -95,7 +95,7 @@ class Explainer:
     def _build_factors(self, context: dict[str, Any]) -> list[dict[str, Any]]:
         magnitudes: list[tuple[str, Any, float]] = []
         for name, value in context.items():
-            magnitude = abs(float(value)) if isinstance(value, (int, float)) else 0.0
+            magnitude = abs(float(value)) if isinstance(value, int | float) else 0.0
             magnitudes.append((name, value, magnitude))
 
         total = sum(m for _, _, m in magnitudes)
@@ -108,16 +108,15 @@ class Explainer:
         factors = factors[: self._config.max_factors]
 
         if self._config.include_counterfactuals:
-            for factor in factors:
+            base_factors = list(factors)
+            for factor in base_factors:
                 factors.append(
                     {
                         "name": f"counterfactual:{factor['name']}",
                         "value": factor["value"],
                         "weight": 0.0,
                         "type": "counterfactual",
-                        "description": (
-                            f"Changing {factor['name']} would alter the decision"
-                        ),
+                        "description": (f"Changing {factor['name']} would alter the decision"),
                     }
                 )
         return factors

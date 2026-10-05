@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class ConfigLayer(str, Enum):
+class ConfigLayer(StrEnum):
     """Configuration layer precedence (lowest to highest)."""
 
     DEFAULTS = "defaults"

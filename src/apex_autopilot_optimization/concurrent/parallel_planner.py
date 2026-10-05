@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from concurrent.futures import Future, ThreadPoolExecutor, as_completed
+from concurrent.futures import Future, as_completed
 from dataclasses import dataclass
-from typing import Any, Callable, Protocol
+from typing import Any, Protocol
 
 from apex_autopilot_optimization.concurrent.async_executor import AsyncExecutor
 
@@ -61,9 +61,7 @@ class ParallelPlanner:
             thread_name_prefix=self._config.thread_name_prefix,
         )
         try:
-            futures: list[Future[Any]] = [
-                executor.submit(p.plan, problem) for p in self._planners
-            ]
+            futures: list[Future[Any]] = [executor.submit(p.plan, problem) for p in self._planners]
             results: list[Any] = []
             for future in as_completed(futures, timeout=self._config.timeout_seconds):
                 try:
@@ -99,6 +97,6 @@ class ParallelPlanner:
         Falls back to ``0.0`` when the result has no ``cost`` attribute.
         """
         cost = getattr(result, "cost", 0.0)
-        if isinstance(cost, (int, float)):
+        if isinstance(cost, int | float):
             return float(cost)
         return 0.0

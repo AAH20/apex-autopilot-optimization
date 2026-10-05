@@ -21,7 +21,6 @@ from apex_autopilot_optimization.monitoring import (
     get_slo_status,
 )
 
-
 # ── Prometheus metric registration ─────────────────────────────────────────
 
 
@@ -519,7 +518,10 @@ class TestGrafanaPanelQueries:
 
     def test_get_panel_queries_multiple_targets(self):
         panels = [
-            {"title": "Requests", "targets": [{"expr": "requests_total"}, {"expr": "errors_total"}]},
+            {
+                "title": "Requests",
+                "targets": [{"expr": "requests_total"}, {"expr": "errors_total"}],
+            },
         ]
         queries = get_panel_queries(panels)
         assert "requests_total" in queries

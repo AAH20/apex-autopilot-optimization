@@ -6,7 +6,7 @@ metric introspection for autopilot systems.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 
 class PrometheusExporter:
@@ -95,4 +95,4 @@ class PrometheusExporter:
         metric = self._metrics.get(name)
         if metric is None:
             return None
-        return metric["value"]
+        return cast(float, metric["value"])

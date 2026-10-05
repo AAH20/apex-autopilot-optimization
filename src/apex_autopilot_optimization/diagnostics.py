@@ -11,11 +11,11 @@ import platform
 import sys
 from dataclasses import dataclass
 from datetime import UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class DiagnosticStatus(str, Enum):
+class DiagnosticStatus(StrEnum):
     """Status levels for diagnostic checks."""
 
     PASS = "pass"

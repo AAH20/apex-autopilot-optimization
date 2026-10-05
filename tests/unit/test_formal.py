@@ -1,14 +1,13 @@
 """Tests for formal verification package."""
-from __future__ import annotations
 
-import math
+from __future__ import annotations
 
 import pytest
 
 from apex_autopilot_optimization.formal import (
+    FaultTree,
     FMEAEntry,
     FMEARiskLevel,
-    FaultTree,
     FormalConfig,
     SafetyCase,
     SafetyProperty,
@@ -393,4 +392,404 @@ class TestFormalConfig:
 
 
 # Import functions that need to be tested
-from apex_autopilot_optimization.formal.property import verify_property, get_property_status
+from apex_autopilot_optimization.formal.property import get_property_status, verify_property
+
+
+class TestSafetyPropertyEdgeCases:
+    """Edge-case tests for SafetyProperty verification."""
+
+    def test_verify_complex_expression(self) -> None:
+        prop = SafetyProperty(
+            id="SP-003",
+            name="Composite Check",
+            description="Altitude and speed within bounds",
+            expression="altitude < 500 and speed < 50",
+            severity="HIGH",
+        )
+        assert verify_property(prop, {"altitude": 300, "speed": 30}) is True
+        assert verify_property(prop, {"altitude": 600, "speed": 30}) is False
+
+    def test_verify_missing_state_variable(self) -> None:
+        prop = SafetyProperty(
+            id="SP-004",
+            name="Missing Var",
+            description="Expression references missing state key",
+            expression="nonexistent < 100",
+            severity="LOW",
+        )
+        assert verify_property(prop, {"altitude": 300}) is False
+
+    def test_verify_invalid_expression(self) -> None:
+        prop = SafetyProperty(
+            id="SP-005",
+            name="Invalid Expr",
+            description="Expression with syntax error",
+            expression="altitude < ",
+            severity="LOW",
+        )
+        assert verify_property(prop, {"altitude": 300}) is False
+
+    def test_verify_non_boolean_result(self) -> None:
+        prop = SafetyProperty(
+            id="SP-006",
+            name="Non-bool",
+            description="Expression returns non-boolean",
+            expression="altitude + 10",
+            severity="LOW",
+        )
+        assert verify_property(prop, {"altitude": 300}) is True
+
+    def test_verify_empty_state(self) -> None:
+        prop = SafetyProperty(
+            id="SP-007",
+            name="Empty State",
+            description="Expression with empty state dict",
+            expression="True",
+            severity="LOW",
+        )
+        assert verify_property(prop, {}) is True
+
+    def test_verify_with_arithmetic(self) -> None:
+        prop = SafetyProperty(
+            id="SP-008",
+            name="Arithmetic",
+            description="Expression using arithmetic",
+            expression="altitude * 2 < 1000",
+            severity="MEDIUM",
+        )
+        assert verify_property(prop, {"altitude": 400}) is True
+        assert verify_property(prop, {"altitude": 600}) is False
+
+    def test_get_property_status_with_status_attr(self) -> None:
+        prop = SafetyProperty(
+            id="SP-009",
+            name="With Status",
+            description="Property with status attribute set",
+            expression="True",
+            severity="LOW",
+        )
+        object.__setattr__(prop, "status", "VERIFIED")
+        assert get_property_status(prop) == "VERIFIED"
+
+
+class TestSafetyCaseEdgeCases:
+    """Edge-case tests for SafetyCase."""
+
+    def test_verify_all_empty_properties(self) -> None:
+        case = SafetyCase(id="SC-002", title="Empty Case")
+        results = case.verify_all({"altitude": 300})
+        assert results == {}
+
+    def test_get_failure_count_all_pass(self) -> None:
+        prop = SafetyProperty(
+            id="SP-010",
+            name="Always True",
+            description="Always passes",
+            expression="True",
+            severity="LOW",
+        )
+        case = SafetyCase(id="SC-003", title="All Pass", properties=[prop])
+        assert case.get_failure_count({}) == 0
+
+    def test_get_failure_count_all_fail(self) -> None:
+        prop = SafetyProperty(
+            id="SP-011",
+            name="Always False",
+            description="Always fails",
+            expression="False",
+            severity="LOW",
+        )
+        case = SafetyCase(id="SC-004", title="All Fail", properties=[prop])
+        assert case.get_failure_count({}) == 1
+
+    def test_add_multiple_properties(self) -> None:
+        case = SafetyCase(id="SC-005", title="Multi")
+        for i in range(5):
+            case.add_property(
+                SafetyProperty(
+                    id=f"SP-{i}",
+                    name=f"Prop {i}",
+                    description="Test",
+                    expression="True",
+                    severity="LOW",
+                )
+            )
+        assert len(case.properties) == 5
+
+    def test_remove_nonexistent_property_raises(self) -> None:
+        case = SafetyCase(id="SC-006", title="Remove Test")
+        prop = SafetyProperty(
+            id="SP-012",
+            name="Orphan",
+            description="Not in case",
+            expression="True",
+            severity="LOW",
+        )
+        with pytest.raises(ValueError, match="not in list"):
+            case.remove_property(prop)
+
+    def test_verify_all_mixed_results(self) -> None:
+        prop_pass = SafetyProperty(
+            id="SP-013",
+            name="Pass",
+            description="Passes",
+            expression="x > 0",
+            severity="LOW",
+        )
+        prop_fail = SafetyProperty(
+            id="SP-014",
+            name="Fail",
+            description="Fails",
+            expression="x < 0",
+            severity="LOW",
+        )
+        case = SafetyCase(id="SC-007", title="Mixed", properties=[prop_pass, prop_fail])
+        results = case.verify_all({"x": 5})
+        assert results == {"SP-013": True, "SP-014": False}
+
+
+class TestFMEAEdgeCases:
+    """Edge-case tests for FMEAEntry."""
+
+    def test_rpn_boundary_low_medium(self) -> None:
+        entry = FMEAEntry(
+            id="FMEA-B1",
+            component="C",
+            failure_mode="FM",
+            effect="E",
+            cause="CA",
+            severity=10,
+            occurrence=10,
+            detection=1,
+            rpn=100,
+        )
+        assert entry.get_risk_level() == FMEARiskLevel.MEDIUM
+
+    def test_rpn_boundary_medium_high(self) -> None:
+        entry = FMEAEntry(
+            id="FMEA-B2",
+            component="C",
+            failure_mode="FM",
+            effect="E",
+            cause="CA",
+            severity=10,
+            occurrence=10,
+            detection=2,
+            rpn=200,
+        )
+        assert entry.get_risk_level() == FMEARiskLevel.HIGH
+
+    def test_rpn_boundary_high_critical(self) -> None:
+        entry = FMEAEntry(
+            id="FMEA-B3",
+            component="C",
+            failure_mode="FM",
+            effect="E",
+            cause="CA",
+            severity=10,
+            occurrence=10,
+            detection=5,
+            rpn=500,
+        )
+        assert entry.get_risk_level() == FMEARiskLevel.CRITICAL
+
+    def test_calculate_rpn_overrides_stored(self) -> None:
+        entry = FMEAEntry(
+            id="FMEA-B4",
+            component="C",
+            failure_mode="FM",
+            effect="E",
+            cause="CA",
+            severity=3,
+            occurrence=3,
+            detection=3,
+            rpn=999,
+        )
+        assert entry.calculate_rpn() == 27
+
+    def test_get_risk_level_uses_calculate_when_rpn_zero(self) -> None:
+        entry = FMEAEntry(
+            id="FMEA-B5",
+            component="C",
+            failure_mode="FM",
+            effect="E",
+            cause="CA",
+            severity=5,
+            occurrence=5,
+            detection=5,
+            rpn=0,
+        )
+        assert entry.get_risk_level() == FMEARiskLevel.MEDIUM
+
+
+class TestFaultTreeEdgeCases:
+    """Edge-case tests for FaultTree."""
+
+    def test_nested_gates(self) -> None:
+        tree = FaultTree(
+            id="FT-002",
+            name="Nested",
+            top_event="Top",
+            gates=[
+                {"id": "G1", "type": "OR", "inputs": ["G2", "E3"]},
+                {"id": "G2", "type": "AND", "inputs": ["E1", "E2"]},
+            ],
+            basic_events=[
+                {"id": "E1", "probability": 0.1},
+                {"id": "E2", "probability": 0.2},
+                {"id": "E3", "probability": 0.3},
+            ],
+        )
+        assert tree.evaluate_tree({"E1": True, "E2": True, "E3": False}) is True
+        assert tree.evaluate_tree({"E1": False, "E2": False, "E3": True}) is True
+        assert tree.evaluate_tree({"E1": False, "E2": True, "E3": False}) is False
+
+    def test_minimal_cuts_or_gate(self) -> None:
+        tree = FaultTree(
+            id="FT-003",
+            name="OR Cuts",
+            top_event="Top",
+            gates=[{"id": "G1", "type": "OR", "inputs": ["E1", "E2", "E3"]}],
+            basic_events=[
+                {"id": "E1", "probability": 0.1},
+                {"id": "E2", "probability": 0.2},
+                {"id": "E3", "probability": 0.3},
+            ],
+        )
+        cuts = tree.get_minimal_cuts()
+        assert len(cuts) == 3
+        assert {"E1"} in cuts
+        assert {"E2"} in cuts
+        assert {"E3"} in cuts
+
+    def test_probability_or_gate(self) -> None:
+        tree = FaultTree(
+            id="FT-004",
+            name="OR Prob",
+            top_event="Top",
+            gates=[{"id": "G1", "type": "OR", "inputs": ["E1", "E2"]}],
+            basic_events=[
+                {"id": "E1", "probability": 0.5},
+                {"id": "E2", "probability": 0.5},
+            ],
+        )
+        prob = tree.get_probability({"E1": 0.5, "E2": 0.5})
+        assert prob == pytest.approx(0.75)
+
+    def test_empty_gates(self) -> None:
+        tree = FaultTree(
+            id="FT-005",
+            name="Empty",
+            top_event="Top",
+            gates=[],
+            basic_events=[{"id": "E1", "probability": 0.1}],
+        )
+        assert tree.evaluate_tree({"E1": True}) is False
+        assert tree.get_minimal_cuts() == []
+        assert tree.get_probability({"E1": 0.5}) == 0.0
+
+    def test_probability_nested_gates(self) -> None:
+        tree = FaultTree(
+            id="FT-006",
+            name="Nested Prob",
+            top_event="Top",
+            gates=[
+                {"id": "G1", "type": "AND", "inputs": ["G2", "E3"]},
+                {"id": "G2", "type": "OR", "inputs": ["E1", "E2"]},
+            ],
+            basic_events=[
+                {"id": "E1", "probability": 0.5},
+                {"id": "E2", "probability": 0.5},
+                {"id": "E3", "probability": 0.8},
+            ],
+        )
+        # P(G2) = 0.75, P(G1) = 0.75 * 0.8 = 0.6
+        prob = tree.get_probability({"E1": 0.5, "E2": 0.5, "E3": 0.8})
+        assert prob == pytest.approx(0.6)
+
+    def test_evaluate_tree_default_false_for_missing_inputs(self) -> None:
+        tree = FaultTree(
+            id="FT-007",
+            name="Defaults",
+            top_event="Top",
+            gates=[{"id": "G1", "type": "AND", "inputs": ["E1", "E2"]}],
+            basic_events=[
+                {"id": "E1", "probability": 0.1},
+                {"id": "E2", "probability": 0.2},
+            ],
+        )
+        assert tree.evaluate_tree({}) is False
+
+
+class TestModuleImports:
+    """Tests verifying canonical module locations."""
+
+    def test_property_module_exports(self) -> None:
+        from apex_autopilot_optimization.formal.property import (
+            SafetyProperty,
+            SafetySeverity,
+            get_property_status,
+            verify_property,
+        )
+
+        assert SafetyProperty is not None
+        assert SafetySeverity is not None
+        assert callable(verify_property)
+        assert callable(get_property_status)
+
+    def test_case_module_exports(self) -> None:
+        from apex_autopilot_optimization.formal.case import SafetyCase
+
+        assert SafetyCase is not None
+
+    def test_safety_module_compat_shim(self) -> None:
+        from apex_autopilot_optimization.formal.case import (
+            SafetyCase as SC2,  # noqa: N814
+        )
+        from apex_autopilot_optimization.formal.property import (
+            SafetyProperty as SP2,  # noqa: N814
+        )
+        from apex_autopilot_optimization.formal.property import (
+            SafetySeverity as SS2,  # noqa: N814
+        )
+        from apex_autopilot_optimization.formal.safety import (
+            SafetyCase,
+            SafetyProperty,
+            SafetySeverity,
+        )
+
+        assert SafetyCase is SC2
+        assert SafetyProperty is SP2
+        assert SafetySeverity is SS2
+
+    def test_fmea_module_exports(self) -> None:
+        from apex_autopilot_optimization.formal.fmea import FMEAEntry, FMEARiskLevel
+
+        assert FMEAEntry is not None
+        assert FMEARiskLevel is not None
+
+    def test_fault_tree_module_exports(self) -> None:
+        from apex_autopilot_optimization.formal.fault_tree import FaultTree
+
+        assert FaultTree is not None
+
+    def test_config_module_exports(self) -> None:
+        from apex_autopilot_optimization.formal.config import FormalConfig
+
+        assert FormalConfig is not None
+
+    def test_package_all_exports(self) -> None:
+        import apex_autopilot_optimization.formal as formal
+
+        expected = {
+            "FMEAEntry",
+            "FMEARiskLevel",
+            "FaultTree",
+            "FormalConfig",
+            "SafetyCase",
+            "SafetyProperty",
+            "SafetySeverity",
+            "get_property_status",
+            "verify_property",
+        }
+        assert expected <= set(formal.__all__)

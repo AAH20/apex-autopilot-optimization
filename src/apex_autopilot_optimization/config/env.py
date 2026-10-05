@@ -20,7 +20,7 @@ def env_var_to_config_key(name: str, prefix: str = "APEX_") -> str:
         Dotted config key (e.g., "planner.resolution_m").
     """
     if name.startswith(prefix):
-        name = name[len(prefix):]
+        name = name[len(prefix) :]
     return name.lower().replace("__", ".")
 
 

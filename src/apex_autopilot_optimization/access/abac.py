@@ -88,6 +88,4 @@ class ABACPolicy:
             return False
         if not rule.resource_attrs.items() <= resource_attrs.items():
             return False
-        if not rule.conditions.items() <= environment.items():
-            return False
-        return True
+        return rule.conditions.items() <= environment.items()

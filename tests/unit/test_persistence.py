@@ -1,23 +1,19 @@
 """Tests for the persistence layer."""
+
 from __future__ import annotations
 
-import sqlite3
 from pathlib import Path
-from typing import Any
 
 import pytest
 
 from apex_autopilot_optimization.persistence import (
     CheckpointManager,
     Database,
-    DataStore,
     FileDataStore,
     Migration,
     MigrationManager,
     PlanningResultRepository,
-    Repository,
 )
-
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -115,10 +111,9 @@ class TestDatabase:
     def test_transaction_rolls_back_on_exception(self, tmp_path: Path) -> None:
         db = _make_db(tmp_path / "test.db")
         db.execute("CREATE TABLE tx (id INTEGER PRIMARY KEY, val TEXT);")
-        with pytest.raises(ValueError, match="force rollback"):
-            with db.transaction():
-                db.execute("INSERT INTO tx (val) VALUES (?)", ("should_not_exist",))
-                raise ValueError("force rollback")
+        with pytest.raises(ValueError, match="force rollback"), db.transaction():
+            db.execute("INSERT INTO tx (val) VALUES (?)", ("should_not_exist",))
+            raise ValueError("force rollback")
         # Verify data was rolled back
         rows = db.fetchall("SELECT * FROM tx")
         assert rows == []
@@ -492,20 +487,25 @@ class TestPackageExports:
 
     def test_database_exported(self) -> None:
         from apex_autopilot_optimization.persistence import Database as DB
+
         assert DB is not None
 
     def test_repository_exported(self) -> None:
         from apex_autopilot_optimization.persistence import Repository as Repo
+
         assert Repo is not None
 
     def test_migration_exported(self) -> None:
         from apex_autopilot_optimization.persistence import Migration as Mig
+
         assert Mig is not None
 
     def test_datastore_exported(self) -> None:
         from apex_autopilot_optimization.persistence import DataStore as DS
+
         assert DS is not None
 
     def test_checkpoint_manager_exported(self) -> None:
         from apex_autopilot_optimization.persistence import CheckpointManager as CM
+
         assert CM is not None

@@ -9,11 +9,11 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class ModelStage(str, Enum):
+class ModelStage(StrEnum):
     """Lifecycle stage of a registered model version.
 
     Subclasses :class:`str` so that stages serialize directly to JSON and can be

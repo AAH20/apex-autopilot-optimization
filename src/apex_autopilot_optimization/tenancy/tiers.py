@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 __all__ = [
     "TenantConfig",
@@ -12,7 +12,7 @@ __all__ = [
 ]
 
 
-class TenantTier(str, Enum):
+class TenantTier(StrEnum):
     """Tenant tier levels."""
 
     FREE = "free"

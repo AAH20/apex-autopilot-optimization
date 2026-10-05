@@ -15,7 +15,6 @@ from apex_autopilot_optimization.compliance import (
     get_standard_requirements,
 )
 
-
 # ---------------------------------------------------------------------------
 # AuditTrail tests
 # ---------------------------------------------------------------------------

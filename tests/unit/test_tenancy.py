@@ -15,7 +15,6 @@ from apex_autopilot_optimization.tenancy import (
     set_current_tenant,
 )
 
-
 # ---------------------------------------------------------------------------
 # TenantContext tests
 # ---------------------------------------------------------------------------

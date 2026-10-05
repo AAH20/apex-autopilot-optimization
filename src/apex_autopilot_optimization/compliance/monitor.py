@@ -1,5 +1,7 @@
 """Compliance monitoring, violation detection, and scoring."""
 
+from typing import Any
+
 from apex_autopilot_optimization.compliance.report import ComplianceReport, generate_report
 
 
@@ -10,13 +12,13 @@ class ComplianceMonitor:
         self._reports: list[ComplianceReport] = []
         self._controls: dict[str, str] = {}
 
-    def check_compliance(self, standard: str, controls: list[dict]) -> ComplianceReport:
+    def check_compliance(self, standard: str, controls: list[dict[str, Any]]) -> ComplianceReport:
         """Run a compliance check and store the report."""
         report = generate_report(standard, controls)
         self._reports.append(report)
         return report
 
-    def get_violations(self) -> list[dict]:
+    def get_violations(self) -> list[dict[str, Any]]:
         """Get all violations from the most recent report."""
         if not self._reports:
             return []
@@ -31,10 +33,13 @@ class ComplianceMonitor:
             if c["status"] == "fail"
         ]
 
-    def get_remediation_plan(self, violation: dict) -> dict:
+    def get_remediation_plan(self, violation: dict[str, Any]) -> dict[str, Any]:
         """Get a remediation plan for a violation."""
         if not self._reports:
-            return {"control_id": violation["control_id"], "remediation": "No remediation available"}
+            return {
+                "control_id": violation["control_id"],
+                "remediation": "No remediation available",
+            }
         latest = self._reports[-1]
         for control in latest.controls:
             if control["id"] == violation["control_id"]:

@@ -86,9 +86,7 @@ class TestVersionToString:
         assert Version(1, 2, 3, "beta.2").to_string() == "1.2.3-beta.2"
 
     def test_to_string_roundtrip(self):
-        assert Version.from_string(Version(3, 4, 5, "rc.1").to_string()) == Version(
-            3, 4, 5, "rc.1"
-        )
+        assert Version.from_string(Version(3, 4, 5, "rc.1").to_string()) == Version(3, 4, 5, "rc.1")
 
 
 # ---------------------------------------------------------------------------

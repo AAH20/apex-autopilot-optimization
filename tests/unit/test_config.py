@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 
 import pytest
@@ -19,7 +18,6 @@ from apex_autopilot_optimization.config import (
 from apex_autopilot_optimization.config.env import env_var_to_config_key, load_env_config
 from apex_autopilot_optimization.config.merger import resolve_config
 from apex_autopilot_optimization.config.profiles import get_profile, list_profiles
-
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 

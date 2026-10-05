@@ -1,7 +1,9 @@
 """Stream processing implementation."""
+
 from __future__ import annotations
 
-from typing import Any, Callable, Iterable
+from collections.abc import Callable, Iterable
+from typing import Any
 
 
 class StreamProcessor:
@@ -11,9 +13,7 @@ class StreamProcessor:
         self._processed = 0
         self._windows = 0
 
-    def process_stream(
-        self, stream: Iterable[Any], func: Callable[[Any], Any]
-    ) -> list[Any]:
+    def process_stream(self, stream: Iterable[Any], func: Callable[[Any], Any]) -> list[Any]:
         """Apply a function to each item in the stream."""
         result = [func(item) for item in stream]
         self._processed += len(result)
@@ -40,27 +40,18 @@ class StreamProcessor:
         self._windows += len(windows)
         return windows
 
-    def window_by_count(
-        self, items: Iterable[Any], window_size: int
-    ) -> list[list[Any]]:
+    def window_by_count(self, items: Iterable[Any], window_size: int) -> list[list[Any]]:
         """Group items into fixed-size windows."""
         items_list = list(items)
-        windows = [
-            items_list[i : i + window_size]
-            for i in range(0, len(items_list), window_size)
-        ]
+        windows = [items_list[i : i + window_size] for i in range(0, len(items_list), window_size)]
         self._windows += len(windows)
         return windows
 
-    def aggregate(
-        self, values: Iterable[Any], aggregator: Callable[[list[Any]], Any]
-    ) -> Any:
+    def aggregate(self, values: Iterable[Any], aggregator: Callable[[list[Any]], Any]) -> Any:
         """Aggregate values using the provided function."""
         return aggregator(list(values))
 
-    def filter_stream(
-        self, stream: Iterable[Any], predicate: Callable[[Any], bool]
-    ) -> list[Any]:
+    def filter_stream(self, stream: Iterable[Any], predicate: Callable[[Any], bool]) -> list[Any]:
         """Filter stream items by predicate."""
         return [item for item in stream if predicate(item)]
 

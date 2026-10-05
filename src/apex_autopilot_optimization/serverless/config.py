@@ -21,7 +21,7 @@ class FaaSConfig:
     timeout_seconds: int = 30
     concurrency: int = 100
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not isinstance(self.provider, str):
             raise TypeError("provider must be a string")
         if not isinstance(self.region, str):

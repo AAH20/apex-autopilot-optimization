@@ -1,8 +1,10 @@
 """WebSocket server for real-time channel-based messaging."""
+
 from __future__ import annotations
 
 import uuid
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 
 class WebSocketServer:
@@ -48,10 +50,7 @@ class WebSocketServer:
 
     def get_connections(self) -> list[dict[str, Any]]:
         """Return all active connection records."""
-        return [
-            {"id": cid, "channel": conn["channel"]}
-            for cid, conn in self._connections.items()
-        ]
+        return [{"id": cid, "channel": conn["channel"]} for cid, conn in self._connections.items()]
 
     def get_connection_count(self) -> int:
         """Return the number of active connections."""

@@ -23,20 +23,20 @@ class BiasMetric(Enum):
     EQUALIZED_ODDS = "equalized_odds"
 
 
-def _selection_rate(records: list[dict]) -> float:
+def _selection_rate(records: list[dict[str, Any]]) -> float:
     if not records:
         return 0.0
     return sum(1 for r in records if r.get("selected")) / len(records)
 
 
-def _true_positive_rate(records: list[dict]) -> float | None:
+def _true_positive_rate(records: list[dict[str, Any]]) -> float | None:
     positives = [r for r in records if r.get("label") is True]
     if not positives:
         return None
     return sum(1 for r in positives if r.get("selected")) / len(positives)
 
 
-def _false_positive_rate(records: list[dict]) -> float | None:
+def _false_positive_rate(records: list[dict[str, Any]]) -> float | None:
     negatives = [r for r in records if r.get("label") is False]
     if not negatives:
         return None
@@ -56,7 +56,7 @@ class BiasDetector:
         self.threshold = threshold
         self._report: dict[str, Any] | None = None
 
-    def detect_bias(self, data: list[dict], protected_attrs: list[str]) -> dict:
+    def detect_bias(self, data: list[dict[str, Any]], protected_attrs: list[str]) -> dict[str, Any]:
         """Analyse ``data`` for bias across ``protected_attrs``.
 
         Returns the generated report (also retrievable via
@@ -104,14 +104,11 @@ class BiasDetector:
                 equalized_odds_values.append(max(_spread(tprs), _spread(fprs)))
 
         demographic_parity = max(parity_values) if parity_values else 0.0
-        equal_opportunity = (
-            max(equal_opportunity_values) if equal_opportunity_values else None
-        )
+        equal_opportunity = max(equal_opportunity_values) if equal_opportunity_values else None
         equalized_odds = max(equalized_odds_values) if equalized_odds_values else None
 
         max_disparity = max(
-            [demographic_parity]
-            + [v for v in (equal_opportunity, equalized_odds) if v is not None]
+            [demographic_parity] + [v for v in (equal_opportunity, equalized_odds) if v is not None]
         )
         bias_detected = max_disparity > self.threshold
 
@@ -129,7 +126,7 @@ class BiasDetector:
         }
         return self._report
 
-    def get_bias_report(self) -> dict:
+    def get_bias_report(self) -> dict[str, Any]:
         """Return the most recent bias report, or an empty report."""
         if self._report is None:
             return {

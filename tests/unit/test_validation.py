@@ -1,7 +1,5 @@
 """Tests for the validation package: Validator, Sanitizer, and Pydantic schemas."""
 
-import math
-
 import pytest
 from pydantic import ValidationError
 
@@ -139,25 +137,33 @@ class TestValidationRuleTypes:
 
     def test_regex_matching_pattern(self):
         rules = [
-            ValidationRule(field="email", rule_type="regex", params={"pattern": r"^[^@]+@[^@]+\.[^@]+$"})
+            ValidationRule(
+                field="email", rule_type="regex", params={"pattern": r"^[^@]+@[^@]+\.[^@]+$"}
+            )
         ]
         result = Validator().validate({"email": "user@example.com"}, rules)
         assert result.valid is True
 
     def test_regex_non_matching_pattern(self):
         rules = [
-            ValidationRule(field="email", rule_type="regex", params={"pattern": r"^[^@]+@[^@]+\.[^@]+$"})
+            ValidationRule(
+                field="email", rule_type="regex", params={"pattern": r"^[^@]+@[^@]+\.[^@]+$"}
+            )
         ]
         result = Validator().validate({"email": "not-an-email"}, rules)
         assert result.valid is False
 
     def test_enum_allowed_value(self):
-        rules = [ValidationRule(field="mode", rule_type="enum", params={"choices": ["fast", "slow"]})]
+        rules = [
+            ValidationRule(field="mode", rule_type="enum", params={"choices": ["fast", "slow"]})
+        ]
         result = Validator().validate({"mode": "fast"}, rules)
         assert result.valid is True
 
     def test_enum_disallowed_value(self):
-        rules = [ValidationRule(field="mode", rule_type="enum", params={"choices": ["fast", "slow"]})]
+        rules = [
+            ValidationRule(field="mode", rule_type="enum", params={"choices": ["fast", "slow"]})
+        ]
         result = Validator().validate({"mode": "turbo"}, rules)
         assert result.valid is False
 

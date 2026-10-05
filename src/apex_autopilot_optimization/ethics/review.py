@@ -23,7 +23,7 @@ class EthicsReview:
     def __init__(self) -> None:
         self._reviews: dict[str, dict[str, Any]] = {}
 
-    def submit_for_review(self, action: dict, context: dict) -> str:
+    def submit_for_review(self, action: dict[str, Any], context: dict[str, Any]) -> str:
         """Submit ``action`` for ethics review and return a review id."""
         review_id = uuid.uuid4().hex
         self._reviews[review_id] = {
@@ -43,7 +43,7 @@ class EthicsReview:
         review = self._reviews.get(review_id)
         return review["status"] if review else None
 
-    def get_review_decision(self, review_id: str) -> dict | None:
+    def get_review_decision(self, review_id: str) -> dict[str, Any] | None:
         """Return the decision record for a review, or None if unknown."""
         review = self._reviews.get(review_id)
         if review is None:
@@ -77,7 +77,7 @@ class EthicsReview:
         review["decided_at"] = time.time()
         return True
 
-    def get_pending_reviews(self) -> list[dict]:
+    def get_pending_reviews(self) -> list[dict[str, Any]]:
         """Return all reviews still awaiting a decision."""
         return [
             {

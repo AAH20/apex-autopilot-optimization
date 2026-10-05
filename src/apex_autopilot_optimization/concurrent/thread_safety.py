@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import threading
-from typing import Any, Callable, Generic, Iterator, TypeVar
+from collections.abc import Iterator
+from typing import Any, Generic, TypeVar, cast
 
 _T = TypeVar("_T")
 _K = TypeVar("_K")
@@ -88,7 +89,7 @@ class ThreadSafeDict(Generic[_K, _V]):
 
     def pop(self, key: _K, default: Any = None) -> _V | None:
         with self._lock:
-            return self._data.pop(key, default)
+            return cast(_V | None, self._data.pop(key, default))
 
     def clear(self) -> None:
         with self._lock:

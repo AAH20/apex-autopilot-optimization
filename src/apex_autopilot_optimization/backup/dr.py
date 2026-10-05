@@ -72,9 +72,7 @@ def get_dr_plan(tier: str) -> DRPlan:
     try:
         return _TIERS[tier.lower()]
     except KeyError:
-        raise ValueError(
-            f"unknown DR tier: {tier!r}; expected one of {sorted(_TIERS)}"
-        ) from None
+        raise ValueError(f"unknown DR tier: {tier!r}; expected one of {sorted(_TIERS)}") from None
 
 
 def validate_dr_plan(plan: DRPlan) -> bool:
@@ -89,6 +87,4 @@ def validate_dr_plan(plan: DRPlan) -> bool:
         return False
     if not plan.backup_schedule.strip():
         return False
-    if not plan.recovery_steps:
-        return False
-    return True
+    return len(plan.recovery_steps) > 0

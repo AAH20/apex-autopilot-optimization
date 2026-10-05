@@ -7,10 +7,10 @@ encountered, and a sanitized copy of the data.
 
 from __future__ import annotations
 
-import html
 import math
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from dataclasses import field as dc_field
 from typing import Any
 
 from apex_autopilot_optimization.validation.sanitizer import Sanitizer
@@ -29,7 +29,7 @@ class ValidationRule:
 
     field: str
     rule_type: str
-    params: dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = dc_field(default_factory=lambda: {})
 
 
 @dataclass(frozen=True)
@@ -43,8 +43,8 @@ class ValidationResult:
     """
 
     valid: bool
-    errors: list[str] = field(default_factory=list)
-    sanitized: dict[str, Any] = field(default_factory=dict)
+    errors: list[str] = dc_field(default_factory=list)
+    sanitized: dict[str, Any] = dc_field(default_factory=dict)
 
 
 class Validator:
@@ -97,16 +97,12 @@ class Validator:
             elif rule.rule_type == "regex":
                 pattern = rule.params.get("pattern", "")
                 if not isinstance(value, str) or not re.match(pattern, value):
-                    errors.append(
-                        f"Field '{rule.field}' does not match required pattern"
-                    )
+                    errors.append(f"Field '{rule.field}' does not match required pattern")
 
             elif rule.rule_type == "enum":
                 choices = rule.params.get("choices", [])
                 if value not in choices:
-                    errors.append(
-                        f"Field '{rule.field}' must be one of {choices}, got {value!r}"
-                    )
+                    errors.append(f"Field '{rule.field}' must be one of {choices}, got {value!r}")
 
         return ValidationResult(valid=len(errors) == 0, errors=errors, sanitized=sanitized)
 
@@ -138,6 +134,4 @@ class Validator:
             return False
         if min_val is not None and value < min_val:
             return False
-        if max_val is not None and value > max_val:
-            return False
-        return True
+        return not (max_val is not None and value > max_val)

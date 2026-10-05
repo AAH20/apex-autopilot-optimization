@@ -22,7 +22,6 @@ from apex_autopilot_optimization.ethics.policy import (
     get_violations,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -92,8 +91,12 @@ class TestEthicsPolicy:
         assert policy.constraints[0]["field"] == "risk_score"
 
     def test_policy_defaults_are_independent(self):
-        a = EthicsPolicy(name="a", description="d", principles=[], constraints=[], enforcement="warn")
-        b = EthicsPolicy(name="b", description="d", principles=[], constraints=[], enforcement="warn")
+        a = EthicsPolicy(
+            name="a", description="d", principles=[], constraints=[], enforcement="warn"
+        )
+        b = EthicsPolicy(
+            name="b", description="d", principles=[], constraints=[], enforcement="warn"
+        )
         a.principles.append("safety")
         assert b.principles == []
 
@@ -122,7 +125,9 @@ class TestEvaluateAction:
         assert evaluate_action(action, make_policy()) is False
 
     def test_empty_policy_passes_everything(self):
-        policy = EthicsPolicy(name="empty", description="d", principles=[], constraints=[], enforcement="advisory")
+        policy = EthicsPolicy(
+            name="empty", description="d", principles=[], constraints=[], enforcement="advisory"
+        )
         assert evaluate_action({"anything": 1}, policy) is True
 
     def test_missing_required_field_fails(self):
@@ -132,6 +137,58 @@ class TestEvaluateAction:
     def test_boundary_max_is_inclusive(self):
         action = dict(COMPLIANT_ACTION, risk_score=0.5)
         assert evaluate_action(action, make_policy()) is True
+
+    def test_min_operator_passes(self):
+        policy = EthicsPolicy(
+            name="min", description="d", principles=[], constraints=[
+                {"principle": "safety", "field": "confidence", "operator": "min", "value": 0.5}
+            ]
+        )
+        assert evaluate_action({"confidence": 0.7}, policy) is True
+
+    def test_min_operator_fails(self):
+        policy = EthicsPolicy(
+            name="min", description="d", principles=[], constraints=[
+                {"principle": "safety", "field": "confidence", "operator": "min", "value": 0.5}
+            ]
+        )
+        assert evaluate_action({"confidence": 0.3}, policy) is False
+
+    def test_equals_operator(self):
+        policy = EthicsPolicy(
+            name="eq", description="d", principles=[], constraints=[
+                {
+                    "principle": "privacy",
+                    "field": "data_class",
+                    "operator": "equals",
+                    "value": "public",
+                }
+            ]
+        )
+        assert evaluate_action({"data_class": "public"}, policy) is True
+        assert evaluate_action({"data_class": "private"}, policy) is False
+
+    def test_not_equals_operator(self):
+        policy = EthicsPolicy(
+            name="neq", description="d", principles=[], constraints=[
+                {
+                    "principle": "privacy",
+                    "field": "data_class",
+                    "operator": "not_equals",
+                    "value": "sensitive",
+                }
+            ]
+        )
+        assert evaluate_action({"data_class": "public"}, policy) is True
+        assert evaluate_action({"data_class": "sensitive"}, policy) is False
+
+    def test_unknown_operator_fails(self):
+        policy = EthicsPolicy(
+            name="unk", description="d", principles=[], constraints=[
+                {"principle": "safety", "field": "x", "operator": "nope", "value": 1}
+            ]
+        )
+        assert evaluate_action({"x": 1}, policy) is False
 
 
 # ---------------------------------------------------------------------------
@@ -311,25 +368,19 @@ class TestFairnessCalculation:
 
     def test_calculate_fairness_returns_metrics(self):
         auditor = FairnessAuditor()
-        metrics = auditor.calculate_fairness(
-            [1, 0, 1, 0], [1, 0, 1, 0], ["A", "A", "B", "B"]
-        )
+        metrics = auditor.calculate_fairness([1, 0, 1, 0], [1, 0, 1, 0], ["A", "A", "B", "B"])
         assert isinstance(metrics, list)
         assert all(isinstance(m, FairnessMetric) for m in metrics)
 
     def test_fair_predictions_all_pass(self):
         auditor = FairnessAuditor()
-        metrics = auditor.calculate_fairness(
-            [1, 0, 1, 0], [1, 0, 1, 0], ["A", "A", "B", "B"]
-        )
+        metrics = auditor.calculate_fairness([1, 0, 1, 0], [1, 0, 1, 0], ["A", "A", "B", "B"])
         assert all(m.passed for m in metrics)
         assert auditor.get_fairness_score() == pytest.approx(1.0)
 
     def test_biased_predictions_fail_disparate_impact(self):
         auditor = FairnessAuditor()
-        metrics = auditor.calculate_fairness(
-            [1, 1, 0, 0], [1, 0, 0, 0], ["A", "A", "B", "B"]
-        )
+        metrics = auditor.calculate_fairness([1, 1, 0, 0], [1, 0, 0, 0], ["A", "A", "B", "B"])
         di = next(m for m in metrics if m.name == "disparate_impact")
         assert di.passed is False
 
@@ -354,9 +405,7 @@ class TestFairnessCalculation:
 
     def test_equal_opportunity_metric(self):
         auditor = FairnessAuditor()
-        metrics = auditor.calculate_fairness(
-            [1, 1, 0, 0], [1, 1, 0, 0], ["A", "A", "B", "B"]
-        )
+        metrics = auditor.calculate_fairness([1, 1, 0, 0], [1, 1, 0, 0], ["A", "A", "B", "B"])
         names = {m.name for m in metrics}
         assert "equal_opportunity" in names
 

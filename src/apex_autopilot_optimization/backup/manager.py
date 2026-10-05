@@ -110,8 +110,7 @@ class BackupManager:
         meta = self.get_backup_info(name)
         if hashlib.sha256(raw).hexdigest() != meta.checksum:
             raise ValueError(
-                f"backup {name!r} failed integrity check "
-                "(wrong key or corrupted file)"
+                f"backup {name!r} failed integrity check (wrong key or corrupted file)"
             )
         return raw
 

@@ -1,14 +1,15 @@
 """Tests for network security module."""
+
 from __future__ import annotations
 
 import pytest
 
 from apex_autopilot_optimization.network import (
+    CertificateManager,
+    FirewallRule,
+    NetworkPolicy,
     TLSConfig,
     TLSSocket,
-    CertificateManager,
-    NetworkPolicy,
-    FirewallRule,
     check_allowed,
 )
 

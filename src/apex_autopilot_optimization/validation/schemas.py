@@ -7,7 +7,7 @@ and configuration dictionaries.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -26,7 +26,7 @@ class PlanningProblemInput(BaseModel):
     start: dict[str, float] = Field(min_length=1)
     goal: dict[str, float] = Field(min_length=1)
     waypoints: list[dict[str, float]] = Field(default_factory=list)
-    obstacles: list[dict] = Field(default_factory=list)
+    obstacles: list[dict[str, Any]] = Field(default_factory=list)
     time_horizon_s: float = Field(default=60.0, gt=0)
     resolution_m: float = Field(default=1.0, gt=0)
 
@@ -39,7 +39,7 @@ class PlanningResultInput(BaseModel):
     iterations: int = Field(default=0, ge=0)
     cost: float = Field(default=0.0, ge=0)
     message: str = Field(default="", max_length=1000)
-    metadata: dict = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class ConfigInput(BaseModel):

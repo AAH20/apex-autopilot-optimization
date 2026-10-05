@@ -12,7 +12,7 @@ from apex_autopilot_optimization.deployment.container import ContainerConfig
 class K8sManifest:
     """Kubernetes manifest metadata."""
 
-    apiVersion: str
+    apiVersion: str  # noqa: N815
     kind: str
     metadata: dict[str, Any] = field(default_factory=dict)
     spec: dict[str, Any] = field(default_factory=dict)
@@ -38,9 +38,7 @@ def generate_deployment(config: ContainerConfig) -> dict[str, Any]:
                             "name": config.image,
                             "image": config.full_image,
                             "ports": [{"containerPort": p} for p in config.ports],
-                            "env": [
-                                {"name": k, "value": v} for k, v in config.env_vars.items()
-                            ],
+                            "env": [{"name": k, "value": v} for k, v in config.env_vars.items()],
                             "resources": {
                                 "requests": config.resources,
                                 "limits": config.resources,
@@ -72,9 +70,7 @@ def generate_service(config: ContainerConfig) -> dict[str, Any]:
         },
         "spec": {
             "selector": {"app": config.image},
-            "ports": [
-                {"port": p, "targetPort": p, "protocol": "TCP"} for p in config.ports
-            ],
+            "ports": [{"port": p, "targetPort": p, "protocol": "TCP"} for p in config.ports],
             "type": "ClusterIP",
         },
     }

@@ -41,7 +41,7 @@ def assign_variant(config: ABTestConfig, user_id: str) -> str:
 
     # Select variant based on cumulative weights
     cumulative = 0.0
-    for variant, weight in zip(config.variants, normalized):
+    for variant, weight in zip(config.variants, normalized, strict=False):
         cumulative += weight
         if bucket < cumulative:
             return variant

@@ -33,12 +33,9 @@ def _predict(model: Callable[[dict[str, Any]], Any], data: dict[str, Any]) -> fl
     """Call ``model`` on ``data`` and coerce the result to a float."""
     predict = getattr(model, "predict", None)
     result: Any
-    if callable(predict):
-        result = predict(data)
-    else:
-        result = model(data)
+    result = predict(data) if callable(predict) else model(data)
     if isinstance(result, dict):
-        return float(result.get("value", result.get("confidence", 0.0)))
+        return float(result.get("value", result.get("confidence", 0.0)) or 0.0)
     return float(result)
 
 
@@ -58,14 +55,17 @@ def calculate_importance(
     Returns:
         One :class:`FeatureImportance` per feature, in the order given.
     """
-    baseline = _predict(model, dict(input_data))
+    try:
+        baseline = _predict(model, dict(input_data))
+    except Exception:
+        baseline = 0.0
     results: list[FeatureImportance] = []
     for feature in features:
         if feature not in input_data:
             results.append(FeatureImportance(feature=feature, importance=0.0, direction="neutral"))
             continue
         value = input_data[feature]
-        delta = abs(value) if isinstance(value, (int, float)) and value != 0 else 1.0
+        delta = abs(value) if isinstance(value, int | float) and value != 0 else 1.0
         perturbed = dict(input_data)
         perturbed[feature] = value + delta
         shifted = _predict(model, perturbed)

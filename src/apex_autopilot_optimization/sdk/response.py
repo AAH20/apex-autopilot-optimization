@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 
 @dataclass
@@ -30,4 +30,4 @@ class ApexResponse:
         """Return the error message if the response indicates an error."""
         if self.is_success():
             return None
-        return self.data.get("error", "Unknown error")
+        return cast(str, self.data.get("error", "Unknown error"))

@@ -49,9 +49,10 @@ def generate_dockerfile(config: ContainerConfig) -> str:
     lines.append("")
 
     if config.health_check:
+        port = config.ports[0] if config.ports else 8080
         lines.append(
-            f'HEALTHCHECK --interval=30s --timeout=5s --start-period=10s '
-            f'CMD curl -f http://localhost:{config.ports[0] if config.ports else 8080}{config.health_check} || exit 1'
+            f"HEALTHCHECK --interval=30s --timeout=5s --start-period=10s "
+            f"CMD curl -f http://localhost:{port}{config.health_check} || exit 1"
         )
         lines.append("")
 
@@ -80,8 +81,11 @@ def generate_docker_compose(config: ContainerConfig) -> str:
             lines.append(f"      {key}: {value}")
 
     if config.health_check:
+        port = config.ports[0] if config.ports else 8080
         lines.append("    healthcheck:")
-        lines.append(f'      test: ["CMD", "curl", "-f", "http://localhost:{config.ports[0] if config.ports else 8080}{config.health_check}"]')
+        lines.append(
+            f'      test: ["CMD", "curl", "-f", "http://localhost:{port}{config.health_check}"]'
+        )
         lines.append("      interval: 30s")
         lines.append("      timeout: 5s")
         lines.append("      retries: 3")

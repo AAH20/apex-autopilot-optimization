@@ -1,4 +1,5 @@
 """Notification manager: send, broadcast, query, and clear notifications."""
+
 from __future__ import annotations
 
 from apex_autopilot_optimization.notify.models import (
@@ -41,9 +42,7 @@ class NotificationManager:
         """Return all notifications for a given recipient."""
         return [n for n in self._notifications if n.recipient == recipient]
 
-    def get_notifications_by_priority(
-        self, priority: NotificationPriority
-    ) -> list[Notification]:
+    def get_notifications_by_priority(self, priority: NotificationPriority) -> list[Notification]:
         """Return all notifications with the given priority."""
         return [n for n in self._notifications if n.priority == priority]
 

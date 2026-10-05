@@ -1,4 +1,5 @@
 """Key-value data store with JSON file persistence."""
+
 from __future__ import annotations
 
 import json

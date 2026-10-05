@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
 
@@ -35,7 +35,7 @@ def load_config(path: str) -> dict[str, Any]:
             return data if data is not None else {}
     elif suffix == ".json":
         with open(p, encoding="utf-8") as f:
-            return json.load(f)
+            return cast(dict[str, Any], json.load(f))
     elif suffix == ".toml":
         import tomllib
 
@@ -43,8 +43,7 @@ def load_config(path: str) -> dict[str, Any]:
             return tomllib.load(f)
     else:
         raise ValueError(
-            f"Unsupported config format: {suffix!r}. "
-            "Supported formats: .yaml, .yml, .json, .toml"
+            f"Unsupported config format: {suffix!r}. Supported formats: .yaml, .yml, .json, .toml"
         )
 
 
@@ -74,6 +73,5 @@ def save_config(path: str, config: dict[str, Any]) -> None:
             f.write(tomli_w.dumps(config))
     else:
         raise ValueError(
-            f"Unsupported config format: {suffix!r}. "
-            "Supported formats: .yaml, .yml, .json, .toml"
+            f"Unsupported config format: {suffix!r}. Supported formats: .yaml, .yml, .json, .toml"
         )

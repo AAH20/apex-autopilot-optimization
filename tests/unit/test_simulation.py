@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import MagicMock, patch, call
 
 from apex_autopilot_optimization.simulation import (
-    SimulationInterface,
     SimulationConfig,
+    SimulationInterface,
     SimulationResult,
     SimulationRunner,
 )
@@ -39,15 +40,11 @@ class TestSimulationInterface:
 
     def test_is_connected_is_property(self) -> None:
         """is_connected is a property on the interface."""
-        assert isinstance(
-            SimulationInterface.__dict__["is_connected"], property
-        )
+        assert isinstance(SimulationInterface.__dict__["is_connected"], property)
 
     def test_time_scale_is_property(self) -> None:
         """time_scale is a property on the interface."""
-        assert isinstance(
-            SimulationInterface.__dict__["time_scale"], property
-        )
+        assert isinstance(SimulationInterface.__dict__["time_scale"], property)
 
     def test_partial_subclass_still_abstract(self) -> None:
         """A subclass missing some abstract methods remains abstract."""

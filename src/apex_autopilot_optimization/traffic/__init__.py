@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from apex_autopilot_optimization.traffic.config import TrafficConfig
 from apex_autopilot_optimization.traffic.load_balancer import (
     LeastConnectionsStrategy,
     LoadBalancer,
@@ -11,8 +12,8 @@ from apex_autopilot_optimization.traffic.load_balancer import (
     RoundRobinStrategy,
 )
 from apex_autopilot_optimization.traffic.rate_limit import (
-    RateLimiter,
     RateLimitConfig,
+    RateLimiter,
     TokenBucket,
 )
 from apex_autopilot_optimization.traffic.service_registry import ServiceRegistry
@@ -43,4 +44,5 @@ __all__ = [
     "RoundRobinStrategy",
     "ServiceRegistry",
     "TokenBucket",
+    "TrafficConfig",
 ]

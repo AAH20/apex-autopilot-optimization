@@ -14,7 +14,6 @@ from apex_autopilot_optimization.tracing import (
     TracingManager,
 )
 
-
 # ── SpanStatus ──────────────────────────────────────────────────────────────
 
 

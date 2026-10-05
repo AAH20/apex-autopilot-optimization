@@ -6,14 +6,13 @@ import random
 import threading
 from typing import Protocol
 
+# Use RLock to allow nested lock acquisition (e.g., get_backend -> get_healthy_backends)
+
 
 class Strategy(Protocol):
     """Protocol for load balancing strategies."""
 
-    def select(
-        self, backends: list[str], connections: dict[str, int] | None = None
-    ) -> str:
-        ...
+    def select(self, backends: list[str], connections: dict[str, int] | None = None) -> str: ...
 
 
 class RoundRobinStrategy:
@@ -22,9 +21,7 @@ class RoundRobinStrategy:
     def __init__(self) -> None:
         self._index = 0
 
-    def select(
-        self, backends: list[str], connections: dict[str, int] | None = None
-    ) -> str:
+    def select(self, backends: list[str], connections: dict[str, int] | None = None) -> str:
         if not backends:
             raise RuntimeError("No backends available")
         backend = backends[self._index % len(backends)]
@@ -35,9 +32,7 @@ class RoundRobinStrategy:
 class LeastConnectionsStrategy:
     """Selects the backend with the fewest active connections."""
 
-    def select(
-        self, backends: list[str], connections: dict[str, int] | None = None
-    ) -> str:
+    def select(self, backends: list[str], connections: dict[str, int] | None = None) -> str:
         if not backends:
             raise RuntimeError("No backends available")
         if connections:
@@ -48,9 +43,7 @@ class LeastConnectionsStrategy:
 class RandomStrategy:
     """Selects a backend uniformly at random."""
 
-    def select(
-        self, backends: list[str], connections: dict[str, int] | None = None
-    ) -> str:
+    def select(self, backends: list[str], connections: dict[str, int] | None = None) -> str:
         if not backends:
             raise RuntimeError("No backends available")
         return random.choice(backends)
@@ -67,7 +60,7 @@ class LoadBalancer:
         self._healthy: dict[str, bool] = {}
         self._connections: dict[str, int] = {}
         self._strategy: Strategy = strategy or RoundRobinStrategy()
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def add_backend(self, backend: str) -> None:
         """Add a backend to the pool."""
@@ -100,6 +93,19 @@ class LoadBalancer:
         with self._lock:
             if backend in self._healthy:
                 self._healthy[backend] = healthy
+
+    def mark_unhealthy(self, backend: str) -> None:
+        """Mark a backend as unhealthy."""
+        self.set_backend_health(backend, False)
+
+    def mark_healthy(self, backend: str) -> None:
+        """Mark a backend as healthy."""
+        self.set_backend_health(backend, True)
+
+    def get_backend_count(self) -> int:
+        """Return the total number of registered backends."""
+        with self._lock:
+            return len(self._backends)
 
     def increment_connections(self, backend: str) -> None:
         """Increment active connection count for a backend."""

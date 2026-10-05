@@ -11,13 +11,13 @@ from apex_autopilot_optimization.traffic import (
     LeastConnectionsStrategy,
     LoadBalancer,
     RandomStrategy,
-    RateLimiter,
     RateLimitConfig,
+    RateLimiter,
     RoundRobinStrategy,
     ServiceRegistry,
     TokenBucket,
+    TrafficConfig,
 )
-
 
 # ---------------------------------------------------------------------------
 # RateLimitConfig
@@ -346,3 +346,75 @@ class TestCircuitBreakerConfig:
         assert cfg.failure_threshold == 10
         assert cfg.recovery_timeout == 60.0
         assert cfg.half_open_max_calls == 5
+
+
+# ---------------------------------------------------------------------------
+# TrafficConfig
+# ---------------------------------------------------------------------------
+
+
+class TestTrafficConfig:
+    def test_defaults(self) -> None:
+        cfg = TrafficConfig()
+        assert cfg.rate_limit_enabled is True
+        assert cfg.load_balancer_enabled is True
+        assert cfg.health_check_interval == 30.0
+        assert cfg.max_retries == 3
+
+    def test_custom_values(self) -> None:
+        cfg = TrafficConfig(
+            rate_limit_enabled=False,
+            load_balancer_enabled=False,
+            health_check_interval=10.0,
+            max_retries=5,
+        )
+        assert cfg.rate_limit_enabled is False
+        assert cfg.load_balancer_enabled is False
+        assert cfg.health_check_interval == 10.0
+        assert cfg.max_retries == 5
+
+
+# ---------------------------------------------------------------------------
+# RateLimiter allow_request alias
+# ---------------------------------------------------------------------------
+
+
+class TestRateLimiterAllowRequest:
+    def test_allow_request_within_limit(self) -> None:
+        limiter = RateLimiter(RateLimitConfig(requests_per_second=10, burst_size=5))
+        assert limiter.allow_request("client1") is True
+
+    def test_allow_request_over_burst(self) -> None:
+        limiter = RateLimiter(RateLimitConfig(requests_per_second=1, burst_size=2))
+        assert limiter.allow_request("client1") is True
+        assert limiter.allow_request("client1") is True
+        assert limiter.allow_request("client1") is False
+
+
+# ---------------------------------------------------------------------------
+# LoadBalancer mark_unhealthy/mark_healthy/get_backend_count
+# ---------------------------------------------------------------------------
+
+
+class TestLoadBalancerHealthMethods:
+    def test_mark_unhealthy(self) -> None:
+        lb = LoadBalancer()
+        lb.add_backend("http://a:8080")
+        lb.mark_unhealthy("http://a:8080")
+        assert lb.get_healthy_backends() == []
+
+    def test_mark_healthy(self) -> None:
+        lb = LoadBalancer()
+        lb.add_backend("http://a:8080")
+        lb.mark_unhealthy("http://a:8080")
+        lb.mark_healthy("http://a:8080")
+        assert lb.get_healthy_backends() == ["http://a:8080"]
+
+    def test_get_backend_count(self) -> None:
+        lb = LoadBalancer()
+        assert lb.get_backend_count() == 0
+        lb.add_backend("http://a:8080")
+        lb.add_backend("http://b:8080")
+        assert lb.get_backend_count() == 2
+        lb.remove_backend("http://a:8080")
+        assert lb.get_backend_count() == 1

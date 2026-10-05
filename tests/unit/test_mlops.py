@@ -488,26 +488,32 @@ class TestPackageExports:
 
     def test_model_registry_exported(self) -> None:
         from apex_autopilot_optimization.mlops import ModelRegistry as R
+
         assert R is ModelRegistry
 
     def test_model_server_exported(self) -> None:
         from apex_autopilot_optimization.mlops import ModelServer as S
+
         assert S is ModelServer
 
     def test_model_version_exported(self) -> None:
         from apex_autopilot_optimization.mlops import ModelVersion as V
+
         assert V is ModelVersion
 
     def test_experiment_tracker_exported(self) -> None:
         from apex_autopilot_optimization.mlops import ExperimentTracker as T
+
         assert T is ExperimentTracker
 
     def test_drift_detector_exported(self) -> None:
         from apex_autopilot_optimization.mlops import DriftDetector as D
+
         assert D is DriftDetector
 
     def test_all_declares_required_symbols(self) -> None:
         import apex_autopilot_optimization.mlops as mlops
+
         assert {
             "ModelRegistry",
             "ModelServer",

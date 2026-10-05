@@ -56,7 +56,6 @@ class TokenBucket:
     def get_tokens(self) -> float:
         """Return current available tokens."""
         with self._lock:
-            self._refill()
             return self._tokens
 
     def refill(self) -> None:
@@ -81,8 +80,7 @@ class RateLimiter:
         if key not in self._buckets:
             self._buckets[key] = TokenBucket(
                 capacity=float(self._config.burst_size),
-                refill_rate=self._config.requests_per_second
-                / self._config.window_seconds,
+                refill_rate=self._config.requests_per_second / self._config.window_seconds,
             )
             self._stats[key] = {"allowed": 0, "denied": 0}
         return self._buckets[key]
@@ -96,6 +94,10 @@ class RateLimiter:
                 return True
             self._stats[key]["denied"] += 1
             return False
+
+    def allow_request(self, key: str) -> bool:
+        """Alias for is_allowed."""
+        return self.is_allowed(key)
 
     def get_remaining(self, key: str) -> int:
         """Return remaining tokens for the given key."""
@@ -120,5 +122,8 @@ class RateLimiter:
                     "remaining": self._config.burst_size,
                 }
             stats = dict(self._stats[key])
-            stats["remaining"] = self.get_remaining(key)
+            if key in self._buckets:
+                stats["remaining"] = int(self._buckets[key].get_tokens())
+            else:
+                stats["remaining"] = self._config.burst_size
             return stats
