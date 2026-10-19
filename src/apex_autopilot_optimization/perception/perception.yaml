@@ -1,0 +1,53 @@
+perception:
+  drone_id: 1
+  camera_id: 0
+  qos:
+    reliability: reliable
+    history: keep_last
+    depth: 10
+  clock_tolerance_s: 0.05
+  conf:
+    min: 0.25
+    tiers:
+      wta_critical: 0.60   # person, bird, traffic_light
+      standard: 0.45        # car, truck, bus, motorcycle, bicycle, boat, airplane
+  nms_iou: 0.70
+  include_clutter: false
+  filtering:
+    min_detections: 3
+    promotion_window_s: 0.5
+    max_jitter_m: 2.0
+    stale_ttl_s: 0.2
+    ewma_alpha: 0.35
+    bearing_gate_deg: 5.0
+    elevation_gate_deg: 5.0
+    angular_width_gate_pct: 0.30
+  transform:
+    max_state_age_s: 0.1
+    alignment_accuracy_m: 0.02
+    # Camera mount extrinsics (drone body -> camera), per-airframe calibration.
+    extrinsics:
+      roll_deg: 0.0
+      pitch_deg: 0.0
+      yaw_deg: 0.0
+      tx_m: 0.0
+      ty_m: 0.0
+      tz_m: 0.0
+    # Typical target physical size (m) by size class, used for range-from-angular-width.
+    size_class_typical_m:
+      small: 0.5
+      medium: 2.0
+      large: 6.0
+  latency_budget_ms:
+    camera_to_topic: 8
+    inference: 40
+    transport: 6
+    ingestion: 2
+    filtering: 4
+    fusion: 10
+    transform: 4
+    publish: 2
+    wta_solve: 12
+    control_dispatch: 8
+    total: 100
+    p95_target_ms: 92
