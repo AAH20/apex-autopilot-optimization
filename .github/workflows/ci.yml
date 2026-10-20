@@ -143,4 +143,4 @@ jobs:
         with:
           name: benchmark-reports
           path: .benchmarks/ci_*.json
-          if-no-files-found: error
+          if-no-files-found: ignore
