@@ -99,8 +99,8 @@ flowchart LR
     end
 
     subgraph MAVLink ["MAVLink / ROS2 (AIR_SUBNET)"]
-        T[Telemetry<br/>/Drone{N}/fmu/out/vehicle_odometry<br/>100 Hz odometry, 10 Hz battery,<br/>2 Hz status, 15 Hz YOLO]
-        S[Setpoints<br/>/Drone{N}/offboard_action<br/>10 Hz heartbeat, mode transitions]
+        T[Telemetry<br/>/Drone-N/fmu/out/vehicle_odometry<br/>100 Hz odometry, 10 Hz battery,<br/>2 Hz status, 15 Hz YOLO]
+        S[Setpoints<br/>/Drone-N/offboard_action<br/>10 Hz heartbeat, mode transitions]
     end
 
     subgraph Apex ["apex-autopilot-optimization"]
