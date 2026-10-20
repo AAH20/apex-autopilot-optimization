@@ -13,8 +13,8 @@ flowchart LR
 
     subgraph MAVLinkROS2 ["MAVLink / ROS2 (AIR_SUBNET, 10.22.x.x)"]
         direction TB
-        T[Telemetry Upstream<br/>/Drone{i}/fmu/out/vehicle_odometry (100 Hz)<br/>/Drone{i}/fmu/out/vehicle_status (2 Hz)<br/>/Drone{i}/fmu/out/battery_status (10 Hz)<br/>/Drone{i}/fmu/out/vehicle_gps_position (10 Hz)<br/>/Drone{i}/yolo/detections (15 Hz)<br/>/fleet/telemetry/aggregate (20 Hz, keyed by drone_id)<br/>QoS: sensor/best-effort + status/reliable]
-        S[Setpoints Downstream<br/>/Drone{i}/offboard_action (10 Hz heartbeat)<br/>/Drone{i}/takeoff_action, /Drone{i}/land_action<br/>/Drone{i}/orbit_action, /Drone{i}/set_reposition<br/>/Drone{i}/set_speed<br/>/fleet/wta/assignments<br/>QoS: command/reliable + transient-local]
+        T[Telemetry Upstream<br/>/Drone{N}/fmu/out/vehicle_odometry (100 Hz)<br/>/Drone{N}/fmu/out/vehicle_status (2 Hz)<br/>/Drone{N}/fmu/out/battery_status (10 Hz)<br/>/Drone{N}/fmu/out/vehicle_gps_position (10 Hz)<br/>/Drone{N}/yolo/detections (15 Hz)<br/>/fleet/telemetry/aggregate (20 Hz, keyed by drone_id)<br/>QoS: sensor/best-effort + status/reliable]
+        S[Setpoints Downstream<br/>/Drone{N}/offboard_action (10 Hz heartbeat)<br/>/Drone{N}/takeoff_action, /Drone{N}/land_action<br/>/Drone{N}/orbit_action, /Drone{N}/set_reposition<br/>/Drone{N}/set_speed<br/>/fleet/wta/assignments<br/>QoS: command/reliable + transient-local]
     end
 
     subgraph Apex ["apex-autopilot-optimization"]
