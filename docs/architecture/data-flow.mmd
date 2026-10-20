@@ -1,0 +1,44 @@
+%% Option B Data Flow — Telemetry Upstream / Setpoints Downstream
+%% N vehicles, DRONE_ID = ROS_DOMAIN_ID = MAV_SYS_ID = uXRCE_DDS_DOM_ID = i
+%% Port namespacing: master 5760+i×10, SITL 5501+i×10
+
+flowchart LR
+    subgraph Gazebo ["Gazebo SITL (N vehicles)"]
+        direction TB
+        G1[Drone 1<br/>MAV_SYS_ID=1]:::drone
+        G2[Drone 2<br/>MAV_SYS_ID=2]:::drone
+        G3[...]:::drone
+        GN[Drone N<br/>MAV_SYS_ID=N]:::drone
+    end
+
+    subgraph MAVLinkROS2 ["MAVLink / ROS2 (AIR_SUBNET, 10.22.x.x)"]
+        direction TB
+        T[Telemetry Upstream<br/>/Drone{i}/fmu/out/vehicle_odometry (100 Hz)<br/>/Drone{i}/fmu/out/vehicle_status (2 Hz)<br/>/Drone{i}/fmu/out/battery_status (10 Hz)<br/>/Drone{i}/fmu/out/vehicle_gps_position (10 Hz)<br/>/Drone{i}/yolo/detections (15 Hz)<br/>/fleet/telemetry/aggregate (20 Hz, keyed by drone_id)<br/>QoS: sensor/best-effort + status/reliable]
+        S[Setpoints Downstream<br/>/Drone{i}/offboard_action (10 Hz heartbeat)<br/>/Drone{i}/takeoff_action, /Drone{i}/land_action<br/>/Drone{i}/orbit_action, /Drone{i}/set_reposition<br/>/Drone{i}/set_speed<br/>/fleet/wta/assignments<br/>QoS: command/reliable + transient-local]
+    end
+
+    subgraph Apex ["apex-autopilot-optimization"]
+        direction TB
+        WTA[Tiered WTA Solver<br/>assigns weapons → targets]
+        COMBAT[Combat Reallocator<br/>SLS / SSL, BDA-driven re-solve]
+        POLICY[Policy Engine<br/>ISO 42001, veto emission<br/>CLEAR / SOFT_HOLD / HARD_EMERGENCY]
+    end
+
+    G1 --> T
+    G2 --> T
+    G3 --> T
+    GN --> T
+    T --> WTA
+    WTA --> COMBAT
+    COMBAT --> POLICY
+    POLICY -->|veto signal| S
+    POLICY -->|approve / release| S
+    S --> G1
+    S --> G2
+    S --> G3
+    S --> GN
+
+    classDef drone fill:#e1f5e1,stroke:#333;
+    class G1,G2,G3,GN drone;
+
+%% vim: set ft=mermaid:

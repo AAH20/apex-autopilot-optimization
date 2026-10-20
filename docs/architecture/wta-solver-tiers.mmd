@@ -1,0 +1,45 @@
+%% WTA Solver Tiers — Approximation vs Instance Size
+%% T1 MILP: exact, <20×20, ratio 1.0
+%% T2 Greedy: ≥½ approximation (Nemhauser/Wolsey/Fisher), medium instances
+%% T3 VLSN: no worst-case constant, near-optimal empirically, 80–200+ pairs
+
+graph TB
+    subgraph InstanceSize ["Instance Size (weapons × targets)"]
+        direction LR
+        S1[< 20×20]:::small
+        S2[20×20 .. 80×80]:::medium
+        S3[80×200+]:::large
+    end
+
+    subgraph Tiers ["Solver Tiers"]
+        direction TB
+        T1[T1 MILP<br/>Exact, branch-and-bound<br/>Ratio: 1.0 (optimal)<br/>LP lower bound + gap]:::t1
+        T2[T2 Greedy<br/>Marginal-damage construction<br/>Ratio: ≥½ (submodular)<br/>O(n log n) sort + O(nC) alloc]:::t2
+        T3[T3 VLSN<br/>k-exchange local search<br/>Ratio: no worst-case constant<br/>Near-optimal empirically]:::t3
+    end
+
+    subgraph Latency ["Latency Budget: < 100 ms per cycle"]
+        L[T3 wall-clock capped at 40 ms<br/>T2 typically < 30 ms at 200×200<br/>T1 MILP time-limited at 50 ms]:::latency
+    end
+
+    S1 -->|use| T1
+    S2 -->|use| T2
+    S3 -->|use| T3
+    T1 --> L
+    T2 --> L
+    T3 --> L
+
+    classDef small fill:#c8e6c9,stroke:#2e7d32;
+    classDef medium fill:#fff9c4,stroke:#f9a825;
+    classDef large fill:#ffcdd2,stroke:#c62828;
+    classDef t1 fill:#e3f2fd,stroke:#1565c0;
+    classDef t2 fill:#e8f5e9,stroke:#2e7d32;
+    classDef t3 fill:#fce4ec,stroke:#880e4f;
+    classDef latency fill:#f3e5f5,stroke:#7b1fa2;
+
+    class S1 small;
+    class S2 medium;
+    class S3 large;
+    class T1,T2,T3 latency;
+
+%% vim: set ft=mermaid:

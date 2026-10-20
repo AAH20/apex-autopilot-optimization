@@ -1,0 +1,35 @@
+%% Combat Reallocator State Machine — Shoot-Look-Shoot / Shoot-Shoot-Look
+%% Dynamic Weapon-Target reallocation driven by Battle-Damage Assessment (BDA)
+
+stateDiagram-v2
+    [*] --> IDLE
+    IDLE --> ALLOCATING : new WTA instance<br/>(weapons + targets)
+    ALLOCATING --> ENGAGING : assignment computed<br/>setpoints published
+    ENGAGING --> LOOKING : weapons expended<br/>time window elapsed
+    
+    %% Shoot-Look-Shoot (SLS): one engagement per cycle
+    LOOKING --> TERMINAL : BDA = target neutralized<br/>or weapons exhausted
+    LOOKING --> RE_EVALUATING : BDA = target alive<br/>residual instance = remaining weapons + live targets
+    
+    %% Shoot-Shoot-Look (SSL): full salvo before look
+    ENGAGING --> ENGAGING : salvo continue<br/>more weapons available
+    ENGAGING --> LOOKING : salvo complete
+    
+    %% Re-evaluation loop
+    RE_EVALUATING --> ALLOCATING : re-solve residual instance<br/>re-allocate remaining weapons
+    RE_EVALVATING --> TERMINAL : no weapons left<br/>or no live targets
+    
+    TERMINAL --> [*]
+    
+    note right of IDLE: Kill probability tracked<br/>per weapon-target pair
+    note right of ALLOCATING: Interference cliques<br/>enforced (seekers deconflicted)
+    note right of LOOKING: Time-window feasibility<br/>checked [a_j, d_j]
+    note right of RE_EVALUATING: BDA confidence threshold<br/>default 0.5
+    note right of TERMINAL: All targets neutralized<br/>or weapons exhausted
+
+    state IDLE {
+        [*] --> Waiting
+        Waiting --> Waiting : no new instance
+    }
+
+%% vim: set ft=mermaid:

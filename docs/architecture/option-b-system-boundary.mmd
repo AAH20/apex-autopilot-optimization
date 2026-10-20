@@ -1,0 +1,63 @@
+%% Option B System Boundary — AAS (sim/runtime) ↔ apex-autopilot-optimization (optimization/governance)
+%% License boundary: AAS = MIT, apex = AGPL-3.0. Integration at ROS2/ZMQ network boundary only.
+%% No in-process linking; AGPL §13 network-source obligation applies only if apex is exposed as a service.
+
+graph TB
+    subgraph AAS ["AAS — Simulation / Runtime (MIT)"]
+        direction TB
+        GZ[Gazebo Harmonic SITL]
+        PX4[PX4 Autopilot SITL]
+        AP[ArduPilot SITL]
+        BTF[Betaflight SITL]
+        YOLO[YOLO26 ONNX / TensorRT]
+        KISS[KISS-ICP Odometry]
+        ROS2[ROS 2 / XRCE-DDS Bridge]
+        ZENOH[Zenoh Inter-Vehicle Bridge]
+        DOCKER[Dockerized Sim: CUDA/cuDNN<br/>Dockerized Deploy: JetPack/DeepStream/TensorRT]
+    end
+
+    subgraph Apex ["apex-autopilot-optimization — Optimization / Governance (AGPL-3.0)"]
+        direction TB
+        WTA[Tiered WTA Solver<br/>T1 MILP (exact, <20×20) /<br/>T2 Greedy (≥½ approx) /<br/>T3 VLSN (local search)]
+        COMBAT[Combat Reallocator<br/>SLS / SSL State Machine<br/>IDLE→ALLOCATING→ENGAGING→<br/>LOOKING→{TERMINAL|RE-EVALUATING}]
+        FORM[Formation Setpoint Generator<br/>Line / Wedge / Hexagon]
+        SNAP[Minimum-Snap Trajectory<br/>Quintic Polynomial]
+        POLICY[Policy Engine<br/>ISO 42001 Agent-Exec<br/>Role-based rules, veto emission]
+        HITL[HITL Adapter<br/>Arm / Takeoff / Mode /<br/>Control Approval Workflow]
+        MSG[MAVLink / ROS2 Adapters<br/>Telemetry demux + Setpoint publish<br/>QoS profiles, 10 Hz heartbeat]
+    end
+
+    %% Internal AAS connections
+    GZ --- PX4
+    GZ --- AP
+    GZ --- BTF
+    PX4 --- ROS2
+    AP --- ROS2
+    BTF --- ROS2
+    YOLO --- ROS2
+    KISS --- ROS2
+    ROS2 --- ZENOH
+    DOCKER -.-> GZ
+    DOCKER -.-> YOLO
+
+    %% Integration boundary (ROS2 / ZMQ network boundary)
+    AAS -.->|Telemetry upstream<br/>pose, velocity, battery, GPS,<br/>mode, armed, YOLO detections| MSG
+    MSG -.->|Setpoints downstream<br/>offboard velocity, position,<br/>formation, mode transitions, veto| AAS
+
+    %% Internal apex connections
+    WTA --- COMBAT
+    COMBAT --- FORM
+    FORM --- SNAP
+    POLICY ---|veto / approve| MSG
+    MSG --- POLICY
+
+    %% Styling
+    classDef aas fill:#e1f5e1,stroke:#2e7d32,stroke-width:2px;
+    classDef apex fill:#fff3e1,stroke:#e65100,stroke-width:2px;
+    classDef boundary fill:#fce4ec,stroke:#880e4f,stroke-width:3px,stroke-dasharray: 5 5;
+
+    class GZ,PX4,AP,BTF,YOLO,KISS,ROS2,ZENOH,DOCKER aas;
+    class WTA,COMBAT,FORM,SNAP,POLICY,HITL,MSG apex;
+    linkStyle 19,20 stroke:#880e4f,stroke-width:3px,stroke-dasharray: 5 5;
+
+%% vim: set ft=mermaid:
