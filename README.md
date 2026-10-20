@@ -120,7 +120,7 @@ flowchart LR
     S --> G2
     S --> GN
 
-    classDef drone fill:#e1f5e1,stroke:#333;
+    classDef drone stroke:#333;
 ```
 
 ### Deployment Topology
@@ -151,8 +151,8 @@ graph TD
     A1 --> J1
     A2 --> J1
 
-    classDef drone fill:#ffffff,stroke:#2e7d32,stroke-width:2px;
-    classDef edge fill:#ffffff,stroke:#e65100,stroke-width:2px;
+    classDef drone stroke:#2e7d32,stroke-width:2px;
+    classDef edge stroke:#e65100,stroke-width:2px;
 ```
 
 ---
