@@ -19,7 +19,7 @@ graph TB
     subgraph Apex ["apex-autopilot-optimization — Optimization / Governance (AGPL-3.0)"]
         direction TB
         WTA[Tiered WTA Solver<br/>T1 MILP (exact, <20×20) /<br/>T2 Greedy (≥½ approx) /<br/>T3 VLSN (local search)]
-        COMBAT[Combat Reallocator<br/>SLS / SSL State Machine<br/>IDLE→ALLOCATING→ENGAGING→<br/>LOOKING→{TERMINAL|RE-EVALUATING}]
+        COMBAT[Combat Reallocator<br/>SLS / SSL State Machine<br/>IDLE→ALLOCATING→ENGAGING→<br/>LOOKING→TERMINAL / RE-EVALUATING]
         FORM[Formation Setpoint Generator<br/>Line / Wedge / Hexagon]
         SNAP[Minimum-Snap Trajectory<br/>Quintic Polynomial]
         POLICY[Policy Engine<br/>ISO 42001 Agent-Exec<br/>Role-based rules, veto emission]
