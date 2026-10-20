@@ -1,0 +1,32 @@
+{
+  "benchmark": "perception_latency",
+  "limit_ms": 100.0,
+  "p95_end_to_end_ms": 0.131,
+  "per_stage_p95_ms": {
+    "camera_to_topic": 0.005,
+    "inference": 0.017,
+    "transport": 0.006,
+    "ingestion": 0.004,
+    "filtering": 0.015,
+    "fusion": 0.056,
+    "transform": 0.008,
+    "publish": 0.006,
+    "wta_solve": 0.011,
+    "control_dispatch": 0.003
+  },
+  "per_stage_budget_ms": {
+    "camera_to_topic": 8,
+    "inference": 44,
+    "transport": 6,
+    "ingestion": 2,
+    "filtering": 4,
+    "fusion": 10,
+    "transform": 4,
+    "publish": 2,
+    "wta_solve": 12,
+    "control_dispatch": 8
+  },
+  "stages_over_budget": [],
+  "iterations": 300,
+  "passed": true
+}

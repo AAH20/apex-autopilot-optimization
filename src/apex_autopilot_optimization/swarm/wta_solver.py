@@ -96,8 +96,8 @@ class WTAConfig:
     milp_max_pairs: int = 400  # n*m < 400 -> T1
     greedy_max_pairs: int = 6400  # n*m < 6400 -> T2; else T3
     milp_time_limit_ms: float = 50.0  # T1 time limit (0 = solve to optimality)
-    vlsn_iteration_cap: int = 500  # T3 iteration cap
-    vlsn_time_budget_ms: float = 80.0  # T3 wall-clock cap (< 100 ms budget)
+    vlsn_iteration_cap: int = 100  # T3 iteration cap
+    vlsn_time_budget_ms: float = 40.0  # T3 wall-clock cap (< 100 ms budget)
     vlsn_k_max: int = 3  # max k-exchange neighbourhood size
     dynamic_mode: str = "sls"  # "sls" | "ssl" | "none"
     bda_confidence_threshold: float = 0.5
