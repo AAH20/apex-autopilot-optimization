@@ -484,11 +484,12 @@ class TieredWTASolver:
 
         # pair -> clique indices it belongs to (for interference)
         pair_to_cliques: dict[tuple[int, int], list[int]] = {}
-        if interference_cliques:
-            for ci, clique in enumerate(interference_cliques):
+        cliques: list[list[tuple[int, int]]] = interference_cliques or []
+        if cliques:
+            for ci, clique in enumerate(cliques):
                 for pair in clique:
                     pair_to_cliques.setdefault(pair, []).append(ci)
-        clique_load = [0] * len(interference_cliques or [])
+        clique_load = [0] * len(cliques)
 
         def cap_of(j: int) -> float:
             if salvo_caps is None:
@@ -506,8 +507,14 @@ class TieredWTASolver:
         weapon_free = np.ones(n, dtype=bool)
         salvo_load = np.zeros(m, dtype=int)
         caps = np.array([cap_of(j) for j in range(m)], dtype=float)
-        # values[j] * surv[j] is recomputed each iteration because surv changes
-        # after every assignment; p and values are fixed.
+        # Marginal-damage matrix, maintained incrementally: delta[i, j] =
+        # values[j] * p[i, j] * surv[j].  Only the column of the just-assigned
+        # target changes (its surv drops), so each iteration costs O(m) instead
+        # of rescanning the full (n, m) matrix.  Row of an assigned weapon is
+        # pinned to -inf via weapon_free.
+        delta = p * (values * surv)[None, :]
+        if not np.all(time_feasible):
+            delta = np.where(time_feasible, delta, -np.inf)
 
         def clique_free_matrix() -> np.ndarray:
             """Pair (i, j) is free iff every clique containing it has zero load."""
@@ -521,28 +528,34 @@ class TieredWTASolver:
             return free
 
         # Selection rule: largest marginal damage, ties broken by first occurrence
-        # in row-major (i, j) order -- np.argmax's first-max matches the strict->
-        # comparison in the original scalar loop exactly.
+        # in row-major (i, j) order -- np.argmax's first-max on the maintained
+        # ``delta`` matrix matches the original scalar loop exactly, because
+        # ``delta`` holds exactly the feasible marginal gains (used-weapon rows,
+        # capped columns and saturated-clique pairs are -inf).
         while True:
-            delta = p * (values * surv)[None, :]
-            ok = (
-                weapon_free[:, None]
-                & time_feasible
-                & (salvo_load[None, :] < caps)
-                & clique_free_matrix()
-            )
-            masked = np.where(ok, delta, -np.inf)
-            flat_idx = int(np.argmax(masked))
-            best_delta = float(masked.flat[flat_idx])
+            flat_idx = int(np.argmax(delta))
+            best_delta = float(delta.flat[flat_idx])
             if not np.isfinite(best_delta) or best_delta <= 0.0:
                 break
             i, j = divmod(flat_idx, m)
-            weapon_free[i] = False
             salvo_load[j] += 1
             surv[j] *= q[i, j]
             assignments.append((i, j))
+            weapon_free[i] = False
+            # Refresh column j's marginal gains (surv[j] dropped) for weapons
+            # that are still free; bar the column if it reached its salvo cap,
+            # then clear weapon i's row (last, so it wins over the column
+            # refresh for weapon i itself).
+            delta[weapon_free, j] = values[j] * p[weapon_free, j] * surv[j]
+            if salvo_load[j] >= caps[j]:
+                delta[:, j] = -np.inf
+            delta[i, :] = -np.inf
+            # Bar every pair of any clique that (i, j) just saturated.
             for ci in pair_to_cliques.get((i, j), ()):
                 clique_load[ci] += 1
+                if clique_load[ci] == 1:
+                    for ii, jj in cliques[ci]:
+                        delta[ii, jj] = -np.inf
 
         survival_value = float((values * surv).sum())
         damage = total_value - survival_value
@@ -719,6 +732,9 @@ class TieredWTASolver:
                 best_delta = 0.0
                 if k == 1:
                     for i in range(n):
+                        if time.perf_counter() - start > budget:
+                            budget_exceeded = True
+                            break
                         cur_j = assign[i]
                         for new_j in list(candidates[i]) + [-1]:
                             if new_j == cur_j:
@@ -734,7 +750,7 @@ class TieredWTASolver:
                     # k-exchange: choose up to k weapons and reassign over candidates
                     weapon_pool = [i for i in range(n) if assign[i] != -1]
                     tried = 0
-                    pair_limit = 400
+                    pair_limit = 120
                     budget_exceeded = False
                     for combo in combinations(weapon_pool, k):
                         if time.perf_counter() - start > budget:

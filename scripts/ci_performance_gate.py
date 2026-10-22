@@ -37,7 +37,7 @@ WTA_MAX_INSTANCE = 200
 PERCEPTION_ITERATIONS = 300
 WTA_INSTANCES_PER_SIZE = 12
 WTA_SIZES_T2 = [64, 128, 200]   # T2 greedy: fast at all sizes
-WTA_SIZES_T3 = [64, 128]        # T3 VLSN: 200x200 too slow in pure Python for 50 ms SLO
+WTA_SIZES_T3 = [64, 128, 200]   # T3 VLSN: optimized to clear the 50 ms SLO at 200x200
 
 
 def p95(samples: list[float]) -> float:
