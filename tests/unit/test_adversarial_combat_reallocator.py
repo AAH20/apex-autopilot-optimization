@@ -11,9 +11,15 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from hypothesis import given, settings, strategies as st
-from hypothesis import HealthCheck
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
+from apex_autopilot_optimization.chaos.probes import (
+    combat_no_clique_violation,
+    combat_no_infeasible_assignment,
+    combat_no_killed_reengaged,
+    combat_state_machine_legal,
+)
 from apex_autopilot_optimization.simulation.combat_reallocator import CombatReallocator
 from apex_autopilot_optimization.swarm.wta_solver import (
     AllocationMode,
@@ -22,12 +28,6 @@ from apex_autopilot_optimization.swarm.wta_solver import (
     TieredWTASolver,
     Weapon,
     WTAConfig,
-)
-from apex_autopilot_optimization.chaos.probes import (
-    combat_no_clique_violation,
-    combat_no_infeasible_assignment,
-    combat_no_killed_reengaged,
-    combat_state_machine_legal,
 )
 
 _FINITE_PROB = st.floats(0.0, 1.0, allow_nan=False, allow_infinity=False)
@@ -77,14 +77,21 @@ def _build(
         else np.asarray(time_feasible, dtype=bool).reshape(n, m)
     )
     return CombatReallocator(
-        _solver(), weapons, targets, p, values_arr, time_feasible=tf,
-        interference_cliques=cliques or [], mode=mode,
+        _solver(),
+        weapons,
+        targets,
+        p,
+        values_arr,
+        time_feasible=tf,
+        interference_cliques=cliques or [],
+        mode=mode,
     )
 
 
 # --------------------------------------------------------------------------- #
 # Property-based: invariants must hold for all generated instances
 # --------------------------------------------------------------------------- #
+
 
 @settings(
     max_examples=200,
@@ -187,6 +194,7 @@ def test_killed_targets_never_reengaged(n, m, p, mode) -> None:
 # Directed edge cases
 # --------------------------------------------------------------------------- #
 
+
 class TestDirectedEdgeCases:
     def test_empty_weapons_and_targets(self) -> None:
         cr = _build(0, 0, [])
@@ -200,8 +208,13 @@ class TestDirectedEdgeCases:
         assert cr.report_bda([]) == SolverState.TERMINAL  # weapons exhausted
 
     def test_all_infeasible_mask_yields_no_engagement(self) -> None:
-        cr = _build(2, 2, [[0.9, 0.9], [0.9, 0.9]],
-                    time_feasible=np.zeros((2, 2), dtype=bool), mode=AllocationMode.SSL)
+        cr = _build(
+            2,
+            2,
+            [[0.9, 0.9], [0.9, 0.9]],
+            time_feasible=np.zeros((2, 2), dtype=bool),
+            mode=AllocationMode.SSL,
+        )
         eng = cr.request_allocation()
         assert eng == []
 
@@ -232,8 +245,9 @@ class TestDirectedEdgeCases:
         weapons = [Weapon(0), Weapon(1)]
         targets = [Target(0, value=10.0), Target(1, value=1.0)]
         p = np.array([[0.9, 0.1], [0.1, 0.9]])
-        cr = CombatReallocator(_solver(), weapons, targets, p, np.array([10.0, 1.0]),
-                               mode=AllocationMode.SLS)
+        cr = CombatReallocator(
+            _solver(), weapons, targets, p, np.array([10.0, 1.0]), mode=AllocationMode.SLS
+        )
         eng1 = cr.request_allocation()
         assert len(eng1) == 1
         fired = eng1[0][0]
@@ -243,8 +257,7 @@ class TestDirectedEdgeCases:
         assert all(w != fired for w, _ in eng2)
 
     def test_extreme_target_values_do_not_crash(self) -> None:
-        cr = _build(2, 2, [[0.5, 0.5], [0.5, 0.5]],
-                    values=[1e15, -1e15], mode=AllocationMode.SSL)
+        cr = _build(2, 2, [[0.5, 0.5], [0.5, 0.5]], values=[1e15, -1e15], mode=AllocationMode.SSL)
         eng = cr.request_allocation()
         assert len(eng) <= 2
 
@@ -253,7 +266,14 @@ class TestDirectedEdgeCases:
         targets = [Target(0, value=10.0)]
         p = np.array([[0.9], [0.9]])
         cliques = [[(0, 0), (1, 0)]]
-        cr = CombatReallocator(_solver(), weapons, targets, p, np.array([10.0]),
-                               interference_cliques=cliques, mode=AllocationMode.SSL)
+        cr = CombatReallocator(
+            _solver(),
+            weapons,
+            targets,
+            p,
+            np.array([10.0]),
+            interference_cliques=cliques,
+            mode=AllocationMode.SSL,
+        )
         eng = cr.request_allocation()
         assert len(eng) == 1

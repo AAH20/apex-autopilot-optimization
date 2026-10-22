@@ -10,30 +10,26 @@ cycle budget, and unknown-request handling.
 from __future__ import annotations
 
 import pytest
-from hypothesis import given, settings, strategies as st
-from hypothesis import HealthCheck
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
+from apex_autopilot_optimization.chaos.probes import (
+    policy_critical_vetoed,
+    policy_high_value_not_allowed,
+    policy_unauthorized_denied,
+)
 from apex_autopilot_optimization.governance.policy_engine import (
     Decision,
     PolicyAction,
     PolicyEngine,
     PolicyEngineConfig,
-    RiskLevel,
     Role,
-    VetoType,
     WTAAssignment,
 )
 from apex_autopilot_optimization.messaging.veto_manager import (
     VETO_CLEAR,
     VETO_HARD_EMERGENCY,
-    VETO_SOFT_HOLD,
     VetoManager,
-)
-from apex_autopilot_optimization.chaos.probes import (
-    policy_critical_vetoed,
-    policy_high_value_not_allowed,
-    policy_unauthorized_denied,
-    veto_authority_chain_respected,
 )
 
 _UNAUTHORIZED_FOR_WTA = st.sampled_from([Role.OPERATOR, Role.PILOT])
@@ -81,16 +77,15 @@ def make_engine(*, hitl_enabled=True, clock_value=1000.0, **config_overrides):
     hitl = FakeHITL()
     veto_manager = VetoManager()
     config = PolicyEngineConfig(hitl_enabled=hitl_enabled, **config_overrides)
-    clock = lambda: clock_value
-    engine = PolicyEngine(
-        veto_manager=veto_manager, hitl=hitl, config=config, clock=clock
-    )
+    clock = lambda: clock_value  # noqa: E731
+    engine = PolicyEngine(veto_manager=veto_manager, hitl=hitl, config=config, clock=clock)
     return engine, hitl, veto_manager
 
 
 # --------------------------------------------------------------------------- #
 # Property-based
 # --------------------------------------------------------------------------- #
+
 
 @settings(
     max_examples=200,
@@ -204,6 +199,7 @@ def test_hitl_disabled_auto_approve_still_enforces_auth_and_critical(
 # --------------------------------------------------------------------------- #
 # Directed
 # --------------------------------------------------------------------------- #
+
 
 class TestDirected:
     def test_cycle_over_budget_flagged(self) -> None:

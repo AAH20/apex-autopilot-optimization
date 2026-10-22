@@ -8,12 +8,12 @@ fault schedule, runs the scenario, runs the probes, and records a
 
 from __future__ import annotations
 
-import random
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
-from apex_autopilot_optimization.chaos.faults import FaultSchedule, FaultSpec, FaultType
+from apex_autopilot_optimization.chaos.faults import FaultSchedule
 from apex_autopilot_optimization.chaos.runtime import RuntimeFaultInjector
 
 __all__ = ["TrialResult", "ChaosRunReport", "ChaosExperiment"]
@@ -97,15 +97,15 @@ class ChaosExperiment:
         self._last_output: Any = None
 
     # -- registration ------------------------------------------------------
-    def register(self, name: str, obj: Any) -> "ChaosExperiment":
+    def register(self, name: str, obj: Any) -> ChaosExperiment:
         self._components[name] = obj
         return self
 
-    def set_scenario(self, fn: ScenarioFn) -> "ChaosExperiment":
+    def set_scenario(self, fn: ScenarioFn) -> ChaosExperiment:
         self._scenario = fn
         return self
 
-    def add_probe(self, fn: ProbeFn) -> "ChaosExperiment":
+    def add_probe(self, fn: ProbeFn) -> ChaosExperiment:
         self._probes.append(fn)
         return self
 
@@ -152,9 +152,6 @@ class ChaosExperiment:
 
         for trial in range(trials):
             self._injector.restore_all()
-            trial_seed: int | None = None
-            if seed is not None:
-                trial_seed = random.Random(seed).randint(0, 2**31 - 1)
 
             faults_injected: list[str] = []
             if schedule is not None:

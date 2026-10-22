@@ -15,23 +15,6 @@ import time
 import numpy as np
 import pytest
 
-from apex_autopilot_optimization.core.types import ControlInput, Pose3D, StateVector, Velocity3D
-from apex_autopilot_optimization.safety.cbf import CBFConfig, CBFFilter
-from apex_autopilot_optimization.simulation.combat_reallocator import CombatReallocator
-from apex_autopilot_optimization.swarm.wta_solver import (
-    AllocationMode,
-    Target,
-    TieredWTASolver,
-    Weapon,
-    WTAConfig,
-)
-from apex_autopilot_optimization.governance.policy_engine import (
-    PolicyEngine,
-    PolicyEngineConfig,
-    Role,
-    WTAAssignment,
-)
-from apex_autopilot_optimization.messaging.veto_manager import VetoManager
 from apex_autopilot_optimization.chaos import (
     ChaosExperiment,
     FaultSchedule,
@@ -42,6 +25,21 @@ from apex_autopilot_optimization.chaos import (
     cbf_throttle_monotonic,
 )
 from apex_autopilot_optimization.chaos.probes import cbf_correction_when_unsafe
+from apex_autopilot_optimization.core.types import ControlInput, Pose3D, StateVector, Velocity3D
+from apex_autopilot_optimization.governance.policy_engine import (
+    PolicyEngine,
+    PolicyEngineConfig,
+)
+from apex_autopilot_optimization.messaging.veto_manager import VetoManager
+from apex_autopilot_optimization.safety.cbf import CBFConfig, CBFFilter
+from apex_autopilot_optimization.simulation.combat_reallocator import CombatReallocator
+from apex_autopilot_optimization.swarm.wta_solver import (
+    AllocationMode,
+    Target,
+    TieredWTASolver,
+    Weapon,
+    WTAConfig,
+)
 
 
 def _solver() -> TieredWTASolver:
@@ -51,6 +49,7 @@ def _solver() -> TieredWTASolver:
 # --------------------------------------------------------------------------- #
 # RuntimeFaultInjector: faults really land on live component methods
 # --------------------------------------------------------------------------- #
+
 
 class TestRuntimeFaultInjector:
     def test_sensor_noise_on_cbf_filter(self) -> None:
@@ -82,9 +81,7 @@ class TestRuntimeFaultInjector:
         assert baseline < control.throttle  # CBF corrects when it can see the obstacle
 
         injector = RuntimeFaultInjector()
-        injector.apply(
-            cbf, "filter", FaultType.SENSOR_DROPOUT, {"dropout_prob": 1.0}
-        )
+        injector.apply(cbf, "filter", FaultType.SENSOR_DROPOUT, {"dropout_prob": 1.0})
         # All obstacles dropped -> CBF passes control through unchanged (0.8).
         out = cbf.filter(state, control, obstacles)
         assert out.throttle == pytest.approx(0.8, abs=1e-9)
@@ -97,9 +94,7 @@ class TestRuntimeFaultInjector:
         obstacles = [{"type": "sphere", "center": [2.0, 0.0, 0.0], "radius": 1.0}]
 
         injector = RuntimeFaultInjector()
-        injector.apply(
-            cbf, "filter", FaultType.ACTUATOR_FAILURE, {"stuck_throttle": 0.0}
-        )
+        injector.apply(cbf, "filter", FaultType.ACTUATOR_FAILURE, {"stuck_throttle": 0.0})
         out = cbf.filter(state, control, obstacles)
         assert out.throttle == pytest.approx(0.0, abs=1e-9)
         injector.restore_all()
@@ -108,10 +103,10 @@ class TestRuntimeFaultInjector:
         def target():
             return 42
 
-        injector = RuntimeFaultInjector()
-        wrapped = injector  # not used; inject directly via behavior for timing
-        from apex_autopilot_optimization.chaos.runtime import _bound_behavior, BEHAVIORS
+        RuntimeFaultInjector()
         import time as _time
+
+        from apex_autopilot_optimization.chaos.runtime import BEHAVIORS, _bound_behavior
 
         fn = _bound_behavior(target, BEHAVIORS[FaultType.CPU_SPIKE], {"delay_sec": 0.05})
         start = _time.perf_counter()
@@ -124,8 +119,9 @@ class TestRuntimeFaultInjector:
         weapons = [Weapon(0), Weapon(1)]
         targets = [Target(0, value=10.0), Target(1, value=1.0)]
         p = np.array([[0.9, 0.1], [0.1, 0.9]])
-        cr = CombatReallocator(_solver(), weapons, targets, p, np.array([10.0, 1.0]),
-                               mode=AllocationMode.SLS)
+        cr = CombatReallocator(
+            _solver(), weapons, targets, p, np.array([10.0, 1.0]), mode=AllocationMode.SLS
+        )
         cr.request_allocation()  # ENGAGING
 
         injector = RuntimeFaultInjector()
@@ -169,6 +165,7 @@ class TestRuntimeFaultInjector:
 # ChaosExperiment: schedule + scenario + probes -> report
 # --------------------------------------------------------------------------- #
 
+
 class TestChaosExperiment:
     def _cbf_components(self):
         cbf = CBFFilter(config=CBFConfig(safety_margin=0.5))
@@ -186,9 +183,11 @@ class TestChaosExperiment:
 
         exp = ChaosExperiment("cbf-noise")
         exp.register("cbf", cbf).set_scenario(scenario)
-        exp.add_probe(lambda injector, comps: cbf_throttle_monotonic(
-            control, captured.get("out", ControlInput(throttle=0.0))
-        ))
+        exp.add_probe(
+            lambda injector, comps: cbf_throttle_monotonic(
+                control, captured.get("out", ControlInput(throttle=0.0))
+            )
+        )
         sched = FaultSchedule()
         sched.add(FaultSpec(FaultType.SENSOR_NOISE, "cbf.filter", {"noise_std": 1.0, "seed": 7}))
         report = exp.run(schedule=sched, trials=10, seed=3)
@@ -198,7 +197,7 @@ class TestChaosExperiment:
         assert report.failed == 0
 
     def test_sensor_dropout_trials_fail_unsafe_probe(self) -> None:
-        """Sensor dropout hides a close obstacle -> CBF fails to reduce throttle -> harness flags it."""
+        """Sensor dropout hides a close obstacle; CBF fails to reduce throttle."""
         cbf, state, control, obstacles = self._cbf_components()
         # dist = |[1,0,0]-[2,0,0]| - 1 = 0 <= margin 0.5 -> UNSAFE.
         captured = {"min_dist": 0.0, "out": None}
@@ -208,9 +207,11 @@ class TestChaosExperiment:
 
         exp = ChaosExperiment("cbf-dropout-unsafe")
         exp.register("cbf", cbf).set_scenario(scenario)
-        exp.add_probe(lambda injector, comps: cbf_correction_when_unsafe(
-            captured["min_dist"], 0.5, control, captured["out"]
-        ))
+        exp.add_probe(
+            lambda injector, comps: cbf_correction_when_unsafe(
+                captured["min_dist"], 0.5, control, captured["out"]
+            )
+        )
         sched = FaultSchedule()
         sched.add(FaultSpec(FaultType.SENSOR_DROPOUT, "cbf.filter", {"dropout_prob": 1.0}))
         report = exp.run(schedule=sched, trials=6, seed=1)
@@ -228,9 +229,11 @@ class TestChaosExperiment:
 
         exp = ChaosExperiment("cbf-baseline")
         exp.register("cbf", cbf).set_scenario(scenario)
-        exp.add_probe(lambda injector, comps: cbf_throttle_monotonic(
-            control, captured.get("out", ControlInput(throttle=0.0))
-        ))
+        exp.add_probe(
+            lambda injector, comps: cbf_throttle_monotonic(
+                control, captured.get("out", ControlInput(throttle=0.0))
+            )
+        )
         report = exp.run(trials=5, seed=9)
         assert report.passed == 5
         assert report.failed == 0
@@ -240,8 +243,9 @@ class TestChaosExperiment:
             FaultSpec(FaultType.CPU_SPIKE, "x", duration_sec=-1)
         with pytest.raises(ValueError):
             FaultSpec(FaultType.CPU_SPIKE, "x", start_after_sec=-1)
-        spec = FaultSpec(FaultType.SENSOR_NOISE, "cbf.filter", {"noise_std": 0.5},
-                         severity=Severity.HIGH)
+        spec = FaultSpec(
+            FaultType.SENSOR_NOISE, "cbf.filter", {"noise_std": 0.5}, severity=Severity.HIGH
+        )
         assert spec.severity is Severity.HIGH
         assert spec.params == {"noise_std": 0.5}
 

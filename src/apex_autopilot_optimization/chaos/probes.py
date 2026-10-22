@@ -8,6 +8,12 @@ property-based tests, and chaos experiment assertions alike.
 
 from __future__ import annotations
 
+from typing import Any
+
+import numpy as np
+
+from apex_autopilot_optimization.core.types import ControlInput
+from apex_autopilot_optimization.governance.policy_engine import PolicyDecision
 from apex_autopilot_optimization.messaging.veto_manager import (
     AUTHORITY_RANK,
     VETO_HARD_EMERGENCY,
@@ -32,7 +38,8 @@ __all__ = [
 # CBF probes
 # --------------------------------------------------------------------------- #
 
-def cbf_throttle_monotonic(control_in, control_out) -> list[str]:
+
+def cbf_throttle_monotonic(control_in: ControlInput, control_out: ControlInput) -> list[str]:
     """Throttle correction must never increase throttle or go negative."""
     violations: list[str] = []
     if control_out.throttle < 0.0:
@@ -44,7 +51,7 @@ def cbf_throttle_monotonic(control_in, control_out) -> list[str]:
     return violations
 
 
-def cbf_output_valid(control_in, control_out) -> list[str]:
+def cbf_output_valid(control_in: ControlInput, control_out: ControlInput) -> list[str]:
     """Output must preserve roll/pitch/yaw/timestamp (only throttle changes)."""
     violations: list[str] = []
     if control_out.roll_rate != control_in.roll_rate:
@@ -59,16 +66,18 @@ def cbf_output_valid(control_in, control_out) -> list[str]:
 
 
 def cbf_correction_when_unsafe(
-    min_distance: float, safety_margin: float, control_in, control_out
+    min_distance: float,
+    safety_margin: float,
+    control_in: ControlInput,
+    control_out: ControlInput,
 ) -> list[str]:
     """Inside the safety margin, throttle must be reduced (h <= 0)."""
     violations: list[str] = []
-    if min_distance <= safety_margin:
-        if control_out.throttle >= control_in.throttle - 1e-9:
-            violations.append(
-                f"unsafe (dist={min_distance:.3f} <= margin={safety_margin:.3f}) "
-                f"but throttle not reduced {control_in.throttle:.3f} -> {control_out.throttle:.3f}"
-            )
+    if min_distance <= safety_margin and control_out.throttle >= control_in.throttle - 1e-9:
+        violations.append(
+            f"unsafe (dist={min_distance:.3f} <= margin={safety_margin:.3f}) "
+            f"but throttle not reduced {control_in.throttle:.3f} -> {control_out.throttle:.3f}"
+        )
     return violations
 
 
@@ -76,9 +85,10 @@ def cbf_correction_when_unsafe(
 # Combat reallocator probes
 # --------------------------------------------------------------------------- #
 
+
 def combat_no_infeasible_assignment(
     engagements: list[tuple[int, int]],
-    time_feasible,
+    time_feasible: np.ndarray,
     weapon_ids: list[int],
     target_ids: list[int],
 ) -> list[str]:
@@ -123,7 +133,7 @@ def combat_no_killed_reengaged(
     return violations
 
 
-def combat_state_machine_legal(cr) -> list[str]:
+def combat_state_machine_legal(cr: Any) -> list[str]:
     """Every logged event must be a legal transition from the current state."""
     violations: list[str] = []
     from apex_autopilot_optimization.swarm.wta_solver import SolverState
@@ -178,18 +188,20 @@ def combat_state_machine_legal(cr) -> list[str]:
 # Policy engine probes
 # --------------------------------------------------------------------------- #
 
-def policy_unauthorized_denied(decision, allowed_roles: frozenset) -> list[str]:
+
+def policy_unauthorized_denied(
+    decision: PolicyDecision, allowed_roles: frozenset[str]
+) -> list[str]:
     """A role not in the action's allowed_roles must always be denied."""
     violations: list[str] = []
-    if decision.role not in allowed_roles:
-        if decision.allowed or decision.decision != "denied":
-            violations.append(
-                f"unauthorized role {decision.role.value} was allowed for {decision.action.value}"
-            )
+    if decision.role not in allowed_roles and (decision.allowed or decision.decision != "denied"):
+        violations.append(
+            f"unauthorized role {decision.role.value} was allowed for {decision.action.value}"
+        )
     return violations
 
 
-def policy_critical_vetoed(decision) -> list[str]:
+def policy_critical_vetoed(decision: PolicyDecision) -> list[str]:
     """CRITICAL-risk decisions must always be denied with HARD_EMERGENCY veto."""
     violations: list[str] = []
     if decision.allowed or decision.decision != "denied":
@@ -201,7 +213,7 @@ def policy_critical_vetoed(decision) -> list[str]:
 
 
 def policy_high_value_not_allowed(
-    decision, target_value: float, threshold: float, hitl_enabled: bool
+    decision: PolicyDecision, target_value: float, threshold: float, hitl_enabled: bool
 ) -> list[str]:
     """Above-threshold target value must never be allowed outright (HITL on)."""
     violations: list[str] = []
@@ -209,8 +221,7 @@ def policy_high_value_not_allowed(
         return violations
     if target_value > threshold and decision.allowed and decision.decision == "allowed":
         violations.append(
-            f"high-value target {target_value} allowed without approval "
-            f"(threshold={threshold})"
+            f"high-value target {target_value} allowed without approval (threshold={threshold})"
         )
     return violations
 

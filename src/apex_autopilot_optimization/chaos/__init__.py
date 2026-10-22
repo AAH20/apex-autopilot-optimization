@@ -14,13 +14,13 @@ from apex_autopilot_optimization.chaos.faults import (
 )
 from apex_autopilot_optimization.chaos.injector import FaultInjector
 from apex_autopilot_optimization.chaos.probes import (
+    cbf_correction_when_unsafe,
+    cbf_output_valid,
+    cbf_throttle_monotonic,
     combat_no_clique_violation,
     combat_no_infeasible_assignment,
     combat_no_killed_reengaged,
     combat_state_machine_legal,
-    cbf_correction_when_unsafe,
-    cbf_output_valid,
-    cbf_throttle_monotonic,
     policy_critical_vetoed,
     policy_high_value_not_allowed,
     policy_unauthorized_denied,

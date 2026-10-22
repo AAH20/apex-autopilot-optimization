@@ -9,9 +9,14 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from hypothesis import given, settings, strategies as st
-from hypothesis import HealthCheck
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
+from apex_autopilot_optimization.chaos.probes import (
+    cbf_correction_when_unsafe,
+    cbf_output_valid,
+    cbf_throttle_monotonic,
+)
 from apex_autopilot_optimization.core.types import (
     ControlInput,
     Pose3D,
@@ -19,11 +24,6 @@ from apex_autopilot_optimization.core.types import (
     Velocity3D,
 )
 from apex_autopilot_optimization.safety.cbf import CBFConfig, CBFFilter
-from apex_autopilot_optimization.chaos.probes import (
-    cbf_correction_when_unsafe,
-    cbf_output_valid,
-    cbf_throttle_monotonic,
-)
 
 _FINITE = st.floats(-1e6, 1e6, allow_nan=False, allow_infinity=False)
 _ADVERSARIAL = st.one_of(
@@ -44,8 +44,8 @@ _VALID_SPHERE = st.fixed_dictionaries(
 _MALICIOUS_OBSTACLE = st.one_of(
     _VALID_SPHERE,
     st.just({"type": "box", "center": [0.0, 0.0, 0.0], "radius": 1.0}),  # wrong type
-    st.just({}),                                                           # empty (no "type")
-    st.just({"type": "sphere", "center": None, "radius": 1.0}),           # None center -> nan
+    st.just({}),  # empty (no "type")
+    st.just({"type": "sphere", "center": None, "radius": 1.0}),  # None center -> nan
 )
 
 
@@ -69,6 +69,7 @@ def _min_distance(state: StateVector, obstacles: list[dict]) -> float:
 # Property-based: invariants must hold for all generated inputs
 # --------------------------------------------------------------------------- #
 
+
 @settings(
     max_examples=300,
     deadline=None,
@@ -88,9 +89,7 @@ def test_never_raises_returns_control_input(
     x, y, z, throttle, margin, alpha, max_corr, obstacles
 ) -> None:
     """Any input (incl. NaN/inf coords, malicious obstacles) must not crash."""
-    cbf = CBFFilter(
-        config=CBFConfig(alpha=alpha, safety_margin=margin, max_correction=max_corr)
-    )
+    cbf = CBFFilter(config=CBFConfig(alpha=alpha, safety_margin=margin, max_correction=max_corr))
     state = StateVector(pose=Pose3D(x=x, y=y, z=z), velocity=Velocity3D(0, 0, 0))
     control = ControlInput(throttle=throttle)
     result = cbf.filter(state, control, obstacles)
@@ -116,15 +115,11 @@ def test_throttle_never_increases_or_goes_negative(
     x, y, z, throttle, margin, alpha, max_corr, obstacles
 ) -> None:
     """Correction only reduces throttle; output never negative; rates preserved."""
-    cbf = CBFFilter(
-        config=CBFConfig(alpha=alpha, safety_margin=margin, max_correction=max_corr)
-    )
+    cbf = CBFFilter(config=CBFConfig(alpha=alpha, safety_margin=margin, max_correction=max_corr))
     state = StateVector(pose=Pose3D(x=x, y=y, z=z), velocity=Velocity3D(0, 0, 0))
     control = ControlInput(throttle=throttle)
     result = cbf.filter(state, control, obstacles)
-    assert cbf_throttle_monotonic(control, result) == [], cbf_throttle_monotonic(
-        control, result
-    )
+    assert cbf_throttle_monotonic(control, result) == [], cbf_throttle_monotonic(control, result)
     assert cbf_output_valid(control, result) == [], cbf_output_valid(control, result)
 
 
@@ -144,13 +139,9 @@ def test_throttle_never_increases_or_goes_negative(
 )
 def test_safe_state_passthrough(x, y, z, throttle, margin, alpha, max_corr) -> None:
     """Outside the safety margin, control passes through unchanged."""
-    cbf = CBFFilter(
-        config=CBFConfig(alpha=alpha, safety_margin=margin, max_correction=max_corr)
-    )
+    cbf = CBFFilter(config=CBFConfig(alpha=alpha, safety_margin=margin, max_correction=max_corr))
     # Place obstacles far away so h > 0.
-    obstacles = [
-        {"type": "sphere", "center": [x + 100.0, y + 100.0, z + 100.0], "radius": 1.0}
-    ]
+    obstacles = [{"type": "sphere", "center": [x + 100.0, y + 100.0, z + 100.0], "radius": 1.0}]
     state = StateVector(pose=Pose3D(x=x, y=y, z=z), velocity=Velocity3D(0, 0, 0))
     control = ControlInput(throttle=throttle)
     result = cbf.filter(state, control, obstacles)
@@ -174,9 +165,7 @@ def test_safe_state_passthrough(x, y, z, throttle, margin, alpha, max_corr) -> N
 )
 def test_unsafe_state_reduces_throttle(x, y, z, throttle, margin, alpha, max_corr) -> None:
     """Inside the safety margin, throttle must be reduced."""
-    cbf = CBFFilter(
-        config=CBFConfig(alpha=alpha, safety_margin=margin, max_correction=max_corr)
-    )
+    cbf = CBFFilter(config=CBFConfig(alpha=alpha, safety_margin=margin, max_correction=max_corr))
     # Obstacle centered on the vehicle: distance = -radius <= margin -> unsafe.
     obstacles = [{"type": "sphere", "center": [x, y, z], "radius": 1.0}]
     state = StateVector(pose=Pose3D(x=x, y=y, z=z), velocity=Velocity3D(0, 0, 0))
@@ -190,6 +179,7 @@ def test_unsafe_state_reduces_throttle(x, y, z, throttle, margin, alpha, max_cor
 # --------------------------------------------------------------------------- #
 # Directed edge cases
 # --------------------------------------------------------------------------- #
+
 
 class TestDirectedEdgeCases:
     def test_nan_state_coords_do_not_crash(self) -> None:
@@ -247,7 +237,8 @@ class TestDirectedEdgeCases:
         cbf = CBFFilter(config=CBFConfig(alpha=1.0, safety_margin=0.5, max_correction=0.1))
         state = StateVector(pose=Pose3D(0, 0, 0), velocity=Velocity3D(0, 0, 0))
         control = ControlInput(throttle=0.5)
-        # obstacle centered on vehicle, radius 10 -> dist=-10, h=-10.5, correction=10.5 clamped to 0.1
+        # obstacle centered on vehicle, radius 10 -> dist=-10 -> h=-10.5,
+        # correction clamped to 0.1
         obstacles = [{"type": "sphere", "center": [0.0, 0.0, 0.0], "radius": 10.0}]
         result = cbf.filter(state, control, obstacles)
         assert result.throttle == pytest.approx(max(0.0, 0.5 - 0.1), abs=1e-9)
@@ -263,7 +254,9 @@ class TestDirectedEdgeCases:
     def test_rates_and_timestamp_preserved(self) -> None:
         cbf = CBFFilter()
         state = StateVector(pose=Pose3D(0, 0, 0), velocity=Velocity3D(0, 0, 0))
-        control = ControlInput(throttle=0.5, roll_rate=0.1, pitch_rate=0.2, yaw_rate=0.3, timestamp=123.0)
+        control = ControlInput(
+            throttle=0.5, roll_rate=0.1, pitch_rate=0.2, yaw_rate=0.3, timestamp=123.0
+        )
         obstacles = [{"type": "sphere", "center": [2.0, 0, 0], "radius": 1.0}]
         result = cbf.filter(state, control, obstacles)
         assert result.roll_rate == 0.1

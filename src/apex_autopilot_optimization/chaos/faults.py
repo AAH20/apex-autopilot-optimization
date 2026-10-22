@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Any
@@ -76,5 +77,5 @@ class FaultSchedule:
         """Return enabled faults whose start time has arrived at ``now_sec``."""
         return [f for f in self.faults if f.enabled and f.start_after_sec <= now_sec]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[FaultSpec]:
         return iter(self.faults)

@@ -26,7 +26,7 @@ from typing import Any, TypeVar
 import numpy as np
 
 from apex_autopilot_optimization.chaos.config import ChaosConfig
-from apex_autopilot_optimization.chaos.faults import FaultSpec, FaultType, Severity
+from apex_autopilot_optimization.chaos.faults import FaultType
 from apex_autopilot_optimization.chaos.injector import FaultInjector
 from apex_autopilot_optimization.chaos.result import ChaosResult
 
@@ -42,7 +42,7 @@ __all__ = [
 # --------------------------------------------------------------------------- #
 
 FaultFn = Callable[..., Any]
-Behavior = Callable[[FaultFn, tuple, dict[str, Any], dict[str, Any]], Any]
+Behavior = Callable[[FaultFn, tuple[Any, ...], dict[str, Any], dict[str, Any]], Any]
 T = TypeVar("T")
 
 # sentinel so callers can distinguish "no clock" from a real clock
@@ -53,7 +53,10 @@ _NO_CLOCK: Any = object()
 # Primitive fault behaviors
 # --------------------------------------------------------------------------- #
 
-def _passthrough(original: FaultFn, args: tuple, kwargs: dict[str, Any], params: dict[str, Any]) -> Any:
+
+def _passthrough(
+    original: FaultFn, args: tuple[Any, ...], kwargs: dict[str, Any], params: dict[str, Any]
+) -> Any:
     return original(*args, **kwargs)
 
 
@@ -62,7 +65,9 @@ def _rng(params: dict[str, Any]) -> np.random.Generator:
     return np.random.default_rng(seed)
 
 
-def _cpu_spike(original, args, kwargs, params):
+def _cpu_spike(
+    original: FaultFn, args: tuple[Any, ...], kwargs: dict[str, Any], params: dict[str, Any]
+) -> Any:
     """Burn wall-clock time before the call to stress cycle budgets."""
     delay_sec = float(params.get("delay_sec", 0.05))
     import time
@@ -71,7 +76,9 @@ def _cpu_spike(original, args, kwargs, params):
     return original(*args, **kwargs)
 
 
-def _sensor_noise(original, args, kwargs, params):
+def _sensor_noise(
+    original: FaultFn, args: tuple[Any, ...], kwargs: dict[str, Any], params: dict[str, Any]
+) -> Any:
     """Add Gaussian noise to a StateVector position and obstacle centers.
 
     Targets ``CBFFilter.filter(state, control, obstacles)``.
@@ -89,8 +96,8 @@ def _sensor_noise(original, args, kwargs, params):
     return original(*new_args, **kwargs)
 
 
-def _noisy_state(state, rng, noise_std):
-    from apex_autopilot_optimization.core.types import Pose3D, StateVector, Velocity3D
+def _noisy_state(state: Any, rng: np.random.Generator, noise_std: float) -> Any:
+    from apex_autopilot_optimization.core.types import Pose3D, StateVector
 
     return StateVector(
         pose=Pose3D(
@@ -106,7 +113,7 @@ def _noisy_state(state, rng, noise_std):
     )
 
 
-def _noisy_obstacle(obs, rng, noise_std):
+def _noisy_obstacle(obs: Any, rng: np.random.Generator, noise_std: float) -> Any:
     if not isinstance(obs, dict) or obs.get("type") != "sphere":
         return obs
     center = obs["center"]
@@ -117,7 +124,9 @@ def _noisy_obstacle(obs, rng, noise_std):
     }
 
 
-def _sensor_dropout(original, args, kwargs, params):
+def _sensor_dropout(
+    original: FaultFn, args: tuple[Any, ...], kwargs: dict[str, Any], params: dict[str, Any]
+) -> Any:
     """Hide obstacles probabilistically so CBF may pass control through.
 
     Targets ``CBFFilter.filter(state, control, obstacles)``.
@@ -131,7 +140,9 @@ def _sensor_dropout(original, args, kwargs, params):
     return original(*new_args, **kwargs)
 
 
-def _actuator_failure(original, args, kwargs, params):
+def _actuator_failure(
+    original: FaultFn, args: tuple[Any, ...], kwargs: dict[str, Any], params: dict[str, Any]
+) -> Any:
     """Clamp the control output throttle to a stuck value.
 
     Targets anything returning a ``ControlInput`` (``CBFFilter.filter``).
@@ -149,7 +160,9 @@ def _actuator_failure(original, args, kwargs, params):
     return result
 
 
-def _network_drop(original, args, kwargs, params):
+def _network_drop(
+    original: FaultFn, args: tuple[Any, ...], kwargs: dict[str, Any], params: dict[str, Any]
+) -> Any:
     """Drop the call (return None) or raise ConnectionError probabilistically."""
     drop_prob = float(params.get("drop_prob", 1.0))
     raise_on_drop = bool(params.get("raise_on_drop", False))
@@ -161,17 +174,23 @@ def _network_drop(original, args, kwargs, params):
     return original(*args, **kwargs)
 
 
-def _packet_loss(original, args, kwargs, params):
+def _packet_loss(
+    original: FaultFn, args: tuple[Any, ...], kwargs: dict[str, Any], params: dict[str, Any]
+) -> Any:
     """Alias of network_drop for packet-loss semantics."""
     return _network_drop(original, args, kwargs, params)
 
 
-def _communication_error(original, args, kwargs, params):
+def _communication_error(
+    original: FaultFn, args: tuple[Any, ...], kwargs: dict[str, Any], params: dict[str, Any]
+) -> Any:
     """Raise a communication error on the call."""
     raise ConnectionError(params.get("reason", "communication error"))
 
 
-def _memory_pressure(original, args, kwargs, params):
+def _memory_pressure(
+    original: FaultFn, args: tuple[Any, ...], kwargs: dict[str, Any], params: dict[str, Any]
+) -> Any:
     """Raise MemoryError probabilistically."""
     prob = float(params.get("prob", 0.5))
     rng = _rng(params)
@@ -180,7 +199,9 @@ def _memory_pressure(original, args, kwargs, params):
     return original(*args, **kwargs)
 
 
-def _clock_drift(original, args, kwargs, params):
+def _clock_drift(
+    original: FaultFn, args: tuple[Any, ...], kwargs: dict[str, Any], params: dict[str, Any]
+) -> Any:
     """No-op for method patching; clock drift is applied via ``apply_clock_drift``."""
     return original(*args, **kwargs)
 
@@ -202,7 +223,7 @@ BEHAVIORS: dict[FaultType, Behavior] = {
 
 
 def _bound_behavior(original: FaultFn, behavior: Behavior, params: dict[str, Any]) -> FaultFn:
-    def wrapped(*args, **kwargs):
+    def wrapped(*args: Any, **kwargs: Any) -> Any:
         return behavior(original, args, kwargs, params)
 
     wrapped.__wrapped__ = original  # type: ignore[attr-defined]
@@ -278,13 +299,12 @@ class RuntimeFaultInjector:
         """Skew ``obj._clock`` by ``drift_sec`` seconds (PolicyEngine clock)."""
         attr = "_clock"
         original = getattr(obj, attr)
-        start = original()
         setattr(obj, attr, lambda: original() + drift_sec)
         self._clock_patches.append((obj, attr, original))
 
     # -- context manager ---------------------------------------------------
     @contextmanager
-    def scope(self):
+    def scope(self) -> Any:
         """Inject faults within the block; restore everything on exit."""
         try:
             yield self
@@ -292,7 +312,7 @@ class RuntimeFaultInjector:
             self.restore_all()
 
 
-def fault_scope(injector: RuntimeFaultInjector):
+def fault_scope(injector: RuntimeFaultInjector) -> Any:
     """Decorator/context helper: inject faults, run, then restore.
 
     Equivalent to ``injector.scope()``; provided for readability::
@@ -304,7 +324,9 @@ def fault_scope(injector: RuntimeFaultInjector):
     return injector.scope()
 
 
-def inject_fault_behavior(fault_type: FaultType, params: dict[str, Any] | None = None) -> Callable[[FaultFn], FaultFn]:
+def inject_fault_behavior(
+    fault_type: FaultType, params: dict[str, Any] | None = None
+) -> Callable[[FaultFn], FaultFn]:
     """Decorator that wraps a plain function with a fault behavior.
 
     Example::
