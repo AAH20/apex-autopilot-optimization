@@ -1,0 +1,348 @@
+{
+  "config": {
+    "vehicle_counts": [
+      1,
+      10,
+      50,
+      100
+    ],
+    "steps_per_mission": 25,
+    "repeats": 3,
+    "dt": 0.05,
+    "spacing_m": 10.0,
+    "min_separation_m": 2.0,
+    "cycle_budget_ms": 100.0,
+    "wall_budget_ms": 200.0,
+    "internal_p95_budget_ms": 150.0,
+    "seed": 42,
+    "wta_vehicle_counts": [
+      10,
+      50,
+      100
+    ],
+    "wta_weapons": 4,
+    "wta_targets": 6,
+    "wta_steps": 8,
+    "wta_repeats": 1,
+    "safety_agent_counts": [
+      10,
+      50,
+      100,
+      200
+    ],
+    "safety_samples": 50,
+    "formation_agent_counts": [
+      10,
+      50,
+      100
+    ],
+    "formation_samples": 100
+  },
+  "started_at": "2026-10-22T02:16:14.606140+00:00",
+  "finished_at": "2026-10-22T02:16:14.606151+00:00",
+  "sweep": [
+    {
+      "n": 1,
+      "samples": [
+        {
+          "n": 1,
+          "repeat": 0,
+          "steps": 25,
+          "wall_ms": 4.541269998298958,
+          "per_cycle_ms": 0.18165079993195832,
+          "internal_p95_ms": 0.16457719029858697,
+          "internal_mean_ms": 0.11749983881600201,
+          "success": true,
+          "total_missions": 25,
+          "failed_missions": 0,
+          "safety_violations": 0,
+          "makespan_s": 1.2500000000000004,
+          "connected_end": 1,
+          "disconnects_ok": true,
+          "formation_deviation_m": 0.0
+        },
+        {
+          "n": 1,
+          "repeat": 1,
+          "steps": 25,
+          "wall_ms": 3.544168022926897,
+          "per_cycle_ms": 0.14176672091707587,
+          "internal_p95_ms": 0.09972960688173771,
+          "internal_mean_ms": 0.08846884244121611,
+          "success": true,
+          "total_missions": 25,
+          "failed_missions": 0,
+          "safety_violations": 0,
+          "makespan_s": 1.2500000000000004,
+          "connected_end": 1,
+          "disconnects_ok": true,
+          "formation_deviation_m": 0.0
+        },
+        {
+          "n": 1,
+          "repeat": 2,
+          "steps": 25,
+          "wall_ms": 3.479273000266403,
+          "per_cycle_ms": 0.13917092001065612,
+          "internal_p95_ms": 0.15183662180788798,
+          "internal_mean_ms": 0.09220328298397362,
+          "success": true,
+          "total_missions": 25,
+          "failed_missions": 0,
+          "safety_violations": 0,
+          "makespan_s": 1.2500000000000004,
+          "connected_end": 1,
+          "disconnects_ok": true,
+          "formation_deviation_m": 0.0
+        }
+      ]
+    },
+    {
+      "n": 10,
+      "samples": [
+        {
+          "n": 10,
+          "repeat": 0,
+          "steps": 25,
+          "wall_ms": 74.10607597557828,
+          "per_cycle_ms": 2.964243039023131,
+          "internal_p95_ms": 2.100490004522726,
+          "internal_mean_ms": 1.6288024431560189,
+          "success": true,
+          "total_missions": 250,
+          "failed_missions": 0,
+          "safety_violations": 0,
+          "makespan_s": 1.2500000000000004,
+          "connected_end": 10,
+          "disconnects_ok": true,
+          "formation_deviation_m": 52.2
+        },
+        {
+          "n": 10,
+          "repeat": 1,
+          "steps": 25,
+          "wall_ms": 51.630698988446966,
+          "per_cycle_ms": 2.0652279595378786,
+          "internal_p95_ms": 1.7832249868661165,
+          "internal_mean_ms": 1.2585620384197682,
+          "success": true,
+          "total_missions": 250,
+          "failed_missions": 0,
+          "safety_violations": 0,
+          "makespan_s": 1.2500000000000004,
+          "connected_end": 10,
+          "disconnects_ok": true,
+          "formation_deviation_m": 52.2
+        },
+        {
+          "n": 10,
+          "repeat": 2,
+          "steps": 25,
+          "wall_ms": 43.807683017803356,
+          "per_cycle_ms": 1.7523073207121342,
+          "internal_p95_ms": 1.3191569887567312,
+          "internal_mean_ms": 1.0644926386885345,
+          "success": true,
+          "total_missions": 250,
+          "failed_missions": 0,
+          "safety_violations": 0,
+          "makespan_s": 1.2500000000000004,
+          "connected_end": 10,
+          "disconnects_ok": true,
+          "formation_deviation_m": 52.2
+        }
+      ]
+    },
+    {
+      "n": 50,
+      "samples": [
+        {
+          "n": 50,
+          "repeat": 0,
+          "steps": 25,
+          "wall_ms": 785.6592840107623,
+          "per_cycle_ms": 31.426371360430494,
+          "internal_p95_ms": 17.242181987967342,
+          "internal_mean_ms": 16.18188335909508,
+          "success": true,
+          "total_missions": 1250,
+          "failed_missions": 0,
+          "safety_violations": 0,
+          "makespan_s": 1.2500000000000004,
+          "connected_end": 50,
+          "disconnects_ok": true,
+          "formation_deviation_m": 284.2
+        },
+        {
+          "n": 50,
+          "repeat": 1,
+          "steps": 25,
+          "wall_ms": 745.6285340012982,
+          "per_cycle_ms": 29.82514136005193,
+          "internal_p95_ms": 15.320548001909629,
+          "internal_mean_ms": 13.541311396984383,
+          "success": true,
+          "total_missions": 1250,
+          "failed_missions": 0,
+          "safety_violations": 0,
+          "makespan_s": 1.2500000000000004,
+          "connected_end": 50,
+          "disconnects_ok": true,
+          "formation_deviation_m": 284.2
+        },
+        {
+          "n": 50,
+          "repeat": 2,
+          "steps": 25,
+          "wall_ms": 861.2007269985043,
+          "per_cycle_ms": 34.44802907994017,
+          "internal_p95_ms": 16.344083996955305,
+          "internal_mean_ms": 18.87691911892034,
+          "success": true,
+          "total_missions": 1250,
+          "failed_missions": 0,
+          "safety_violations": 0,
+          "makespan_s": 1.2500000000000004,
+          "connected_end": 50,
+          "disconnects_ok": true,
+          "formation_deviation_m": 284.2
+        }
+      ]
+    },
+    {
+      "n": 100,
+      "samples": [
+        {
+          "n": 100,
+          "repeat": 0,
+          "steps": 25,
+          "wall_ms": 2308.203163993312,
+          "per_cycle_ms": 92.32812655973248,
+          "internal_p95_ms": 50.44876300962642,
+          "internal_mean_ms": 31.612449920503423,
+          "success": true,
+          "total_missions": 2500,
+          "failed_missions": 0,
+          "safety_violations": 0,
+          "makespan_s": 1.2500000000000004,
+          "connected_end": 100,
+          "disconnects_ok": true,
+          "formation_deviation_m": 574.2
+        },
+        {
+          "n": 100,
+          "repeat": 1,
+          "steps": 25,
+          "wall_ms": 2271.695881994674,
+          "per_cycle_ms": 90.86783527978696,
+          "internal_p95_ms": 45.84665998117998,
+          "internal_mean_ms": 32.60645223897882,
+          "success": true,
+          "total_missions": 2500,
+          "failed_missions": 0,
+          "safety_violations": 0,
+          "makespan_s": 1.2500000000000004,
+          "connected_end": 100,
+          "disconnects_ok": true,
+          "formation_deviation_m": 574.2
+        },
+        {
+          "n": 100,
+          "repeat": 2,
+          "steps": 25,
+          "wall_ms": 2346.431901998585,
+          "per_cycle_ms": 93.8572760799434,
+          "internal_p95_ms": 53.72488498687744,
+          "internal_mean_ms": 34.01591524016112,
+          "success": true,
+          "total_missions": 2500,
+          "failed_missions": 0,
+          "safety_violations": 0,
+          "makespan_s": 1.2500000000000004,
+          "connected_end": 100,
+          "disconnects_ok": true,
+          "formation_deviation_m": 574.2
+        }
+      ]
+    }
+  ],
+  "wta": [
+    {
+      "n": 10,
+      "repeat": 0,
+      "steps": 8,
+      "wall_ms": 1337.9069669754244,
+      "per_cycle_ms": 167.23837087192805,
+      "over_budget_cycles": 8,
+      "success": true
+    },
+    {
+      "n": 50,
+      "repeat": 0,
+      "steps": 8,
+      "wall_ms": 6535.585631005233,
+      "per_cycle_ms": 816.9482038756541,
+      "over_budget_cycles": 8,
+      "success": true
+    },
+    {
+      "n": 100,
+      "repeat": 0,
+      "steps": 8,
+      "wall_ms": 11683.5186649987,
+      "per_cycle_ms": 1460.4398331248376,
+      "over_budget_cycles": 8,
+      "success": true
+    }
+  ],
+  "safety_timings": [
+    {
+      "n": 10,
+      "samples": 50,
+      "mean_ms": 0.22628094244282693,
+      "p95_ms": 0.3962290065828711,
+      "max_ms": 0.538997002877295
+    },
+    {
+      "n": 50,
+      "samples": 50,
+      "mean_ms": 6.204862219165079,
+      "p95_ms": 6.989421002799645,
+      "max_ms": 7.209433999378234
+    },
+    {
+      "n": 100,
+      "samples": 50,
+      "mean_ms": 20.412387920659967,
+      "p95_ms": 27.836072986247018,
+      "max_ms": 28.51072500925511
+    },
+    {
+      "n": 200,
+      "samples": 50,
+      "mean_ms": 20.335630800109357,
+      "p95_ms": 102.2878740041051,
+      "max_ms": 111.36433397768997
+    }
+  ],
+  "formation_timings": [
+    {
+      "n": 10,
+      "samples": 100,
+      "mean_ms": 0.009032719244714826,
+      "p95_ms": 0.009315990610048175
+    },
+    {
+      "n": 50,
+      "samples": 100,
+      "mean_ms": 0.04881275963271037,
+      "p95_ms": 0.08311501005664468
+    },
+    {
+      "n": 100,
+      "samples": 100,
+      "mean_ms": 0.09684990916866809,
+      "p95_ms": 0.1269589993171394
+    }
+  ]
+}

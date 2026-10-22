@@ -65,3 +65,13 @@ pytest tests/unit/test_benchmark.py --cov=apex_autopilot_optimization.benchmark 
 pytest tests/unit/test_messaging.py --cov=apex_autopilot_optimization.messaging.queue --cov=apex_autopilot_optimization.messaging.stream --cov=apex_autopilot_optimization.messaging.event_store --cov-fail-under=80 -q
 python scripts/ci_performance_gate.py
 ```
+
+## Scalability benchmark (additive)
+
+`scripts/ci_scalability_gate.py` runs a 100-vehicle swarm mission with mocked
+backends (Gazebo SITL is limited to under 10 vehicles, ~4 GB RAM per instance)
+and gates on cycle latency (< 250 ms wall / < 150 ms instrumented p95 at N=100),
+100% success rate, full teardown of all bridges and sims, and zero safety
+violations. It complements the `benchmarks` CI job; the full sweep plus
+WTA/component timing reports are produced by `benchmark/swarm_scalability_benchmark.py`
+into `benchmark_reports/`.
