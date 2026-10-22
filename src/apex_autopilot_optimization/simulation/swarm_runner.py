@@ -41,9 +41,9 @@ from apex_autopilot_optimization.core.types import (
     StateVector,
 )
 from apex_autopilot_optimization.integration.mavlink import MAVLinkBridge
+from apex_autopilot_optimization.simulation.combat_reallocator import CombatReallocator
 from apex_autopilot_optimization.simulation.config import SimulationConfig
 from apex_autopilot_optimization.simulation.interface import SimulationInterface
-from apex_autopilot_optimization.simulation.combat_reallocator import CombatReallocator
 from apex_autopilot_optimization.simulation.result import SimulationResult
 from apex_autopilot_optimization.swarm.formation import (
     FormationConfig,
@@ -1679,11 +1679,7 @@ class SwarmRunner:
                 time_feasible=problem.time_feasible,
                 salvo_caps=problem.salvo_caps,
                 interference_cliques=problem.interference_cliques,
-                mode=(
-                    self._wta_config.dynamic_mode
-                    if self._wta_config is not None
-                    else "sls"
-                ),
+                mode=(self._wta_config.dynamic_mode if self._wta_config is not None else "sls"),
             )
             self._wta_reallocators[slot] = reallocator
         # --- solve per vehicle, time-boxed to the cycle budget ---------- #

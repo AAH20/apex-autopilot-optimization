@@ -10,376 +10,449 @@
     ],
     "T3_VLSN": [
       64,
-      128
+      128,
+      200
     ]
   },
   "instances_per_size": 12,
   "p95_solve_time_ms": {
-    "T2_GREEDY": 28.971,
-    "T3_VLSN": 21.912
+    "T2_GREEDY": 6.337,
+    "T3_VLSN": 30.373
   },
-  "p95_overall_ms": 26.988,
+  "p95_overall_ms": 29.872,
   "passed": true,
   "instances": [
     {
       "size": "64x64",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 1.906,
-      "wall_ms": 1.981
+      "solve_time_ms": 1.069,
+      "wall_ms": 1.166
     },
     {
       "size": "64x64",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 1.757,
-      "wall_ms": 1.818
+      "solve_time_ms": 0.964,
+      "wall_ms": 1.021
     },
     {
       "size": "64x64",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 1.778,
-      "wall_ms": 1.823
+      "solve_time_ms": 0.827,
+      "wall_ms": 0.868
     },
     {
       "size": "64x64",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 2.021,
-      "wall_ms": 2.065
+      "solve_time_ms": 0.819,
+      "wall_ms": 0.859
     },
     {
       "size": "64x64",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 1.733,
-      "wall_ms": 1.807
+      "solve_time_ms": 0.908,
+      "wall_ms": 0.95
     },
     {
       "size": "64x64",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 1.672,
-      "wall_ms": 1.714
+      "solve_time_ms": 0.89,
+      "wall_ms": 0.942
     },
     {
       "size": "64x64",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 1.926,
-      "wall_ms": 1.988
+      "solve_time_ms": 0.936,
+      "wall_ms": 0.993
     },
     {
       "size": "64x64",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 2.486,
-      "wall_ms": 2.565
+      "solve_time_ms": 0.936,
+      "wall_ms": 0.978
     },
     {
       "size": "64x64",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 1.795,
-      "wall_ms": 1.865
+      "solve_time_ms": 0.822,
+      "wall_ms": 0.862
     },
     {
       "size": "64x64",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 1.77,
-      "wall_ms": 1.848
+      "solve_time_ms": 0.88,
+      "wall_ms": 0.92
     },
     {
       "size": "64x64",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 1.732,
-      "wall_ms": 1.785
+      "solve_time_ms": 0.851,
+      "wall_ms": 0.894
     },
     {
       "size": "64x64",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 1.715,
-      "wall_ms": 1.765
+      "solve_time_ms": 1.057,
+      "wall_ms": 1.109
     },
     {
       "size": "128x128",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 7.946,
-      "wall_ms": 8.045
+      "solve_time_ms": 2.539,
+      "wall_ms": 2.608
     },
     {
       "size": "128x128",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 6.91,
-      "wall_ms": 6.971
+      "solve_time_ms": 2.164,
+      "wall_ms": 2.223
     },
     {
       "size": "128x128",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 7.741,
-      "wall_ms": 7.832
+      "solve_time_ms": 2.481,
+      "wall_ms": 2.534
     },
     {
       "size": "128x128",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 8.849,
-      "wall_ms": 8.953
+      "solve_time_ms": 2.225,
+      "wall_ms": 2.304
     },
     {
       "size": "128x128",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 7.865,
-      "wall_ms": 7.921
+      "solve_time_ms": 2.355,
+      "wall_ms": 2.412
     },
     {
       "size": "128x128",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 9.614,
-      "wall_ms": 9.69
+      "solve_time_ms": 2.251,
+      "wall_ms": 2.309
     },
     {
       "size": "128x128",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 9.109,
-      "wall_ms": 9.178
+      "solve_time_ms": 2.34,
+      "wall_ms": 2.4
     },
     {
       "size": "128x128",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 8.121,
-      "wall_ms": 8.18
+      "solve_time_ms": 2.144,
+      "wall_ms": 2.194
     },
     {
       "size": "128x128",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 9.602,
-      "wall_ms": 9.797
+      "solve_time_ms": 2.286,
+      "wall_ms": 2.346
     },
     {
       "size": "128x128",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 8.714,
-      "wall_ms": 8.861
+      "solve_time_ms": 2.414,
+      "wall_ms": 2.493
     },
     {
       "size": "128x128",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 10.679,
-      "wall_ms": 11.008
+      "solve_time_ms": 2.144,
+      "wall_ms": 2.204
     },
     {
       "size": "128x128",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 7.978,
-      "wall_ms": 8.073
+      "solve_time_ms": 2.324,
+      "wall_ms": 2.382
     },
     {
       "size": "200x200",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 32.379,
-      "wall_ms": 32.461
+      "solve_time_ms": 5.786,
+      "wall_ms": 15.031
     },
     {
       "size": "200x200",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 22.906,
-      "wall_ms": 23.043
+      "solve_time_ms": 6.204,
+      "wall_ms": 6.337
     },
     {
       "size": "200x200",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 22.981,
-      "wall_ms": 23.085
+      "solve_time_ms": 5.72,
+      "wall_ms": 5.877
     },
     {
       "size": "200x200",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 23.307,
-      "wall_ms": 23.491
+      "solve_time_ms": 5.637,
+      "wall_ms": 5.781
     },
     {
       "size": "200x200",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 24.036,
-      "wall_ms": 24.138
+      "solve_time_ms": 5.475,
+      "wall_ms": 5.709
     },
     {
       "size": "200x200",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 26.878,
-      "wall_ms": 26.938
+      "solve_time_ms": 5.63,
+      "wall_ms": 5.794
     },
     {
       "size": "200x200",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 26.425,
-      "wall_ms": 26.505
+      "solve_time_ms": 5.497,
+      "wall_ms": 5.666
     },
     {
       "size": "200x200",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 24.128,
-      "wall_ms": 24.244
+      "solve_time_ms": 5.531,
+      "wall_ms": 5.677
     },
     {
       "size": "200x200",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 22.081,
-      "wall_ms": 22.293
+      "solve_time_ms": 5.543,
+      "wall_ms": 5.751
     },
     {
       "size": "200x200",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 28.79,
-      "wall_ms": 28.971
+      "solve_time_ms": 5.774,
+      "wall_ms": 6.053
     },
     {
       "size": "200x200",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 27.98,
-      "wall_ms": 28.095
+      "solve_time_ms": 5.687,
+      "wall_ms": 5.827
     },
     {
       "size": "200x200",
       "tier": "T2_GREEDY",
-      "solve_time_ms": 26.853,
-      "wall_ms": 26.988
+      "solve_time_ms": 5.658,
+      "wall_ms": 5.836
     },
     {
       "size": "64x64",
       "tier": "T3_VLSN",
-      "solve_time_ms": 9.108,
-      "wall_ms": 9.21
+      "solve_time_ms": 7.917,
+      "wall_ms": 7.979
     },
     {
       "size": "64x64",
       "tier": "T3_VLSN",
-      "solve_time_ms": 9.454,
-      "wall_ms": 9.52
+      "solve_time_ms": 8.105,
+      "wall_ms": 8.168
     },
     {
       "size": "64x64",
       "tier": "T3_VLSN",
-      "solve_time_ms": 9.25,
-      "wall_ms": 9.329
+      "solve_time_ms": 7.74,
+      "wall_ms": 7.824
     },
     {
       "size": "64x64",
       "tier": "T3_VLSN",
-      "solve_time_ms": 8.898,
-      "wall_ms": 8.961
+      "solve_time_ms": 7.934,
+      "wall_ms": 8.008
     },
     {
       "size": "64x64",
       "tier": "T3_VLSN",
-      "solve_time_ms": 8.765,
-      "wall_ms": 8.833
+      "solve_time_ms": 8.071,
+      "wall_ms": 8.206
     },
     {
       "size": "64x64",
       "tier": "T3_VLSN",
-      "solve_time_ms": 8.61,
-      "wall_ms": 8.677
+      "solve_time_ms": 8.189,
+      "wall_ms": 8.258
     },
     {
       "size": "64x64",
       "tier": "T3_VLSN",
-      "solve_time_ms": 9.805,
-      "wall_ms": 9.878
+      "solve_time_ms": 7.961,
+      "wall_ms": 8.027
     },
     {
       "size": "64x64",
       "tier": "T3_VLSN",
-      "solve_time_ms": 8.817,
-      "wall_ms": 8.882
+      "solve_time_ms": 7.99,
+      "wall_ms": 8.071
     },
     {
       "size": "64x64",
       "tier": "T3_VLSN",
-      "solve_time_ms": 9.17,
-      "wall_ms": 9.23
+      "solve_time_ms": 7.902,
+      "wall_ms": 7.968
     },
     {
       "size": "64x64",
       "tier": "T3_VLSN",
-      "solve_time_ms": 9.829,
-      "wall_ms": 9.918
+      "solve_time_ms": 8.211,
+      "wall_ms": 8.273
     },
     {
       "size": "64x64",
       "tier": "T3_VLSN",
-      "solve_time_ms": 8.883,
-      "wall_ms": 9.003
+      "solve_time_ms": 7.787,
+      "wall_ms": 7.849
     },
     {
       "size": "64x64",
       "tier": "T3_VLSN",
-      "solve_time_ms": 8.591,
-      "wall_ms": 8.651
+      "solve_time_ms": 7.874,
+      "wall_ms": 7.946
     },
     {
       "size": "128x128",
       "tier": "T3_VLSN",
-      "solve_time_ms": 21.436,
-      "wall_ms": 21.633
+      "solve_time_ms": 14.96,
+      "wall_ms": 15.025
     },
     {
       "size": "128x128",
       "tier": "T3_VLSN",
-      "solve_time_ms": 20.539,
-      "wall_ms": 20.652
+      "solve_time_ms": 14.64,
+      "wall_ms": 14.721
     },
     {
       "size": "128x128",
       "tier": "T3_VLSN",
-      "solve_time_ms": 20.757,
-      "wall_ms": 21.175
+      "solve_time_ms": 14.521,
+      "wall_ms": 14.614
     },
     {
       "size": "128x128",
       "tier": "T3_VLSN",
-      "solve_time_ms": 21.019,
-      "wall_ms": 21.112
+      "solve_time_ms": 15.675,
+      "wall_ms": 15.744
     },
     {
       "size": "128x128",
       "tier": "T3_VLSN",
-      "solve_time_ms": 20.334,
-      "wall_ms": 20.494
+      "solve_time_ms": 14.94,
+      "wall_ms": 15.036
     },
     {
       "size": "128x128",
       "tier": "T3_VLSN",
-      "solve_time_ms": 20.6,
-      "wall_ms": 20.711
+      "solve_time_ms": 14.704,
+      "wall_ms": 14.789
     },
     {
       "size": "128x128",
       "tier": "T3_VLSN",
-      "solve_time_ms": 21.6,
-      "wall_ms": 21.883
+      "solve_time_ms": 15.031,
+      "wall_ms": 15.157
     },
     {
       "size": "128x128",
       "tier": "T3_VLSN",
-      "solve_time_ms": 20.839,
-      "wall_ms": 20.918
+      "solve_time_ms": 14.93,
+      "wall_ms": 15.001
     },
     {
       "size": "128x128",
       "tier": "T3_VLSN",
-      "solve_time_ms": 21.51,
-      "wall_ms": 21.912
+      "solve_time_ms": 14.669,
+      "wall_ms": 14.737
     },
     {
       "size": "128x128",
       "tier": "T3_VLSN",
-      "solve_time_ms": 21.475,
-      "wall_ms": 21.575
+      "solve_time_ms": 15.806,
+      "wall_ms": 15.875
     },
     {
       "size": "128x128",
       "tier": "T3_VLSN",
-      "solve_time_ms": 20.402,
-      "wall_ms": 20.625
+      "solve_time_ms": 14.909,
+      "wall_ms": 14.984
     },
     {
       "size": "128x128",
       "tier": "T3_VLSN",
-      "solve_time_ms": 21.881,
-      "wall_ms": 22.021
+      "solve_time_ms": 15.46,
+      "wall_ms": 15.558
+    },
+    {
+      "size": "200x200",
+      "tier": "T3_VLSN",
+      "solve_time_ms": 30.686,
+      "wall_ms": 30.804
+    },
+    {
+      "size": "200x200",
+      "tier": "T3_VLSN",
+      "solve_time_ms": 30.12,
+      "wall_ms": 30.208
+    },
+    {
+      "size": "200x200",
+      "tier": "T3_VLSN",
+      "solve_time_ms": 29.157,
+      "wall_ms": 29.244
+    },
+    {
+      "size": "200x200",
+      "tier": "T3_VLSN",
+      "solve_time_ms": 28.886,
+      "wall_ms": 28.966
+    },
+    {
+      "size": "200x200",
+      "tier": "T3_VLSN",
+      "solve_time_ms": 28.392,
+      "wall_ms": 28.49
+    },
+    {
+      "size": "200x200",
+      "tier": "T3_VLSN",
+      "solve_time_ms": 29.783,
+      "wall_ms": 29.872
+    },
+    {
+      "size": "200x200",
+      "tier": "T3_VLSN",
+      "solve_time_ms": 29.684,
+      "wall_ms": 29.767
+    },
+    {
+      "size": "200x200",
+      "tier": "T3_VLSN",
+      "solve_time_ms": 30.245,
+      "wall_ms": 30.373
+    },
+    {
+      "size": "200x200",
+      "tier": "T3_VLSN",
+      "solve_time_ms": 29.697,
+      "wall_ms": 29.77
+    },
+    {
+      "size": "200x200",
+      "tier": "T3_VLSN",
+      "solve_time_ms": 29.516,
+      "wall_ms": 29.616
+    },
+    {
+      "size": "200x200",
+      "tier": "T3_VLSN",
+      "solve_time_ms": 29.362,
+      "wall_ms": 29.474
+    },
+    {
+      "size": "200x200",
+      "tier": "T3_VLSN",
+      "solve_time_ms": 29.191,
+      "wall_ms": 29.349
     }
   ]
 }

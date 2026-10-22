@@ -17,12 +17,12 @@ import numpy as np
 import pytest
 
 from apex_autopilot_optimization.core.types import Pose3D, StateVector, Velocity3D
+from apex_autopilot_optimization.simulation.combat_reallocator import CombatReallocator
 from apex_autopilot_optimization.simulation.config import SimulationConfig
 from apex_autopilot_optimization.simulation.swarm_runner import (
     SwarmRunner,
     WTAMissionProblem,
 )
-from apex_autopilot_optimization.simulation.combat_reallocator import CombatReallocator
 from apex_autopilot_optimization.swarm.wta_solver import (
     BDAEvent,
     SolverState,
