@@ -22,9 +22,9 @@ from apex_autopilot_optimization.simulation.swarm_runner import (
     SwarmRunner,
     WTAMissionProblem,
 )
+from apex_autopilot_optimization.simulation.combat_reallocator import CombatReallocator
 from apex_autopilot_optimization.swarm.wta_solver import (
     BDAEvent,
-    DynamicReallocator,
     SolverState,
     Target,
     Tier,
@@ -93,13 +93,13 @@ def _wta_mocked(
         ):
             realloc_inst: MagicMock | None = None
             if with_reallocator:
-                realloc_inst = MagicMock(spec=DynamicReallocator)
+                realloc_inst = MagicMock(spec=CombatReallocator)
                 realloc_inst.request_allocation.return_value = [(0, 0)]
                 realloc_inst.report_bda.return_value = SolverState.RE_EVALUATING
                 realloc_inst.current_assignments = [(0, 0)]
                 realloc_inst.state = SolverState.IDLE
                 with patch(
-                    "apex_autopilot_optimization.simulation.swarm_runner.DynamicReallocator",
+                    "apex_autopilot_optimization.simulation.swarm_runner.CombatReallocator",
                     return_value=realloc_inst,
                 ):
                     yield runner, bridges, sims, solver_inst, realloc_inst, bda_events

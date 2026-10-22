@@ -43,6 +43,7 @@ from apex_autopilot_optimization.core.types import (
 from apex_autopilot_optimization.integration.mavlink import MAVLinkBridge
 from apex_autopilot_optimization.simulation.config import SimulationConfig
 from apex_autopilot_optimization.simulation.interface import SimulationInterface
+from apex_autopilot_optimization.simulation.combat_reallocator import CombatReallocator
 from apex_autopilot_optimization.simulation.result import SimulationResult
 from apex_autopilot_optimization.swarm.formation import (
     FormationConfig,
@@ -50,7 +51,6 @@ from apex_autopilot_optimization.swarm.formation import (
 )
 from apex_autopilot_optimization.swarm.wta_solver import (
     BDAEvent,
-    DynamicReallocator,
     SolverState,
     Target,
     TieredWTASolver,
@@ -887,7 +887,7 @@ class SwarmRunner:
         self._sessions: dict[int, VehicleSession] = {}
         self._wta_config: WTAConfig | None = None
         self._wta_solver: TieredWTASolver | None = None
-        self._wta_reallocators: dict[int, DynamicReallocator] = {}
+        self._wta_reallocators: dict[int, CombatReallocator] = {}
         self._wta_cycle_reports: dict[int, list[dict[str, Any]]] = {}
         self._wta_latency_over_budget = 0
 
@@ -1319,7 +1319,7 @@ class SwarmRunner:
         Each vehicle slot owns a ``WTAMissionProblem``. Every cycle the tiered
         solver runs per vehicle (time-boxed to the cycle budget), assignments
         are applied as formation setpoints toward the assigned target poses,
-        optional BDA events drive ``DynamicReallocator`` reallocation, and a
+        optional BDA events drive ``CombatReallocator`` reallocation, and a
         single vehicle's solver/step failure never aborts the rest unless
         ``abort_on_any_failure`` is set. Guarantees ``disconnect_all`` teardown.
         """
@@ -1670,15 +1670,20 @@ class SwarmRunner:
         reallocator = self._wta_reallocators.get(slot)
         bda_event = slot_bda_events[step_idx] if step_idx < len(slot_bda_events) else None
         if reallocator is None and bda_event is not None:
-            reallocator = DynamicReallocator(
-                solver,
-                problem.weapons,
-                problem.targets,
-                problem.kill_prob,
-                problem.values,
+            reallocator = CombatReallocator(
+                solver=solver,
+                weapons=problem.weapons,
+                targets=problem.targets,
+                kill_prob=problem.kill_prob,
+                values=problem.values,
                 time_feasible=problem.time_feasible,
                 salvo_caps=problem.salvo_caps,
                 interference_cliques=problem.interference_cliques,
+                mode=(
+                    self._wta_config.dynamic_mode
+                    if self._wta_config is not None
+                    else "sls"
+                ),
             )
             self._wta_reallocators[slot] = reallocator
         # --- solve per vehicle, time-boxed to the cycle budget ---------- #
