@@ -1,0 +1,66 @@
+# OpenCost Helm values — multi-cloud cost monitoring.
+# Installed on the GCP e2-micro bastion (always-free VM) or a lightweight
+# dedicated cluster. Reads AWS / GCP / Azure billing via provider integrations
+# and exposes cost metrics to Prometheus for Grafana dashboards.
+
+opencost:
+  enabled: true
+
+  clusterID: "mcft-multi-cloud"
+
+  # Multi-cloud cost sources (FOCUS-aligned where available)
+  cloud:
+    providers:
+      - name: aws
+        type: aws
+        billingSource: "cur"          # Cost & Usage Report (S3)
+        region: us-east-1
+      - name: gcp
+        type: gcp
+        billingSource: "bigquery"     # Cloud Billing export to BigQuery
+        project: ${GCP_PROJECT}
+      - name: azure
+        type: azure
+        billingSource: "costmanagement" # Azure Cost Management export
+        subscriptionId: ${AZURE_SUBSCRIPTION_ID}
+
+  # Prometheus exporter endpoint for Grafana
+  prometheus:
+    enabled: true
+    port: 9090
+
+  # UI (opencost-ui) — optional, deployed separately
+  ui:
+    enabled: false
+
+  # Resolve Kubernetes costs only where we run containers (Cloud Run / bastion)
+  # Cloud costs come from provider billing APIs above.
+  kubernetes:
+    enabled: false
+
+grafana:
+  enabled: true
+  datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      url: http://prometheus:9090
+      isDefault: true
+
+  dashboards:
+    mcft-cost-overview:
+      json: |
+        {
+          "title": "MCFT Multi-Cloud Free-Tier Cost Overview",
+          "panels": [
+            { "title": "Daily cost by provider", "type": "stat" },
+            { "title": "Monthly projected vs free ceiling", "type": "gauge" },
+            { "title": "Untagged / untracked spend", "type": "stat" },
+            { "title": "Alerts: budget tripped", "type": "stat" }
+          ]
+        }
+
+alerting:
+  # Alert when any provider's projected monthly cost exceeds $0.50
+  budgetTripwire: true
+  alertEmail: finops@example.com

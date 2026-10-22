@@ -1,0 +1,69 @@
+{
+  "Budgets": [
+    {
+      "BudgetName": "mcft-aws-tripwire",
+      "BudgetLimit": {
+        "Amount": "0.50",
+        "Unit": "USD"
+      },
+      "TimeUnit": "MONTHLY",
+      "BudgetType": "COST",
+      "Notifications": [
+        {
+          "Notification": {
+            "NotificationType": "ACTUAL",
+            "ComparisonOperator": "GREATER_THAN",
+            "Threshold": 50,
+            "ThresholdType": "PERCENTAGE"
+          },
+          "Subscribers": [
+            {
+              "SubscriptionType": "EMAIL",
+              "Address": "finops@example.com"
+            },
+            {
+              "SubscriptionType": "SNS",
+              "Address": "arn:aws:sns:us-east-1:000000000000:mcft-budget-alerts"
+            }
+          ]
+        },
+        {
+          "Notification": {
+            "NotificationType": "ACTUAL",
+            "ComparisonOperator": "GREATER_THAN",
+            "Threshold": 80,
+            "ThresholdType": "PERCENTAGE"
+          },
+          "Subscribers": [
+            {
+              "SubscriptionType": "EMAIL",
+              "Address": "finops@example.com"
+            },
+            {
+              "SubscriptionType": "SNS",
+              "Address": "arn:aws:sns:us-east-1:000000000000:mcft-budget-alerts"
+            }
+          ]
+        },
+        {
+          "Notification": {
+            "NotificationType": "ACTUAL",
+            "ComparisonOperator": "GREATER_THAN",
+            "Threshold": 100,
+            "ThresholdType": "PERCENTAGE"
+          },
+          "Subscribers": [
+            {
+              "SubscriptionType": "EMAIL",
+              "Address": "finops@example.com"
+            },
+            {
+              "SubscriptionType": "SNS",
+              "Address": "arn:aws:sns:us-east-1:000000000000:mcft-budget-alerts"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

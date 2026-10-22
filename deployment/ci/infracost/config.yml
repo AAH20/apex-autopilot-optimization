@@ -1,0 +1,21 @@
+# Infracost config — shift-left cost estimation for Terraform PRs.
+# Blocks any change that would introduce monthly cost beyond $0 (always-free
+# ceiling). Comment posted on every PR touching terraform/.
+
+version: 0.1
+
+projects:
+  - name: mcft-aws
+    path: ../terraform/aws
+    usage_file: ../infracost/usage-aws.yml
+
+  - name: mcft-gcp
+    path: ../terraform/gcp
+    usage_file: ../infracost/usage-gcp.yml
+
+  - name: mcft-azure
+    path: ../terraform/azure
+    usage_file: ../infracost/usage-azure.yml
+
+# usage files set monthly quantities to the always-free ceiling so Infracost
+# reports $0 when within limits and flags anything above.

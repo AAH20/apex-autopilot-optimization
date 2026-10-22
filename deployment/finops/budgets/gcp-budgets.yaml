@@ -1,0 +1,21 @@
+# GCP Budgets — tripwire budget at $0.50 with Pub/Sub alert trigger.
+# Linked to Cloud Function that invokes Cloud Custodian to suspend non-essentials.
+
+budgetDisplayName: "mcft-gcp-tripwire"
+budgetFilter:
+  projects:
+    - ${GCP_PROJECT}
+amount:
+  amountUnits: 0
+  amountNanos: 500000000   # $0.50
+thresholdRules:
+  - thresholdPercent: 50
+  - thresholdPercent: 80
+  - thresholdPercent: 100
+allUpdatesRule:
+  pubsubTopic: "projects/${GCP_PROJECT}/topics/mcft-budget-alerts"
+
+# GCP quota alerts (always-free ceilings) via Cloud Monitoring:
+#   Cloud Run requests > 1.6M/mo (80% of 2M)
+#   Firestore storage > 800 MB (80% of 1 GB)
+#   Cloud Storage > 4 GB (80% of 5 GB)

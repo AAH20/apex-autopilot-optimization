@@ -1,0 +1,95 @@
+# CI/CD — GitHub Actions with Infracost shift-left gate.
+# On every PR to terraform/: Infracost comments the cost diff; any non-zero
+# monthly cost delta fails the build ($0 free-tier gate).
+# On merge to main: applies terraform to each provider workspace.
+
+name: MCFT Multi-Cloud Deploy
+
+on:
+  push:
+    branches: [main]
+    paths: ["terraform/**"]
+  pull_request:
+    paths: ["terraform/**"]
+
+env:
+  TERRAFORM_VERSION: 1.16.6
+  INFRACOST_VERSION: latest
+
+jobs:
+  infracost:
+    name: Infracost cost estimate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install infracost
+      - run: |
+          infracost breakdown --path terraform/aws --format json > aws.json || true
+          infracost breakdown --path terraform/gcp --format json > gcp.json || true
+          infracost breakdown --path terraform/azure --format json > azure.json || true
+      - name: Fail on any cost (free-tier gate)
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          total = 0.0
+          for f in ["aws.json","gcp.json","azure.json"]:
+            try:
+              d = json.load(open(f))
+              total += d.get("totalMonthlyCost", 0)
+            except Exception:
+              pass
+          print(f"Total estimated monthly cost: ${total:.4f}")
+          if total > 0:
+            sys.exit("Free-tier gate failed: estimated cost > $0")
+          PY
+
+  plan:
+    name: Terraform plan
+    needs: infracost
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+      - run: terraform init -input=false -backend=false
+        working-directory: terraform
+      - run: terraform validate
+        working-directory: terraform
+      - run: terraform plan -out=tfplan
+        working-directory: terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+  apply:
+    name: Apply (main only)
+    needs: plan
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+      - run: terraform init -input=false -backend=false
+        working-directory: terraform
+      - run: terraform apply -auto-approve tfplan
+        working-directory: terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

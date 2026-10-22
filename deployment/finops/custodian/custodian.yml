@@ -1,0 +1,29 @@
+# Cloud Custodian runtime config.
+# Run against AWS, GCP, and Azure subscriptions in parallel.
+
+accounts:
+  - name: aws-primary
+    provider: aws
+    regions:
+      - us-east-1
+    role: arn:aws:iam::000000000000:role/custodian-role
+
+  - name: gcp-primary
+    provider: gcp
+    project: ${GCP_PROJECT}
+    credentials: ${GOOGLE_APPLICATION_CREDENTIALS}
+
+  - name: azure-primary
+    provider: azure
+    subscription_id: ${AZURE_SUBSCRIPTION_ID}
+    tenant: ${AZURE_TENANT_ID}
+
+policies:
+  - finops/custodian/policies.yaml
+
+output:
+  dir: s3://mcft-custodian-logs/output
+
+metrics:
+  enabled: true
+  namespace: CloudCustodian

@@ -1,0 +1,90 @@
+# Cloud Custodian policies — multi-cloud FinOps governance.
+# Mode: periodic. Enforces tagging, removes orphans, suspends non-compliant
+# resources across AWS, GCP, and Azure. Never deletes resources already tagged
+# Environment=free-tier unless they lack a required tag.
+
+policies:
+  - name: enforce-mandatory-tags-aws-ec2
+    resource: aws.ec2
+    filters:
+      - "tag:Environment": absent
+    actions:
+      - type: mark-for-op
+        tag: custodian_status
+        msg: "Missing required tag Environment=free-tier — stop in 24h"
+        op: stop
+        days: 1
+
+  - name: enforce-mandatory-tags-gcp-instance
+    resource: gcp.instance
+    filters:
+      - "labels.Environment": absent
+    actions:
+      - type: mark-for-op
+        op: stop
+        days: 1
+
+  - name: enforce-mandatory-tags-azure-vm
+    resource: azure.vm
+    filters:
+      - "tag:Environment": absent
+    actions:
+      - type: mark-for-op
+        op: stop
+        days: 1
+
+  - name: stop-untagged-lambda
+    resource: aws.lambda
+    filters:
+      - "tag:Environment": absent
+    actions:
+      - type: mark-for-op
+        op: delete
+        days: 7
+
+  - name: stop-idle-cloud-run
+    resource: gcp.run-service
+    filters:
+      - type: value
+        key: status.url
+        value: null
+    actions:
+      - type: delete
+
+  - name: orphan-snapshot-cleanup-aws
+    resource: aws.ebs-snapshot
+    filters:
+      - "volume-id": absent
+    actions:
+      - type: delete
+
+  - name: orphan-snapshot-cleanup-azure
+    resource: azure.snapshot
+    filters:
+      - type: value
+        key: managedBy
+        value: null
+    actions:
+      - type: delete
+
+  - name: freeze-non-free-tier-resources
+    resource: aws.all
+    filters:
+      - "tag:Environment":
+          not-in:
+            - free-tier
+    actions:
+      - type: mark-for-op
+        msg: "Resource not part of free-tier budget — suspend"
+        op: stop
+        days: 0
+
+mode:
+  type: periodic
+  schedule: "rate(1 hour)"
+  role: arn:aws:iam::000000000000:role/custodian-role
+
+outputs:
+  - type: s3
+    bucket: mcft-custodian-logs
+    prefix: custodian/run-{{ execution_id }}

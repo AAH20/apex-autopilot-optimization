@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-10-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "budgetAmount": {
+      "type": "number",
+      "defaultValue": 0.5
+    },
+    "contactEmail": {
+      "type": "string",
+      "defaultValue": "finops@example.com"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Consumption/budgets",
+      "apiVersion": "2022-10-01",
+      "name": "mcft-azure-tripwire",
+      "properties": {
+        "category": "Cost",
+        "amount": "[parameters('budgetAmount')]",
+        "timeGrain": "Monthly",
+        "timePeriod": {
+          "startDate": "2026-01-01",
+          "endDate": "2030-12-31"
+        },
+        "notifications": [
+          {
+            "name": "alert50",
+            "properties": {
+              "enabled": true,
+              "operator": "GreaterThan",
+              "threshold": 50,
+              "contactEmails": [
+                "[parameters('contactEmail')]"
+              ],
+              "contactRoles": [],
+              "contactGroups": []
+            }
+          },
+          {
+            "name": "alert80",
+            "properties": {
+              "enabled": true,
+              "operator": "GreaterThan",
+              "threshold": 80,
+              "contactEmails": [
+                "[parameters('contactEmail')]"
+              ]
+            }
+          },
+          {
+            "name": "alert100",
+            "properties": {
+              "enabled": true,
+              "operator": "GreaterThan",
+              "threshold": 100,
+              "contactEmails": [
+                "[parameters('contactEmail')]"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
