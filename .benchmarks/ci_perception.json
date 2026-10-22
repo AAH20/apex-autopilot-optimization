@@ -1,18 +1,18 @@
 {
   "benchmark": "perception_latency",
   "limit_ms": 100.0,
-  "p95_end_to_end_ms": 0.076,
+  "p95_end_to_end_ms": 0.215,
   "per_stage_p95_ms": {
-    "camera_to_topic": 0.002,
-    "inference": 0.009,
-    "transport": 0.003,
-    "ingestion": 0.002,
-    "filtering": 0.01,
-    "fusion": 0.035,
-    "transform": 0.004,
-    "publish": 0.003,
-    "wta_solve": 0.006,
-    "control_dispatch": 0.001
+    "camera_to_topic": 0.007,
+    "inference": 0.028,
+    "transport": 0.013,
+    "ingestion": 0.006,
+    "filtering": 0.023,
+    "fusion": 0.089,
+    "transform": 0.012,
+    "publish": 0.012,
+    "wta_solve": 0.02,
+    "control_dispatch": 0.005
   },
   "per_stage_budget_ms": {
     "camera_to_topic": 8,

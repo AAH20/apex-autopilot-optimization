@@ -313,7 +313,7 @@ pytest tests/integration -q   # integration tests only
 - [x] TensorRT GPU perception benchmark (`scripts/bench_perception_trt.py`, 43.1 fps @ 720p)
 - [ ] TensorRT `.engine` files built and CI-integrated for perception gate
 - [ ] Multi-cloud deployment (AWS/Azure/GCP) with FinOps cost tracking
-- [ ] Production release v1.0.0 with broker channel GTM (12 squads, 330 agent slots)
+- [x] Production release v1.0.0 with broker channel GTM (12 squads, 330 agent slots) — see `GTM_READINESS.md`
 
 ---
 
