@@ -26,10 +26,12 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 import socket
 import subprocess
 import time
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -1313,6 +1315,7 @@ class SwarmRunner:
         wta_config: WTAConfig | None = None,
         cycle_budget_ms: float = 100.0,
         bda_events: dict[int, list[BDAEvent | None]] | None = None,
+        parallel_wta: bool = True,
     ) -> SwarmMissionResult:
         """Execute a synchronized N-vehicle swarm mission with per-vehicle WTA.
 
@@ -1322,6 +1325,16 @@ class SwarmRunner:
         optional BDA events drive ``CombatReallocator`` reallocation, and a
         single vehicle's solver/step failure never aborts the rest unless
         ``abort_on_any_failure`` is set. Guarantees ``disconnect_all`` teardown.
+
+        Parameters
+        ----------
+        parallel_wta : bool, default True
+            When True (and more than one active vehicle), per-vehicle WTA
+            solves run concurrently via ThreadPoolExecutor. Each vehicle's
+            WTA problem is independent (solver, reallocator, and problem
+            are all per-slot with no cross-slot writes during solve), so
+            this gives near-linear speedup at 100+ vehicle scale. Set to
+            False for deterministic single-threaded execution (debugging).
         """
         self._wta_config = wta_config or WTAConfig()
         self._wta_solver = TieredWTASolver(self._wta_config)
@@ -1426,6 +1439,10 @@ class SwarmRunner:
 
                 states = self._state_store.snapshot()
 
+                # --- Phase 1: collect states sequentially ---------------- #
+                # State collection must happen first (WTA needs fresh state).
+                active_slots: list[int] = []
+                slot_states: dict[int, StateVector] = {}
                 for slot in list(connected_slots):
                     bridge = self._connection_manager.get_bridge(slot)
                     sim = self._sims[slot]
@@ -1446,20 +1463,57 @@ class SwarmRunner:
                     if state is None:
                         continue
                     self._state_store.update(slot, state)
+                    active_slots.append(slot)
+                    slot_states[slot] = state
                     any_active = True
-
-                    control = self._run_wta_cycle(
-                        slot,
-                        problems.get(slot),
-                        state,
-                        step_idx,
-                        cycle_budget_ms,
-                        bda_events.get(slot, []),
-                    )
-                    per_vehicle_controls[slot] = control
 
                 if not any_active:
                     break
+
+                # --- Pre-allocate cycle reports (thread-safe) ----------- #
+                # Each thread appends only to its own slot's list, but
+                # setdefault on the shared dict must happen before threads start.
+                for slot in active_slots:
+                    self._wta_cycle_reports.setdefault(slot, [])
+
+                # --- Phase 2: parallel WTA solves ---------------------- #
+                # Each vehicle's WTA problem is independent: solver state,
+                # reallocator, and problems are per-slot with no cross-slot
+                # writes during the solve phase. ThreadPoolExecutor gives
+                # near-linear speedup at 100+ vehicle scale.
+                if parallel_wta and len(active_slots) > 1:
+                    max_workers = min(len(active_slots), (os.cpu_count() or len(active_slots)))
+                    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                        futures = {
+                            executor.submit(
+                                self._run_wta_cycle,
+                                slot,
+                                problems.get(slot),
+                                slot_states[slot],
+                                step_idx,
+                                cycle_budget_ms,
+                                bda_events.get(slot, []),
+                            ): slot
+                            for slot in active_slots
+                        }
+                        for future in as_completed(futures):
+                            slot = futures[future]
+                            try:
+                                per_vehicle_controls[slot] = future.result()
+                            except Exception:  # noqa: BLE001
+                                logger.warning("WTA cycle raised for slot %d; holding", slot)
+                                per_vehicle_controls[slot] = self._hold_control(slot_states[slot])
+                else:
+                    for slot in active_slots:
+                        control = self._run_wta_cycle(
+                            slot,
+                            problems.get(slot),
+                            slot_states[slot],
+                            step_idx,
+                            cycle_budget_ms,
+                            bda_events.get(slot, []),
+                        )
+                        per_vehicle_controls[slot] = control
 
                 # Safety filter over all per-vehicle controls.
                 try:
