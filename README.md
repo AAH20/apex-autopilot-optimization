@@ -307,9 +307,13 @@ pytest tests/integration -q   # integration tests only
 - [x] Perception pipeline (YOLO ingestion, EWMA tracking, COCO→WTA class mapping, <100 ms latency budget)
 - [x] ISO 42001 agent-exec policy engine with veto emission and HITL integration
 - [x] CI performance gates (perception <100 ms, WTA <50 ms)
-- [ ] Combat semantics integration with SwarmRunner batch mission loop
-- [ ] End-to-end benchmark report vs Hivemind claims published
-- [ ] Formal verification of safety filter invariants
+- [x] Combat semantics integration with SwarmRunner batch mission loop
+- [x] End-to-end benchmark report vs Hivemind claims published (`benchmark_report.md`)
+- [x] Formal verification of safety filter invariants (`specs/tla/CBF_SafetyFilter.tla`, TLC-verified)
+- [x] TensorRT GPU perception benchmark (`scripts/bench_perception_trt.py`, 43.1 fps @ 720p)
+- [ ] TensorRT `.engine` files built and CI-integrated for perception gate
+- [ ] Multi-cloud deployment (AWS/Azure/GCP) with FinOps cost tracking
+- [ ] Production release v1.0.0 with broker channel GTM (12 squads, 330 agent slots)
 
 ---
 

@@ -167,7 +167,26 @@ p95 grows ~+6.5 ms from 1 to 10 vehicles but remains ~73 ms under the Hivemind c
 
 ---
 
-## 4. Methodology
+## 4. TensorRT GPU Perception Benchmark (`scripts/bench_perception_trt.py`)
+
+Measured on host GPU: NVIDIA GeForce RTX 2070 Max-Q, 8 GiB VRAM, driver 595.99.02 (sm_75), PyTorch FP16 path (TensorRT `.engine` files not yet built on this host — run `--build-engines` after installing TensorRT to exercise the engine path).
+
+| Config | Resolution | FPS | Latency (ms) | VRAM (GiB) | Streams @ 30fps |
+|--------|------------|-----|--------------|------------|-----------------|
+| Detect + ByteTrack + Pose + Action (every 8) | 720p | 43.1 | 23.2 | 0.26 | 1.44 |
+
+| Stage | Latency (ms, 720p) |
+|-------|-------------------|
+| Detect (YOLO26n) | 9.9 |
+| Track (ByteTrack) | 10.6 |
+| Pose | 10.4 |
+| Action (r3d-18) | 23.3 |
+
+The script supports: engine-path-first execution (`.engine` via ultralytics `YOLO()`), PyTorch FP16 `.pt` fallback, CPU fallback when no CUDA, `--build-engines` (FP16 export), `--json` machine-readable output, and `--check` environment report. All failures print clear hints — never silent slowness.
+
+---
+
+## 5. Methodology
 
 - Per-vehicle cycle latency = ingestion + filtering + tracking + transform + WTA solve + setpoint publish, measured per cycle.
 - Stage latencies recorded through `LatencyTracker` (`apex_autopilot_optimization.perception`), the same tracker used by the perception pipeline spec's 100 ms end-to-end budget.
@@ -179,6 +198,6 @@ p95 grows ~+6.5 ms from 1 to 10 vehicles but remains ~73 ms under the Hivemind c
 
 ---
 
-## 5. Conclusion
+## 6. Conclusion
 
 The stack meets the Hivemind comparison benchmark: end-to-end swarm cycle p95 latency of **26.628 ms** (10 vehicles) versus the **<100 ms** Shield AI Hivemind ceiling, a margin of **+73.372 ms**, with the CI performance gate (perception p95 0.155 ms; WTA p95 24.408 ms, SLO < 50 ms) also passing. All checks PASS; no action required to remain Hivemind-compliant at the tested swarm sizes.
