@@ -208,19 +208,19 @@ class TestDirectedEdgeCases:
         result = cbf.filter(state, control, obstacles)
         assert isinstance(result, ControlInput)
 
-    def test_missing_keys_raise_keyerror(self) -> None:
-        """Malformed sphere obstacles (missing ``center``/``radius``) crash the filter.
+    def test_missing_keys_degrade_safely(self) -> None:
+        """Malformed sphere obstacles (missing ``center``/``radius``) are skipped.
 
-        This documents a real vulnerability: :meth:`CBFFilter._min_distance_to_obstacles`
-        indexes ``obs["center"]`` / ``obs["radius"]`` directly, so a malformed
-        obstacle spec propagates a ``KeyError`` instead of degrading safely.
+        :meth:`CBFFilter._min_distance_to_obstacles` uses ``obs.get()`` with
+        None checks, so a malformed obstacle spec degrades safely instead of
+        propagating a ``KeyError``.
         """
         cbf = CBFFilter()
         state = StateVector(pose=Pose3D(0, 0, 0), velocity=Velocity3D(0, 0, 0))
         control = ControlInput(throttle=0.5)
         for bad in [{"type": "sphere"}, {"type": "sphere", "radius": 1.0}]:
-            with pytest.raises(KeyError):
-                cbf.filter(state, control, [bad])
+            result = cbf.filter(state, control, [bad])
+            assert result.throttle == 0.5  # no valid obstacle → pass through
 
     def test_boundary_h_equals_zero_reduces_throttle(self) -> None:
         """h == 0 (dist == margin) is treated as unsafe and reduces throttle."""
