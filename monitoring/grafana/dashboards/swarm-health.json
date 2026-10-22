@@ -1,0 +1,120 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "apex-swarm-health",
+    "title": "Apex Swarm Health",
+    "timezone": "browser",
+    "panels": [
+      {
+        "type": "stat",
+        "title": "Connected Vehicles",
+        "targets": [
+          {
+            "expr": "swarm_connected_vehicles",
+            "legendFormat": "connected"
+          }
+        ],
+        "fieldConfig": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "red", "value": 1}
+            ]
+          }
+        },
+        "gridPos": {"x": 0, "y": 0, "w": 3, "h": 3}
+      },
+      {
+        "type": "stat",
+        "title": "Cycle p95 (ms)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(swarm_cycle_duration_ms_bucket[1m]))",
+            "legendFormat": "p95"
+          }
+        ],
+        "fieldConfig": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 75},
+              {"color": "red", "value": 100}
+            ]
+          }
+        },
+        "gridPos": {"x": 3, "y": 0, "w": 3, "h": 3}
+      },
+      {
+        "type": "graph",
+        "title": "Swarm Cycle Duration",
+        "targets": [
+          {
+            "expr": "rate(swarm_cycle_duration_ms_sum[1m]) / rate(swarm_cycle_duration_ms_count[1m])",
+            "legendFormat": "mean cycle ms"
+          }
+        ],
+        "gridPos": {"x": 0, "y": 3, "w": 6, "h": 4}
+      },
+      {
+        "type": "graph",
+        "title": "CBF Violations",
+        "targets": [
+          {
+            "expr": "increase(cbf_violations_total[5m])",
+            "legendFormat": "violations"
+          }
+        ],
+        "gridPos": {"x": 6, "y": 3, "w": 3, "h": 4}
+      },
+      {
+        "type": "graph",
+        "title": "Combat Reallocations",
+        "targets": [
+          {
+            "expr": "rate(combat_reallocations_total[1m])",
+            "legendFormat": "reallocations/s"
+          }
+        ],
+        "gridPos": {"x": 9, "y": 3, "w": 3, "h": 4}
+      },
+      {
+        "type": "graph",
+        "title": "Policy Denials",
+        "targets": [
+          {
+            "expr": "rate(policy_denied_total[5m])",
+            "legendFormat": "denials/s"
+          }
+        ],
+        "gridPos": {"x": 12, "y": 3, "w": 3, "h": 4}
+      },
+      {
+        "type": "graph",
+        "title": "WTA Solve Duration",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(combat_reallocate_duration_ms_bucket[1m]))",
+            "legendFormat": "WTA p95 ms"
+          }
+        ],
+        "fieldConfig": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 40},
+              {"color": "red", "value": 50}
+            ]
+          }
+        },
+        "gridPos": {"x": 6, "y": 0, "w": 3, "h": 3}
+      }
+    ],
+    "time": {"from": "now-15m", "to": "now"},
+    "refresh": "10s",
+    "schemaVersion": 38,
+    "version": 1
+  }
+}

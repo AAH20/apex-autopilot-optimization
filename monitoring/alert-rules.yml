@@ -1,0 +1,72 @@
+groups:
+  - name: apex_swarm_alerts
+    rules:
+      - alert: SwarmCycleHighLatency
+        expr: histogram_quantile(0.95, rate(swarm_cycle_duration_ms_bucket[1m])) > 100
+        for: 30s
+        labels:
+          severity: critical
+          slo: end_to_end_100ms
+        annotations:
+          summary: "Swarm cycle p95 latency exceeds 100 ms SLO"
+          description: "Swarm cycle p95 is {{ $value }} ms, over the 100 ms Hivemind ceiling."
+
+      - alert: SwarmCycleWarningLatency
+        expr: histogram_quantile(0.95, rate(swarm_cycle_duration_ms_bucket[1m])) > 75
+        for: 30s
+        labels:
+          severity: warning
+          slo: end_to_end_100ms
+        annotations:
+          summary: "Swarm cycle p95 latency approaching 100 ms SLO"
+          description: "Swarm cycle p95 is {{ $value }} ms."
+
+      - alert: SwarmViolationDetected
+        expr: increase(swarm_violations_total[5m]) > 0
+        for: 0s
+        labels:
+          severity: critical
+          slo: safety_zero_violations
+        annotations:
+          summary: "Swarm safety violation detected"
+          description: "{{ $value }} swarm violations in the last 5m."
+
+      - alert: CBFViolationDetected
+        expr: increase(cbf_violations_total[5m]) > 0
+        for: 0s
+        labels:
+          severity: critical
+          slo: safety_zero_violations
+        annotations:
+          summary: "CBF safety filter violation detected"
+          description: "{{ $value }} CBF violations in the last 5m."
+
+      - alert: CombatReallocateHighLatency
+        expr: histogram_quantile(0.95, rate(combat_reallocate_duration_ms_bucket[1m])) > 50
+        for: 30s
+        labels:
+          severity: warning
+          slo: wta_50ms
+        annotations:
+          summary: "WTA solve p95 exceeds 50 ms SLO"
+          description: "WTA p95 is {{ $value }} ms, over the 50 ms SLO."
+
+      - alert: SwarmDisconnectRate
+        expr: increase(swarm_disconnect_total[5m]) > 5
+        for: 0s
+        labels:
+          severity: warning
+          component: swarm_runner
+        annotations:
+          summary: "High swarm disconnect rate"
+          description: "{{ $value }} vehicle disconnects in the last 5m."
+
+      - alert: SwarmConnectedLow
+        expr: swarm_connected_vehicles < 1
+        for: 15s
+        labels:
+          severity: critical
+          component: swarm_runner
+        annotations:
+          summary: "No vehicles connected to swarm"
+          description: "swarm_connected_vehicles is {{ $value }}."

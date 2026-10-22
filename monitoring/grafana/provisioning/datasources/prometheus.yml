@@ -1,0 +1,21 @@
+# Grafana provisioning for apex-autopilot-observability
+# Place this tree under monitoring/grafana/ and point GF_PATHS_PROVISIONING
+# (or mount it) at Grafana's /etc/grafana/provisioning.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+
+dashboardProviders:
+  - name: default
+    orgId: 1
+    folder: ""
+    type: file
+    options:
+      path: /etc/grafana/provisioning/dashboards
