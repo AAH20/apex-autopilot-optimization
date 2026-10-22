@@ -7,6 +7,18 @@ metrics endpoint, swarm health observer, alert rules, and Grafana dashboard
 definitions.
 """
 
+from apex_autopilot_optimization.observability._legacy import (
+    HealthCheck,
+    MetricCollector,
+    ObservabilityConfig,
+    ObservabilityManager,
+    StructuredLogger,
+    check_health,
+    collect_metrics,
+    create_logger,
+    format_metric,
+)
+from apex_autopilot_optimization.observability.alerts import DEFAULT_ALERT_RULES, AlertRule
 from apex_autopilot_optimization.observability.metrics import (
     CONTENT_TYPE,
     MetricsRegistry,
@@ -15,8 +27,19 @@ from apex_autopilot_optimization.observability.metrics import (
 from apex_autopilot_optimization.observability.swarm_observer import SwarmObserver
 
 __all__ = [
+    "AlertRule",
     "CONTENT_TYPE",
+    "DEFAULT_ALERT_RULES",
+    "HealthCheck",
+    "MetricCollector",
     "MetricsRegistry",
-    "generate_latest",
+    "ObservabilityConfig",
+    "ObservabilityManager",
     "SwarmObserver",
+    "StructuredLogger",
+    "check_health",
+    "collect_metrics",
+    "create_logger",
+    "format_metric",
+    "generate_latest",
 ]
